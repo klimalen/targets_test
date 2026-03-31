@@ -28,7 +28,6 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 ::-webkit-scrollbar-track{background:var(--bg2)}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
-/* LAYOUT */
 #app{display:flex;flex-direction:column;min-height:100vh}
 header{height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;gap:12px;flex-shrink:0}
 .logo{font-size:1.15rem;font-weight:700;display:flex;align-items:center;gap:8px;white-space:nowrap}
@@ -40,8 +39,6 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 #sidebar{width:290px;min-width:270px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;transition:transform var(--tr)}
 .sb-section{padding:16px 15px 14px;border-bottom:1px solid var(--border)}
 .sb-title{font-size:.69rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);margin-bottom:11px}
-
-/* Quick stats — vertical */
 .qs-list{display:flex;flex-direction:column;gap:7px}
 .qs-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:11px 12px 10px;display:flex;align-items:center;gap:11px;position:relative}
 .qs-icon{font-size:1.3rem;width:34px;height:34px;border-radius:8px;background:var(--bg4);display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -55,8 +52,6 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .tip-bubble.hidden{display:none}
 .stats-link-btn{display:flex;align-items:center;gap:8px;width:100%;margin-top:10px;padding:9px 12px;border-radius:var(--rs);background:var(--bg4);border:1px solid var(--border);color:var(--text2);font-size:.82rem;font-weight:500;cursor:pointer;transition:all var(--tr)}
 .stats-link-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--glow)}
-
-/* Habit items */
 .habit-item{display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:var(--rs);transition:background var(--tr)}
 .habit-item:hover{background:var(--bg3)}
 .habit-dot{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
@@ -65,8 +60,6 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .habit-goal-tag{display:inline-flex;align-items:center;gap:3px;background:var(--bg4);border:1px solid var(--border);border-radius:20px;padding:2px 7px;font-size:.66rem;color:var(--text2);margin-top:3px}
 .habit-actions{display:flex;gap:2px;opacity:0;transition:opacity var(--tr);flex-shrink:0}
 .habit-item:hover .habit-actions{opacity:1}
-
-/* Filter */
 .filter-section{padding:11px 15px 12px;border-bottom:1px solid var(--border)}
 .filter-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .filter-title{font-size:.69rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--text3)}
@@ -107,8 +100,11 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .cal-title{font-size:1rem;font-weight:600;min-width:178px;text-align:center}
 .nav-btn{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:var(--bg3);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:all var(--tr)}
 .nav-btn:hover{background:var(--bg4);border-color:var(--accent);color:var(--accent)}
-#cal-scroll{flex:1;overflow-y:auto}
+#cal-scroll{flex:1;overflow-y:auto;overflow-x:hidden}
 #calendar-body{padding:18px 22px}
+
+/* Swipe wrapper */
+#swipe-area{touch-action:pan-y;user-select:none}
 
 /* Month */
 .month-grid{display:flex;flex-direction:column;gap:4px}
@@ -155,9 +151,46 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .mini-emojis{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;width:100%;height:100%;padding-top:3px}
 .mini-emoji{font-size:.66rem;line-height:1;margin:-1px}
 
-/* Inline stats — mobile only */
+/* Inline stats */
 #inline-stats{padding:0 22px 28px}
 .inline-stats-title{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);padding:18px 0 12px;border-top:1px solid var(--border);margin-top:4px}
+
+/* ── WELCOME BANNER (mobile only, no habits) ── */
+#welcome-banner{
+  display:none; /* shown via JS on mobile when no habits */
+  margin:16px 14px 24px;
+  background:linear-gradient(135deg,var(--bg3) 0%,var(--bg4) 100%);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:24px 20px;
+  cursor:pointer;
+  transition:border-color var(--tr),box-shadow var(--tr);
+  position:relative;
+  overflow:hidden;
+}
+#welcome-banner::before{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--accent-glow,rgba(124,106,247,.08)) 0%,transparent 60%);
+  pointer-events:none;
+}
+#welcome-banner:hover{border-color:var(--accent);box-shadow:0 0 20px var(--glow)}
+.wb-emoji{font-size:2.8rem;margin-bottom:12px;display:block;line-height:1}
+.wb-title{font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:6px}
+.wb-desc{font-size:.82rem;color:var(--text2);line-height:1.55;margin-bottom:20px}
+.wb-dots{display:flex;flex-direction:column;gap:7px;margin-bottom:20px}
+.wb-dot{display:flex;align-items:center;gap:10px;font-size:.8rem;color:var(--text2)}
+.wb-dot-icon{width:28px;height:28px;border-radius:8px;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0}
+.wb-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  width:100%;padding:13px 16px;
+  background:var(--accent);color:#fff;
+  border:none;border-radius:var(--rs);
+  font-size:.9rem;font-weight:600;
+  cursor:pointer;transition:all var(--tr);
+  font-family:inherit;
+}
+.wb-btn:hover{background:var(--accent2);box-shadow:0 0 16px var(--glow)}
 
 /* Stat cards */
 .stat-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:13px;margin-bottom:12px}
@@ -203,36 +236,49 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .ss-cal-title{font-size:.92rem;font-weight:600;flex:1;text-align:center}
 .ss-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:0}
 
-/* PWA INSTALL BANNER */
-#pwa-banner{
-  position:fixed;bottom:24px;left:50%;
-  transform:translateX(-50%) translateY(120px);
-  z-index:2000;
-  background:var(--bg2);border:1px solid var(--accent);border-radius:var(--r);
-  padding:18px 20px;
-  box-shadow:0 8px 32px rgba(0,0,0,.6),0 0 0 1px var(--glow);
-  display:flex;flex-direction:column;gap:14px;
-  width:min(92vw,400px);
-  transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s ease;
-  opacity:0;pointer-events:none;
+/* ── MODAL — keyboard-aware on mobile ── */
+.modal-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.65);backdrop-filter:blur(4px);
+  z-index:1000;
+  display:flex;
+  align-items:flex-end;   /* bottom-sheet on mobile */
+  justify-content:center;
+  padding:0;
+  opacity:0;pointer-events:none;transition:opacity .22s ease;
 }
-#pwa-banner.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:all}
-.pwa-top{display:flex;align-items:center;gap:14px}
-.pwa-icon{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;box-shadow:0 4px 12px var(--glow)}
-.pwa-title{font-size:.95rem;font-weight:700;margin-bottom:3px}
-.pwa-desc{font-size:.78rem;color:var(--text2);line-height:1.45}
-.pwa-actions{display:flex;gap:8px}
-.pwa-actions .btn{flex:1;justify-content:center;font-size:.82rem;padding:8px 12px}
-.pwa-close{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--text3);font-size:1rem;cursor:pointer;padding:2px 4px;transition:color var(--tr);line-height:1}
-.pwa-close:hover{color:var(--text)}
-.pwa-ios-hint{display:flex;align-items:flex-start;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;font-size:.76rem;color:var(--text2);line-height:1.5}
-.pwa-ios-icon{font-size:1.1rem;flex-shrink:0;margin-top:1px}
-
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .2s ease}
 .modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:24px;width:100%;max-width:460px;box-shadow:var(--shadow);transform:translateY(20px);transition:transform .2s ease;max-height:90vh;overflow-y:auto}
+
+.modal{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--r) var(--r) 0 0;  /* rounded top only on mobile */
+  padding:0;
+  width:100%;max-width:100%;
+  box-shadow:var(--shadow);
+  transform:translateY(100%);
+  transition:transform .25s cubic-bezier(.32,0,.15,1);
+  /* max-height: keyboard headroom handled by JS */
+  overflow:hidden;
+  display:flex;flex-direction:column;
+}
 .modal-overlay.open .modal{transform:translateY(0)}
+
+/* drag handle */
+.modal-handle{
+  width:36px;height:4px;border-radius:2px;
+  background:var(--border);
+  margin:10px auto 0;flex-shrink:0;
+}
+
+/* scrollable modal body */
+.modal-body{
+  overflow-y:auto;
+  padding:16px 20px 24px;
+  flex:1;
+  /* smooth scroll on iOS */
+  -webkit-overflow-scrolling:touch;
+}
+
 .modal-title{font-size:1rem;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
 .form-group{margin-bottom:15px}
@@ -241,7 +287,7 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
 .form-select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:9px 12px;color:var(--text);font-size:.87rem;outline:none;cursor:pointer;font-family:inherit;transition:border-color var(--tr)}
 .form-select:focus{border-color:var(--accent)}
-.emoji-grid{display:flex;flex-wrap:wrap;gap:4px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:7px;max-height:145px;overflow-y:auto;flex:1}
+.emoji-grid{display:flex;flex-wrap:wrap;gap:4px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:7px;max-height:130px;overflow-y:auto;flex:1}
 .emoji-option{width:32px;height:32px;border-radius:6px;border:none;background:transparent;cursor:pointer;font-size:1.15rem;display:flex;align-items:center;justify-content:center;transition:background var(--tr)}
 .emoji-option:hover{background:var(--bg4)}.emoji-option.selected{background:var(--accent)}
 .emoji-preview{width:44px;height:44px;border-radius:var(--rs);background:var(--bg4);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
@@ -259,6 +305,19 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .tog-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:transparent;transition:all var(--tr);flex-shrink:0}
 .day-toggle.checked .tog-check{background:var(--green);border-color:var(--green);color:#fff}
 
+/* PWA Banner */
+#pwa-banner{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);z-index:2000;background:var(--bg2);border:1px solid var(--accent);border-radius:var(--r);padding:18px 20px;box-shadow:0 8px 32px rgba(0,0,0,.6),0 0 0 1px var(--glow);display:flex;flex-direction:column;gap:14px;width:min(92vw,400px);transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s ease;opacity:0;pointer-events:none}
+#pwa-banner.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:all}
+.pwa-top{display:flex;align-items:center;gap:14px}
+.pwa-icon{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;box-shadow:0 4px 12px var(--glow)}
+.pwa-title{font-size:.95rem;font-weight:700;margin-bottom:3px}
+.pwa-desc{font-size:.78rem;color:var(--text2);line-height:1.45}
+.pwa-actions{display:flex;gap:8px}
+.pwa-actions .btn{flex:1;justify-content:center;font-size:.82rem;padding:8px 12px}
+.pwa-close{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--text3);font-size:1rem;cursor:pointer;padding:2px 4px;transition:color var(--tr);line-height:1}
+.pwa-close:hover{color:var(--text)}
+.pwa-ios-hint{display:flex;align-items:flex-start;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;font-size:.76rem;color:var(--text2);line-height:1.5}
+
 /* TOAST */
 #toast-wrap{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:7px;pointer-events:none}
 .toast{background:var(--bg4);border:1px solid var(--border);border-radius:var(--rs);padding:9px 14px;font-size:.8rem;color:var(--text);box-shadow:var(--shadow);animation:tIn .22s ease forwards;pointer-events:all;max-width:265px;display:flex;align-items:center;gap:7px}
@@ -271,15 +330,18 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 
 /* RESPONSIVE */
 @media(max-width:1100px){
-  /* Desktop: hide inline stats (panel visible), show panel */
   #stats-panel{display:none!important}
-  /* inline stats visible on tablet since panel is gone */
   #inline-stats{display:block}
 }
 @media(min-width:1101px){
-  /* Desktop: panel visible — hide inline stats */
   #inline-stats{display:none!important}
+  #welcome-banner{display:none!important}
   #stats-panel{display:flex}
+  /* Desktop modal: centered, not bottom-sheet */
+  .modal-overlay{align-items:center;padding:16px}
+  .modal{border-radius:var(--r);max-width:480px;transform:translateY(20px);max-height:90vh}
+  .modal-overlay.open .modal{transform:translateY(0)}
+  .modal-handle{display:none}
 }
 @media(max-width:768px){
   #sidebar{position:fixed;left:0;top:0;bottom:0;z-index:200;transform:translateX(-100%)}
@@ -364,7 +426,23 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
     </div>
   </div>
   <div id="cal-scroll">
-    <div id="calendar-body"></div>
+    <!-- Swipe-enabled wrapper -->
+    <div id="swipe-area">
+      <div id="calendar-body"></div>
+    </div>
+    <!-- Welcome banner (mobile, no habits) -->
+    <div id="welcome-banner">
+      <span class="wb-emoji">🌱</span>
+      <div class="wb-title">Начните отслеживать привычки</div>
+      <div class="wb-desc">Добавьте первую привычку и она сразу появится в вашем календаре. Это займёт меньше минуты!</div>
+      <div class="wb-dots">
+        <div class="wb-dot"><div class="wb-dot-icon">📅</div><span>Отмечайте выполнение прямо в календаре</span></div>
+        <div class="wb-dot"><div class="wb-dot-icon">🔥</div><span>Следите за стриками и прогрессом</span></div>
+        <div class="wb-dot"><div class="wb-dot-icon">🎯</div><span>Задавайте цели и получайте статистику</span></div>
+      </div>
+      <button class="wb-btn" id="wbAddBtn">+ Добавить первую привычку</button>
+    </div>
+    <!-- Inline stats -->
     <div id="inline-stats"></div>
   </div>
 </main>
@@ -413,7 +491,7 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
     </div>
   </div>
   <div class="pwa-ios-hint" id="pwaIosHint" style="display:none">
-    <span class="pwa-ios-icon">ℹ️</span>
+    <span style="font-size:1.1rem;flex-shrink:0">ℹ️</span>
     <span>Нажмите <strong>Поделиться</strong> (кнопка <strong>⎙</strong> внизу Safari), затем выберите <strong>«На экран «Домой»»</strong></span>
   </div>
   <div class="pwa-actions">
@@ -422,219 +500,60 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
   </div>
 </div>
 
+<!-- Modal (bottom-sheet on mobile, centered on desktop) -->
 <div class="modal-overlay" id="modalOverlay">
-  <div class="modal" id="modalBox"></div>
+  <div class="modal" id="modalBox">
+    <div class="modal-handle"></div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
 </div>
+
 <div id="toast-wrap"></div>
 <div id="sbBackdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199"></div>
 
 <script>
 /* ============================================================
-   PWA — inline SW + manifest (работает без отдельных файлов)
+   PWA
 ============================================================ */
 (function(){
   'use strict';
-  var APP_VERSION = 'habits-v1';
-
-  /* ── Иконка через Canvas ── */
+  var APP_VERSION='habits-v2';
   function makeIcon(size){
     var c=document.createElement('canvas');c.width=size;c.height=size;
-    var ctx=c.getContext('2d');
-    ctx.fillStyle='#7c6af7';
+    var ctx=c.getContext('2d');ctx.fillStyle='#7c6af7';
     var r=size*0.22;
-    ctx.beginPath();
-    ctx.moveTo(r,0);ctx.lineTo(size-r,0);ctx.quadraticCurveTo(size,0,size,r);
-    ctx.lineTo(size,size-r);ctx.quadraticCurveTo(size,size,size-r,size);
-    ctx.lineTo(r,size);ctx.quadraticCurveTo(0,size,0,size-r);
-    ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();ctx.fill();
-    ctx.font=(size*0.55)+'px serif';
-    ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText('🌿',size/2,size/2+size*0.03);
+    ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(size-r,0);ctx.quadraticCurveTo(size,0,size,r);ctx.lineTo(size,size-r);ctx.quadraticCurveTo(size,size,size-r,size);ctx.lineTo(r,size);ctx.quadraticCurveTo(0,size,0,size-r);ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();ctx.fill();
+    ctx.font=(size*0.55)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('🌿',size/2,size/2+size*0.03);
     return c.toDataURL('image/png');
   }
-
-  var icon192=makeIcon(192);
-  var icon512=makeIcon(512);
-
-  /* Apple touch icon */
+  var icon192=makeIcon(192),icon512=makeIcon(512);
   document.getElementById('apple-touch-icon').href=icon192;
-
-  /* ── Manifest — blob URL (не нужен отдельный файл) ── */
-  var manifest={
-    name:'Календарь Привычек',
-    short_name:'Habits',
-    description:'Трекер привычек с календарём и статистикой',
-    start_url:window.location.href,   // точный URL страницы
-    scope:window.location.origin+'/',
-    display:'standalone',
-    orientation:'any',
-    background_color:'#0f0f13',
-    theme_color:'#7c6af7',
-    lang:'ru',
-    categories:['productivity','lifestyle'],
-    icons:[
-      {src:icon192,sizes:'192x192',type:'image/png',purpose:'any maskable'},
-      {src:icon512,sizes:'512x512',type:'image/png',purpose:'any maskable'}
-    ]
-  };
+  var manifest={name:'Календарь Привычек',short_name:'Habits',description:'Трекер привычек с календарём и статистикой',start_url:window.location.href,scope:window.location.origin+'/',display:'standalone',orientation:'any',background_color:'#0f0f13',theme_color:'#7c6af7',lang:'ru',categories:['productivity','lifestyle'],icons:[{src:icon192,sizes:'192x192',type:'image/png',purpose:'any maskable'},{src:icon512,sizes:'512x512',type:'image/png',purpose:'any maskable'}]};
   var mBlob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
   document.getElementById('pwa-manifest').href=URL.createObjectURL(mBlob);
-
-  /* ── Service Worker — blob URL (не нужен отдельный файл sw.js) ── */
-  var swCode=[
-    'var CACHE="'+APP_VERSION+'";',
-    'var PAGE_URL="'+window.location.href+'";',
-    'self.addEventListener("install",function(e){',
-    '  e.waitUntil(caches.open(CACHE).then(function(c){',
-    '    return c.add(PAGE_URL).catch(function(){});',
-    '  }).then(function(){return self.skipWaiting();}));',
-    '});',
-    'self.addEventListener("activate",function(e){',
-    '  e.waitUntil(caches.keys().then(function(keys){',
-    '    return Promise.all(keys.filter(function(k){return k!==CACHE;}).map(function(k){return caches.delete(k);}));',
-    '  }).then(function(){return self.clients.claim();}));',
-    '});',
-    'self.addEventListener("fetch",function(e){',
-    '  if(e.request.method!=="GET")return;',
-    '  if(e.request.url.startsWith("chrome-extension://"))return;',
-    '  if(e.request.url.startsWith("blob:"))return;',
-    '  e.respondWith(caches.match(e.request).then(function(cached){',
-    '    if(cached){',
-    '      fetch(e.request).then(function(r){',
-    '        if(r&&r.status===200)caches.open(CACHE).then(function(c){c.put(e.request,r);});',
-    '      }).catch(function(){});',
-    '      return cached;',
-    '    }',
-    '    return fetch(e.request.clone()).then(function(r){',
-    '      if(r&&r.status===200){var cl=r.clone();caches.open(CACHE).then(function(c){c.put(e.request,cl);});}',
-    '      return r;',
-    '    }).catch(function(){',
-    '      return caches.match(PAGE_URL);',
-    '    });',
-    '  }));',
-    '});',
-    'self.addEventListener("message",function(e){',
-    '  if(e.data&&e.data.type==="SKIP_WAITING")self.skipWaiting();',
-    '});'
-  ].join('\n');
-
-  if('serviceWorker' in navigator){
-    var swBlob=new Blob([swCode],{type:'application/javascript'});
-    var swUrl=URL.createObjectURL(swBlob);
-    navigator.serviceWorker.register(swUrl,{scope:'./'})
-      .then(function(reg){
-        window._SW_REG=reg;
-        // Проверяем обновления каждые 30 мин
-        setInterval(function(){reg.update();},30*60*1000);
-        reg.addEventListener('updatefound',function(){
-          var nw=reg.installing;
-          nw.addEventListener('statechange',function(){
-            if(nw.state==='installed'&&navigator.serviceWorker.controller){
-              window.dispatchEvent(new CustomEvent('sw-update-available'));
-            }
-          });
-        });
-      })
-      .catch(function(e){console.warn('SW registration failed:',e);});
-  }
-
-  /* ── Install prompt ── */
+  var swCode=['var CACHE="'+APP_VERSION+'";','var PAGE_URL="'+window.location.href+'";','self.addEventListener("install",function(e){e.waitUntil(caches.open(CACHE).then(function(c){return c.add(PAGE_URL).catch(function(){});}).then(function(){return self.skipWaiting();}));});','self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(keys){return Promise.all(keys.filter(function(k){return k!==CACHE;}).map(function(k){return caches.delete(k);}));}).then(function(){return self.clients.claim();}));});','self.addEventListener("fetch",function(e){if(e.request.method!=="GET")return;if(e.request.url.startsWith("chrome-extension://"))return;if(e.request.url.startsWith("blob:"))return;e.respondWith(caches.match(e.request).then(function(cached){if(cached){fetch(e.request).then(function(r){if(r&&r.status===200)caches.open(CACHE).then(function(c){c.put(e.request,r);});}).catch(function(){});return cached;}return fetch(e.request.clone()).then(function(r){if(r&&r.status===200){var cl=r.clone();caches.open(CACHE).then(function(c){c.put(e.request,cl);});}return r;}).catch(function(){return caches.match(PAGE_URL);});}));});'].join('\n');
+  if('serviceWorker' in navigator){var swBlob=new Blob([swCode],{type:'application/javascript'});navigator.serviceWorker.register(URL.createObjectURL(swBlob),{scope:'./'}).then(function(reg){window._SW_REG=reg;}).catch(function(){});}
   window._pwaPrompt=null;
-  window.addEventListener('beforeinstallprompt',function(e){
-    e.preventDefault();
-    window._pwaPrompt=e;
-    window.dispatchEvent(new CustomEvent('pwa-installable'));
-  });
-  window.addEventListener('appinstalled',function(){
-    window._pwaPrompt=null;
-    window.dispatchEvent(new CustomEvent('pwa-installed'));
-  });
-
-  /* ── Helpers ── */
-  window.isPWAInstalled=function(){
-    return window.matchMedia('(display-mode: standalone)').matches
-      || window.navigator.standalone===true
-      || document.referrer.includes('android-app://');
-  };
+  window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window._pwaPrompt=e;window.dispatchEvent(new CustomEvent('pwa-installable'));});
+  window.addEventListener('appinstalled',function(){window._pwaPrompt=null;window.dispatchEvent(new CustomEvent('pwa-installed'));});
+  window.isPWAInstalled=function(){return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true||document.referrer.includes('android-app://');};
   window.isIOS=function(){return /iphone|ipad|ipod/i.test(navigator.userAgent);};
 })();
 
-/* ============================================================
-   PWA BANNER LOGIC
-============================================================ */
+/* PWA Banner */
 (function(){
   var shown=false;
-
-  function canShow(){
-    if(shown)return false;
-    if(window.isPWAInstalled())return false;
-    // Cooldown: если пользователь уже нажал "не сейчас" — 24ч пауза
-    var d=localStorage.getItem('pwa_dismissed');
-    if(d&&Date.now()-parseInt(d)<24*60*60*1000)return false;
-    return true;
-  }
-
-  function showBanner(){
-    if(!canShow())return;
-    shown=true;
-    var banner=document.getElementById('pwa-banner');
-    var isIos=window.isIOS()&&!window._pwaPrompt;
-    if(isIos){
-      document.getElementById('pwaIosHint').style.display='flex';
-      document.getElementById('pwaInstallBtn').style.display='none';
-      document.getElementById('pwaBannerDesc').textContent='Добавьте Habits на главный экран для быстрого доступа!';
-    }
-    banner.classList.add('show');
-  }
-
-  function hideBanner(){
-    document.getElementById('pwa-banner').classList.remove('show');
-  }
-
-  // Через 10 сек после загрузки
-  function scheduleBanner(){
-    if(!canShow())return;
-    setTimeout(showBanner,10000);
-  }
-
-  // Если браузер сразу дал beforeinstallprompt
+  function canShow(){if(shown)return false;if(window.isPWAInstalled())return false;var d=localStorage.getItem('pwa_dismissed');if(d&&Date.now()-parseInt(d)<24*60*60*1000)return false;return true;}
+  function showBanner(){if(!canShow())return;shown=true;var banner=document.getElementById('pwa-banner');var isIos=window.isIOS()&&!window._pwaPrompt;if(isIos){document.getElementById('pwaIosHint').style.display='flex';document.getElementById('pwaInstallBtn').style.display='none';}banner.classList.add('show');}
+  function hideBanner(){document.getElementById('pwa-banner').classList.remove('show');}
+  function scheduleBanner(){if(!canShow())return;setTimeout(showBanner,10000);}
   window.addEventListener('pwa-installable',function(){scheduleBanner();});
-
-  // iOS — тоже через 10 сек
   if(window.isIOS()&&!window.isPWAInstalled()){scheduleBanner();}
-
-  // Кнопка «Добавить»
-  document.getElementById('pwaInstallBtn').addEventListener('click',async function(){
-    if(!window._pwaPrompt)return;
-    hideBanner();
-    window._pwaPrompt.prompt();
-    var res=await window._pwaPrompt.userChoice;
-    window._pwaPrompt=null;
-    if(res.outcome==='accepted'){
-      showToast('Приложение установлено! 🎉','success');
-    }
-  });
-
-  // Кнопка «Не сейчас»
-  function dismiss(){
-    hideBanner();
-    localStorage.setItem('pwa_dismissed',Date.now().toString());
-  }
+  document.getElementById('pwaInstallBtn').addEventListener('click',async function(){if(!window._pwaPrompt)return;hideBanner();window._pwaPrompt.prompt();var res=await window._pwaPrompt.userChoice;window._pwaPrompt=null;if(res.outcome==='accepted'){showToast('Приложение установлено! 🎉','success');}});
+  function dismiss(){hideBanner();localStorage.setItem('pwa_dismissed',Date.now().toString());}
   document.getElementById('pwaDismissBtn').addEventListener('click',dismiss);
   document.getElementById('pwaBannerClose').addEventListener('click',dismiss);
-
-  // После установки
-  window.addEventListener('pwa-installed',function(){
-    hideBanner();
-    showToast('Habits добавлен на главный экран! 🌿','success');
-  });
-
-  // Если уже установлено — не показываем баннер повторно
-  window.addEventListener('pwa-installable',function(){
-    if(window.isPWAInstalled()){
-      // сбрасываем dismissed, чтобы не мешал на других устройствах
-    }
-  });
+  window.addEventListener('pwa-installed',function(){hideBanner();showToast('Habits добавлен на главный экран! 🌿','success');});
 })();
 
 /* ============================================================
@@ -647,9 +566,6 @@ let state=loadState();
 if(!state.habits)state.habits=[];
 if(!state.completions)state.completions={};
 
-/* ============================================================
-   CONSTANTS
-============================================================ */
 const EMOJIS=['🏃','🏋️','🧘','🚴','🏊','🧗','⚽','🏀','🎾','🥊','📚','✍️','🎨','🎵','🎮','💻','🗣️','🧠','📝','🔬','🥗','🥤','💊','🌿','🍎','😴','🛁','🧹','💰','🌅','❤️','🤝','📞','🎯','🔥','⭐','💡','🌍','🙏','😊'];
 const COLORS=['#7c6af7','#3ecf8e','#f75f6b','#f7c94f','#4fc3f7','#ff8a65','#ce93d8','#80cbc4','#a5d6a7','#ef9a9a','#90caf9','#ffe082','#4dd0e1','#f48fb1','#bcaaa4'];
 const DOW=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
@@ -657,9 +573,6 @@ const MONTHS=['Январь','Февраль','Март','Апрель','Май'
 const MGEN=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 const GL={week:'в нед.',month:'в мес.',year:'в год'};
 
-/* ============================================================
-   VIEW STATE
-============================================================ */
 let currentView='month';
 let currentDate=new Date();
 let activeFilters=null;
@@ -685,9 +598,10 @@ function visHabits(){return activeFilters?state.habits.filter(h=>activeFilters.h
 function filtDone(key){const done=dayDone(key);return visHabits().filter(h=>done.includes(h.id))}
 function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function weekStart(d){const dt=new Date(d);const dow=(dt.getDay()+6)%7;dt.setDate(dt.getDate()-dow);dt.setHours(0,0,0,0);return dt}
+function isMobile(){return window.innerWidth<=768}
 
 /* ============================================================
-   STREAKS
+   STREAKS & STATS
 ============================================================ */
 function calcStreak(hid){
   const today=new Date();today.setHours(0,0,0,0);
@@ -696,29 +610,14 @@ function calcStreak(hid){
   const keys=Object.keys(state.completions).filter(k=>state.completions[k][hid]).sort();
   if(!keys.length)return{current:0,max:0};
   let mx=0,cs=0,prev=null;
-  for(const k of keys){
-    if(!prev){cs=1}else{const pd=new Date(prev);pd.setDate(pd.getDate()+1);cs=dkd(pd)===k?cs+1:1}
-    if(cs>mx)mx=cs;prev=k;
-  }
+  for(const k of keys){if(!prev){cs=1}else{const pd=new Date(prev);pd.setDate(pd.getDate()+1);cs=dkd(pd)===k?cs+1:1}if(cs>mx)mx=cs;prev=k;}
   return{current:cur,max:mx};
 }
-
-/* ============================================================
-   STATS HELPERS
-============================================================ */
 function periodStats(hid,type,ref){
   let start,end;const d=new Date(ref);
-  if(type==='week'){
-    const dow=(d.getDay()+6)%7;
-    start=new Date(d);start.setDate(d.getDate()-dow);start.setHours(0,0,0,0);
-    end=new Date(start);end.setDate(start.getDate()+6);end.setHours(23,59,59,999);
-  }else if(type==='month'){
-    start=new Date(d.getFullYear(),d.getMonth(),1);
-    end=new Date(d.getFullYear(),d.getMonth()+1,0,23,59,59);
-  }else{
-    start=new Date(d.getFullYear(),0,1);
-    end=new Date(d.getFullYear(),11,31,23,59,59);
-  }
+  if(type==='week'){const dow=(d.getDay()+6)%7;start=new Date(d);start.setDate(d.getDate()-dow);start.setHours(0,0,0,0);end=new Date(start);end.setDate(start.getDate()+6);end.setHours(23,59,59,999);}
+  else if(type==='month'){start=new Date(d.getFullYear(),d.getMonth(),1);end=new Date(d.getFullYear(),d.getMonth()+1,0,23,59,59);}
+  else{start=new Date(d.getFullYear(),0,1);end=new Date(d.getFullYear(),11,31,23,59,59);}
   let n=0;const c=new Date(start);
   while(c<=end){const k=dkd(c);if(state.completions[k]&&state.completions[k][hid])n++;c.setDate(c.getDate()+1)}
   return n;
@@ -736,8 +635,7 @@ function lastWeekPct(){
   const mon=new Date(today);mon.setDate(today.getDate()-(today.getDay()+6)%7-7);
   const ref=new Date(mon);ref.setDate(mon.getDate()+1);
   const wg=state.habits.filter(h=>h.goal);if(!wg.length)return null;
-  let tot=0;
-  wg.forEach(h=>{const done=periodStats(h.id,'week',ref);const goal=goalForPeriod(h,'week');if(goal)tot+=Math.min(100,Math.round(done/goal*100))});
+  let tot=0;wg.forEach(h=>{const done=periodStats(h.id,'week',ref);const goal=goalForPeriod(h,'week');if(goal)tot+=Math.min(100,Math.round(done/goal*100))});
   return Math.round(tot/wg.length);
 }
 function allTimeTotal(){let n=0;Object.values(state.completions).forEach(day=>n+=Object.values(day).filter(Boolean).length);return n}
@@ -749,36 +647,15 @@ function buildHeatmap(type,ref){
   const total=state.habits.length;
   if(!total)return`<div style="color:var(--text3);font-size:.75rem">Нет привычек</div>`;
   let start,end;const d=new Date(ref);
-  if(type==='week'){
-    const dow=(d.getDay()+6)%7;
-    start=new Date(d);start.setDate(d.getDate()-dow);start.setHours(0,0,0,0);
-    end=new Date(start);end.setDate(start.getDate()+6);end.setHours(23,59,59,999);
-  }else if(type==='month'){
-    start=new Date(d.getFullYear(),d.getMonth(),1);
-    end=new Date(d.getFullYear(),d.getMonth()+1,0,23,59,59);
-  }else{
-    start=new Date(d.getFullYear(),0,1);
-    end=new Date(d.getFullYear(),11,31,23,59,59);
-  }
-  const sdow=(start.getDay()+6)%7;
-  const grid=[];let col=[];
+  if(type==='week'){const dow=(d.getDay()+6)%7;start=new Date(d);start.setDate(d.getDate()-dow);start.setHours(0,0,0,0);end=new Date(start);end.setDate(start.getDate()+6);end.setHours(23,59,59,999);}
+  else if(type==='month'){start=new Date(d.getFullYear(),d.getMonth(),1);end=new Date(d.getFullYear(),d.getMonth()+1,0,23,59,59);}
+  else{start=new Date(d.getFullYear(),0,1);end=new Date(d.getFullYear(),11,31,23,59,59);}
+  const sdow=(start.getDay()+6)%7;const grid=[];let col=[];
   for(let i=0;i<sdow;i++)col.push(null);
-  for(let dd=new Date(start);dd<=end;dd.setDate(dd.getDate()+1)){
-    const key=dkd(dd);const done=dayDone(key).length;
-    col.push({done,total});
-    if(col.length===7){grid.push(col);col=[];}
-  }
+  for(let dd=new Date(start);dd<=end;dd.setDate(dd.getDate()+1)){const key=dkd(dd);const done=dayDone(key).length;col.push({done,total});if(col.length===7){grid.push(col);col=[];}}
   if(col.length){while(col.length<7)col.push(null);grid.push(col);}
   let h=`<div class="heatmap-grid">`;
-  for(const wk of grid){
-    h+=`<div class="heatmap-col">`;
-    for(const c of wk){
-      if(!c){h+=`<div class="hm-cell"></div>`;continue}
-      let lv=0;if(c.done>0){const r=c.done/c.total;lv=r<=.25?1:r<=.5?2:r<1?3:4}
-      h+=`<div class="hm-cell${lv?' lv'+lv:''}" title="${c.done}/${c.total}"></div>`;
-    }
-    h+=`</div>`;
-  }
+  for(const wk of grid){h+=`<div class="heatmap-col">`;for(const c of wk){if(!c){h+=`<div class="hm-cell"></div>`;continue}let lv=0;if(c.done>0){const r=c.done/c.total;lv=r<=.25?1:r<=.5?2:r<1?3:4}h+=`<div class="hm-cell${lv?' lv'+lv:''}" title="${c.done}/${c.total}"></div>`;}h+=`</div>`;}
   h+=`</div>`;return h;
 }
 
@@ -786,112 +663,66 @@ function buildHeatmap(type,ref){
    STATS HTML
 ============================================================ */
 function buildStatsHTML(type,ref){
-  if(!state.habits.length)return`<div class="empty-state">
-    <div class="empty-state-icon">📊</div>
-    <div class="empty-state-title">Нет данных</div>
-    <div class="empty-state-desc">Добавьте привычки, чтобы видеть статистику</div>
-  </div>`;
+  if(!state.habits.length)return`<div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-title">Нет данных</div><div class="empty-state-desc">Добавьте привычки, чтобы видеть статистику</div></div>`;
   const pLabel=type==='week'?'неделю':type==='month'?'месяц':'год';
   let h='';
   h+=`<div class="stat-card"><div class="stat-card-title">✅ За ${pLabel}</div>`;
   state.habits.forEach(hb=>{
-    const done=periodStats(hb.id,type,ref);
-    const goal=goalForPeriod(hb,type);
-    const pct=goal?Math.min(100,Math.round(done/goal*100)):null;
-    const fc=pct!==null?(pct<50?'r':pct<80?'y':'g'):'g';
+    const done=periodStats(hb.id,type,ref);const goal=goalForPeriod(hb,type);
+    const pct=goal?Math.min(100,Math.round(done/goal*100)):null;const fc=pct!==null?(pct<50?'r':pct<80?'y':'g'):'g';
     const streak=calcStreak(hb.id);
-    h+=`<div class="stat-habit-item">
-      <div class="stat-habit-top">
-        <div class="stat-habit-name">
-          <div style="width:22px;height:22px;border-radius:6px;background:${hb.color}33;display:flex;align-items:center;justify-content:center;font-size:.8rem">${hb.emoji}</div>
-          ${esc(hb.name)}
-        </div>
-        <div style="display:flex;align-items:center;gap:5px">
-          ${streak.current>=2?`<span class="streak-badge">🔥${streak.current}</span>`:''}
-          <span class="stat-habit-count">${done}${goal?'/'+goal:''}</span>
-        </div>
-      </div>
-      ${goal?`<div class="pb-wrap"><div class="pb-fill ${fc}" style="width:${pct}%"></div></div><div class="stat-pct">${pct}%</div>`:''}
-    </div>`;
+    h+=`<div class="stat-habit-item"><div class="stat-habit-top"><div class="stat-habit-name"><div style="width:22px;height:22px;border-radius:6px;background:${hb.color}33;display:flex;align-items:center;justify-content:center;font-size:.8rem">${hb.emoji}</div>${esc(hb.name)}</div><div style="display:flex;align-items:center;gap:5px">${streak.current>=2?`<span class="streak-badge">🔥${streak.current}</span>`:''}<span class="stat-habit-count">${done}${goal?'/'+goal:''}</span></div></div>${goal?`<div class="pb-wrap"><div class="pb-fill ${fc}" style="width:${pct}%"></div></div><div class="stat-pct">${pct}%</div>`:''}</div>`;
   });
   h+=`</div>`;
   h+=`<div class="stat-card"><div class="stat-card-title">🔥 Стрики</div>`;
-  state.habits.forEach(hb=>{
-    const s=calcStreak(hb.id);
-    h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
-      <div style="display:flex;align-items:center;gap:6px;font-size:.81rem">${hb.emoji} ${esc(hb.name)}</div>
-      <div style="display:flex;gap:8px;font-size:.75rem">
-        <span title="Текущая серия">🔥 ${s.current}</span>
-        <span title="Максимальная серия" style="color:var(--yellow)">⭐ ${s.max}</span>
-      </div>
-    </div>`;
-  });
+  state.habits.forEach(hb=>{const s=calcStreak(hb.id);h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px"><div style="display:flex;align-items:center;gap:6px;font-size:.81rem">${hb.emoji} ${esc(hb.name)}</div><div style="display:flex;gap:8px;font-size:.75rem"><span>🔥 ${s.current}</span><span style="color:var(--yellow)">⭐ ${s.max}</span></div></div>`;});
   h+=`<div class="streak-legend"><strong>🔥 Текущая серия</strong> — сколько дней подряд вы выполняете привычку прямо сейчас.<br><strong>⭐ Максимальная серия</strong> — самая длинная непрерывная серия за всё время.</div></div>`;
-  const hmLabel=type==='week'?'неделя':type==='month'?'месяц':`${ref.getFullYear()} год`;
-  h+=`<div class="stat-card">
-    <div class="stat-card-title">🗓 Тепловая карта — ${hmLabel}</div>
-    <div class="heatmap-wrap">${buildHeatmap(type,ref)}</div>
-    <div class="hm-legend">Меньше <div style="display:flex;gap:2px">${['','lv1','lv2','lv3','lv4'].map(l=>`<div class="hm-cell ${l}" style="position:static"></div>`).join('')}</div> Больше</div>
-  </div>`;
+  const hmLabel=type==='week'?'неделю':type==='month'?'месяц':`${ref.getFullYear()} год`;
+  h+=`<div class="stat-card"><div class="stat-card-title">🗓 Тепловая карта — ${hmLabel}</div><div class="heatmap-wrap">${buildHeatmap(type,ref)}</div><div class="hm-legend">Меньше <div style="display:flex;gap:2px">${['','lv1','lv2','lv3','lv4'].map(l=>`<div class="hm-cell ${l}" style="position:static"></div>`).join('')}</div> Больше</div></div>`;
   return h;
+}
+
+/* ============================================================
+   WELCOME BANNER
+============================================================ */
+function renderWelcomeBanner(){
+  const wb=document.getElementById('welcome-banner');
+  // Show only on mobile and only when no habits
+  if(isMobile()&&state.habits.length===0){
+    wb.style.display='block';
+  } else {
+    wb.style.display='none';
+  }
 }
 
 /* ============================================================
    RENDER
 ============================================================ */
-function render(){renderQS();renderHabits();renderFilter();renderCalendar();renderInlineStats();renderStatsPanel()}
+function render(){renderQS();renderHabits();renderFilter();renderCalendar();renderWelcomeBanner();renderInlineStats();renderStatsPanel()}
 
 const QS_DATA=[
   {icon:'🎯',label:'Привычки',tip:'Количество активных привычек, которые вы сейчас отслеживаете.'},
   {icon:'✅',label:'Выполнений за всё время',tip:'Суммарное количество отметок выполнения по всем привычкам за всё время.'},
-  {icon:'📈',label:'Успех прошлой недели',tip:'Средний процент выполнения целей за прошлую неделю. Учитываются только привычки с заданными целями. Если целей нет — «—».'},
+  {icon:'📈',label:'Успех прошлой недели',tip:'Средний процент выполнения целей за прошлую неделю. Учитываются только привычки с заданными целями.'},
 ];
 function renderQS(){
   const list=document.getElementById('qsList');
   const vals=[state.habits.length,allTimeTotal(),(()=>{const p=lastWeekPct();return p!==null?p+'%':'—'})()];
-  list.innerHTML=QS_DATA.map((d,i)=>`
-    <div class="qs-card">
-      <div class="qs-icon">${d.icon}</div>
-      <div class="qs-body"><div class="qs-num">${vals[i]}</div><div class="qs-label">${d.label}</div></div>
-      <button class="tip-btn" data-tip="${i}">?</button>
-      <div class="tip-bubble hidden" id="tip${i}">${d.tip}</div>
-    </div>`).join('');
-  list.querySelectorAll('.tip-btn').forEach(btn=>{
-    btn.addEventListener('click',e=>{
-      e.stopPropagation();const id=btn.dataset.tip;const b=document.getElementById('tip'+id);
-      const was=b.classList.contains('hidden');
-      list.querySelectorAll('.tip-bubble').forEach(x=>x.classList.add('hidden'));
-      if(was)b.classList.remove('hidden');
-    });
-  });
+  list.innerHTML=QS_DATA.map((d,i)=>`<div class="qs-card"><div class="qs-icon">${d.icon}</div><div class="qs-body"><div class="qs-num">${vals[i]}</div><div class="qs-label">${d.label}</div></div><button class="tip-btn" data-tip="${i}">?</button><div class="tip-bubble hidden" id="tip${i}">${d.tip}</div></div>`).join('');
+  list.querySelectorAll('.tip-btn').forEach(btn=>{btn.addEventListener('click',e=>{e.stopPropagation();const id=btn.dataset.tip;const b=document.getElementById('tip'+id);const was=b.classList.contains('hidden');list.querySelectorAll('.tip-bubble').forEach(x=>x.classList.add('hidden'));if(was)b.classList.remove('hidden');});});
 }
 document.addEventListener('click',()=>document.querySelectorAll('.tip-bubble').forEach(b=>b.classList.add('hidden')));
 
 function renderHabits(){
   const el=document.getElementById('habitsList');
   if(!state.habits.length){el.innerHTML=`<div class="empty-state" style="padding:16px 0 4px"><div class="empty-state-icon">🌱</div><div class="empty-state-title">Нет привычек</div><div class="empty-state-desc">Добавьте первую привычку, чтобы начать отслеживать прогресс</div></div>`;return}
-  el.innerHTML=state.habits.map(h=>`
-    <div class="habit-item">
-      <div class="habit-dot" style="background:${h.color}22;border:1px solid ${h.color}44">${h.emoji}</div>
-      <div class="habit-info">
-        <div class="habit-name">${esc(h.name)}</div>
-        ${h.goal?`<div class="habit-goal-tag">🎯 ${h.goal.value} ${GL[h.goal.type]}</div>`:''}
-      </div>
-      <div class="habit-actions">
-        <button class="icon-btn" data-action="edit" data-id="${h.id}">✏️</button>
-        <button class="icon-btn danger" data-action="delete" data-id="${h.id}">🗑</button>
-      </div>
-    </div>`).join('');
+  el.innerHTML=state.habits.map(h=>`<div class="habit-item"><div class="habit-dot" style="background:${h.color}22;border:1px solid ${h.color}44">${h.emoji}</div><div class="habit-info"><div class="habit-name">${esc(h.name)}</div>${h.goal?`<div class="habit-goal-tag">🎯 ${h.goal.value} ${GL[h.goal.type]}</div>`:''}</div><div class="habit-actions"><button class="icon-btn" data-action="edit" data-id="${h.id}">✏️</button><button class="icon-btn danger" data-action="delete" data-id="${h.id}">🗑</button></div></div>`).join('');
 }
-
 function renderFilter(){
   const sec=document.getElementById('filterSection');
   if(!state.habits.length){sec.style.display='none';return}
   sec.style.display='block';
-  document.getElementById('filterChips').innerHTML=state.habits.map(h=>{
-    const on=!activeFilters||activeFilters.has(h.id);
-    return`<div class="filter-chip ${on?'on':'off'}" data-fid="${h.id}" style="background:${h.color}18;color:${h.color}">${h.emoji} ${esc(h.name)}</div>`;
-  }).join('');
+  document.getElementById('filterChips').innerHTML=state.habits.map(h=>{const on=!activeFilters||activeFilters.has(h.id);return`<div class="filter-chip ${on?'on':'off'}" data-fid="${h.id}" style="background:${h.color}18;color:${h.color}">${h.emoji} ${esc(h.name)}</div>`;}).join('');
 }
 
 function calTitleStr(view,date){
@@ -920,26 +751,13 @@ function renderMonth(ref){
   while(cells.length%7!==0)cells.push({date:new Date(y,m+1,cells.length-last.getDate()-sdow+1),other:true});
   const weeks=[];for(let i=0;i<cells.length;i+=7)weeks.push(cells.slice(i,i+7));
   let h=`<div class="month-grid"><div class="month-dow-row">${DOW.map(d=>`<div class="dow-label">${d}</div>`).join('')}</div><div class="month-weeks">`;
-  for(const wk of weeks){
-    h+=`<div class="month-week">`;
-    for(const c of wk){
-      const key=dkd(c.date);const done=filtDone(key);const isT=isToday(c.date);
-      const cls=['cal-day',c.other?'other-month':'',isT?'today':'',done.length?'has-habits':''].filter(Boolean).join(' ');
-      const MAX=5;const shown=done.slice(0,MAX);const extra=done.length-MAX;
-      h+=`<div class="${cls}" data-day="${c.date.getTime()}"><div class="day-num">${c.date.getDate()}</div><div class="day-habits">${shown.map(hb=>`<div class="day-habit-badge" style="background:${hb.color}33" title="${esc(hb.name)}">${hb.emoji}</div>`).join('')}${extra>0?`<div class="day-more">+${extra}</div>`:''}</div></div>`;
-    }
-    h+=`</div>`;
-  }
+  for(const wk of weeks){h+=`<div class="month-week">`;for(const c of wk){const key=dkd(c.date);const done=filtDone(key);const isT=isToday(c.date);const cls=['cal-day',c.other?'other-month':'',isT?'today':'',done.length?'has-habits':''].filter(Boolean).join(' ');const MAX=5;const shown=done.slice(0,MAX);const extra=done.length-MAX;h+=`<div class="${cls}" data-day="${c.date.getTime()}"><div class="day-num">${c.date.getDate()}</div><div class="day-habits">${shown.map(hb=>`<div class="day-habit-badge" style="background:${hb.color}33" title="${esc(hb.name)}">${hb.emoji}</div>`).join('')}${extra>0?`<div class="day-more">+${extra}</div>`:''}</div></div>`;}h+=`</div>`;}
   h+=`</div></div>`;return h;
 }
 
 function renderWeek(ref){
   const s=weekStart(ref);let h=`<div class="week-grid">`;
-  for(let i=0;i<7;i++){
-    const d=new Date(s);d.setDate(s.getDate()+i);
-    const key=dkd(d);const done=filtDone(key);const isT=isToday(d);
-    h+=`<div class="week-day-row"><div class="week-day-label"><div class="week-day-name">${DOW[i]}</div><div class="week-day-date ${isT?'today-num':''}">${d.getDate()}</div></div><div class="week-day-content ${isT?'today-row':''}" data-day="${d.getTime()}">${done.length===0?`<span style="color:var(--text3);font-size:.75rem;align-self:center">Нет выполненных</span>`:done.map(hb=>`<div class="week-habit-chip" style="background:${hb.color}20;color:${hb.color};border:1px solid ${hb.color}40">${hb.emoji} ${esc(hb.name)}</div>`).join('')}</div></div>`;
-  }
+  for(let i=0;i<7;i++){const d=new Date(s);d.setDate(s.getDate()+i);const key=dkd(d);const done=filtDone(key);const isT=isToday(d);h+=`<div class="week-day-row"><div class="week-day-label"><div class="week-day-name">${DOW[i]}</div><div class="week-day-date ${isT?'today-num':''}">${d.getDate()}</div></div><div class="week-day-content ${isT?'today-row':''}" data-day="${d.getTime()}">${done.length===0?`<span style="color:var(--text3);font-size:.75rem;align-self:center">Нет выполненных</span>`:done.map(hb=>`<div class="week-habit-chip" style="background:${hb.color}20;color:${hb.color};border:1px solid ${hb.color}40">${hb.emoji} ${esc(hb.name)}</div>`).join('')}</div></div>`;}
   h+=`</div>`;return h;
 }
 
@@ -948,112 +766,79 @@ function renderYear(ref){
   for(let m=0;m<12;m++)h+=`<div class="year-month-card"><div class="year-month-title">${MONTHS[m]}</div><div class="mini-month-grid">${DOW.map(d=>`<div class="mini-dow">${d[0]}</div>`).join('')}${renderMiniMonth(y,m)}</div></div>`;
   h+=`</div>`;return h;
 }
-
 function renderMiniMonth(y,m){
-  const first=new Date(y,m,1),last=new Date(y,m+1,0);
-  const sdow=(first.getDay()+6)%7;let h='';
+  const first=new Date(y,m,1),last=new Date(y,m+1,0);const sdow=(first.getDay()+6)%7;let h='';
   for(let i=0;i<sdow;i++)h+=`<div class="mini-day empty"></div>`;
-  for(let d=1;d<=last.getDate();d++){
-    const dt=new Date(y,m,d);const key=dkd(dt);
-    const done=filtDone(key);const isT=isToday(dt);
-    let cls='mini-day';if(isT)cls+=' today-mini';if(done.length)cls+=' has-habits';
-    const title=done.length?`${d}: ${done.map(hb=>hb.emoji+hb.name).join(', ')}`:String(d);
-    const inner=done.length?`<span class="mini-day-num">${d}</span><div class="mini-emojis">${done.map(hb=>`<span class="mini-emoji">${hb.emoji}</span>`).join('')}</div>`:d;
-    h+=`<div class="${cls}" data-day="${dt.getTime()}" title="${esc(title)}">${inner}</div>`;
-  }
+  for(let d=1;d<=last.getDate();d++){const dt=new Date(y,m,d);const key=dkd(dt);const done=filtDone(key);const isT=isToday(dt);let cls='mini-day';if(isT)cls+=' today-mini';if(done.length)cls+=' has-habits';const title=done.length?`${d}: ${done.map(hb=>hb.emoji+hb.name).join(', ')}`:String(d);const inner=done.length?`<span class="mini-day-num">${d}</span><div class="mini-emojis">${done.map(hb=>`<span class="mini-emoji">${hb.emoji}</span>`).join('')}</div>`:d;h+=`<div class="${cls}" data-day="${dt.getTime()}" title="${esc(title)}">${inner}</div>`;}
   return h;
 }
-
 function attachCalEvents(){
-  document.querySelectorAll('[data-day]').forEach(el=>{
-    el.addEventListener('click',e=>{e.stopPropagation();openDayModal(new Date(parseInt(el.dataset.day)))});
-  });
+  document.querySelectorAll('[data-day]').forEach(el=>{el.addEventListener('click',e=>{e.stopPropagation();openDayModal(new Date(parseInt(el.dataset.day)))});});
 }
 
-/* Inline stats — только на мобильных/планшетах (CSS управляет видимостью) */
 function renderInlineStats(){
   const el=document.getElementById('inline-stats');
   if(!state.habits.length){el.innerHTML='';return}
   const pLabel=currentView==='week'?'неделю':currentView==='month'?'месяц':'год';
   el.innerHTML=`<div class="inline-stats-title">📊 Статистика — за ${pLabel}</div>${buildStatsHTML(currentView,currentDate)}`;
 }
-
-function renderStatsPanel(){
-  document.getElementById('statsPanelBody').innerHTML=buildStatsHTML(currentView,currentDate);
-}
+function renderStatsPanel(){document.getElementById('statsPanelBody').innerHTML=buildStatsHTML(currentView,currentDate)}
 
 /* Stats screen */
-function openStatsScreen(){
-  ssDate=new Date();syncSsToolbar();renderSsBody();
-  document.getElementById('stats-screen').classList.add('open');
-}
+function openStatsScreen(){ssDate=new Date();syncSsToolbar();renderSsBody();document.getElementById('stats-screen').classList.add('open')}
 function closeStatsScreen(){document.getElementById('stats-screen').classList.remove('open')}
-function syncSsToolbar(){
-  document.getElementById('ssCalTitle').textContent=calTitleStr(ssView,ssDate);
-  document.querySelectorAll('#vswStats .tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===ssView));
-}
+function syncSsToolbar(){document.getElementById('ssCalTitle').textContent=calTitleStr(ssView,ssDate);document.querySelectorAll('#vswStats .tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===ssView));}
 function renderSsBody(){document.getElementById('ssBody').innerHTML=buildStatsHTML(ssView,ssDate)}
-function ssNavigate(dir){
-  if(ssView==='month')ssDate=new Date(ssDate.getFullYear(),ssDate.getMonth()+dir,1);
-  else if(ssView==='week')ssDate.setDate(ssDate.getDate()+dir*7);
-  else ssDate=new Date(ssDate.getFullYear()+dir,0,1);
-  syncSsToolbar();renderSsBody();
-}
+function ssNavigate(dir){if(ssView==='month')ssDate=new Date(ssDate.getFullYear(),ssDate.getMonth()+dir,1);else if(ssView==='week')ssDate.setDate(ssDate.getDate()+dir*7);else ssDate=new Date(ssDate.getFullYear()+dir,0,1);syncSsToolbar();renderSsBody();}
 
-/* Day modal */
+/* ============================================================
+   DAY MODAL
+============================================================ */
 function openDayModal(date){
   const key=dkd(date);
   const dateStr=`${date.getDate()} ${MGEN[date.getMonth()]} ${date.getFullYear()}`;
-  const mkList=()=>state.habits.map(hb=>{
-    const done=getDone(hb.id,key);
-    return`<div class="day-toggle ${done?'checked':''}" data-hid="${hb.id}"><div class="tog-emoji" style="background:${hb.color}22">${hb.emoji}</div><div class="tog-name">${esc(hb.name)}</div><div class="tog-check">${done?'✓':''}</div></div>`;
-  }).join('');
+  const mkList=()=>state.habits.map(hb=>{const done=getDone(hb.id,key);return`<div class="day-toggle ${done?'checked':''}" data-hid="${hb.id}"><div class="tog-emoji" style="background:${hb.color}22">${hb.emoji}</div><div class="tog-name">${esc(hb.name)}</div><div class="tog-check">${done?'✓':''}</div></div>`;}).join('');
   openModal(`<div class="modal-title">📅 ${dateStr}</div>${!state.habits.length?`<div class="empty-state"><div class="empty-state-icon">🌱</div><div class="empty-state-title">Нет привычек</div><div class="empty-state-desc">Сначала добавьте привычки</div></div>`:`<div class="day-habit-list" id="dayList">${mkList()}</div>`}<div class="modal-actions" id="dayActions">${dayDone(key).length?`<button class="btn btn-secondary btn-sm" id="clearDayBtn">Очистить день</button>`:''}<button class="btn btn-primary btn-sm" onclick="closeModal()">Готово</button></div>`);
   attachDayToggles(key,mkList);
   const cb=document.getElementById('clearDayBtn');if(cb)cb.addEventListener('click',()=>clearDay(key,mkList));
 }
 function attachDayToggles(key,mkList){
-  document.querySelectorAll('.day-toggle').forEach(el=>{
-    el.addEventListener('click',function h(){
-      el.removeEventListener('click',h);toggleDone(el.dataset.hid,key);
-      const l=document.getElementById('dayList');if(l)l.innerHTML=mkList();
-      attachDayToggles(key,mkList);updClearBtn(key,mkList);
-      renderCalendar();renderInlineStats();renderStatsPanel();renderQS();
-    });
-  });
+  document.querySelectorAll('.day-toggle').forEach(el=>{el.addEventListener('click',function h(){el.removeEventListener('click',h);toggleDone(el.dataset.hid,key);const l=document.getElementById('dayList');if(l)l.innerHTML=mkList();attachDayToggles(key,mkList);updClearBtn(key,mkList);renderCalendar();renderInlineStats();renderStatsPanel();renderQS();});});
 }
-function clearDay(key,mkList){
-  delete state.completions[key];saveState();
-  const l=document.getElementById('dayList');if(l)l.innerHTML=mkList();
-  attachDayToggles(key,mkList);updClearBtn(key,mkList);
-  renderCalendar();renderInlineStats();renderStatsPanel();renderQS();
-  showToast('День очищен','info');
-}
-function updClearBtn(key,mkList){
-  const ma=document.getElementById('dayActions');if(!ma)return;
-  const ex=document.getElementById('clearDayBtn');const has=dayDone(key).length>0;
-  if(has&&!ex){const b=document.createElement('button');b.className='btn btn-secondary btn-sm';b.id='clearDayBtn';b.textContent='Очистить день';ma.insertBefore(b,ma.firstChild);b.addEventListener('click',()=>clearDay(key,mkList))}
-  else if(!has&&ex)ex.remove();
-}
+function clearDay(key,mkList){delete state.completions[key];saveState();const l=document.getElementById('dayList');if(l)l.innerHTML=mkList();attachDayToggles(key,mkList);updClearBtn(key,mkList);renderCalendar();renderInlineStats();renderStatsPanel();renderQS();showToast('День очищен','info');}
+function updClearBtn(key,mkList){const ma=document.getElementById('dayActions');if(!ma)return;const ex=document.getElementById('clearDayBtn');const has=dayDone(key).length>0;if(has&&!ex){const b=document.createElement('button');b.className='btn btn-secondary btn-sm';b.id='clearDayBtn';b.textContent='Очистить день';ma.insertBefore(b,ma.firstChild);b.addEventListener('click',()=>clearDay(key,mkList))}else if(!has&&ex)ex.remove();}
 
-/* Habit modal */
+/* ============================================================
+   HABIT MODAL
+============================================================ */
 let editId=null,selEmoji='🏃',selColor=COLORS[0];
 function openHabitModal(hid=null){
   editId=hid;const h=hid?state.habits.find(x=>x.id===hid):null;
   selEmoji=h?h.emoji:'🏃';selColor=h?h.color:COLORS[0];
   const gt=h&&h.goal?h.goal.type:'week';const gv=h&&h.goal?h.goal.value:'';
   openModal(`<div class="modal-title">${h?'✏️ Редактировать':'➕ Новая привычка'}</div>
-    <div class="form-group"><label class="form-label">Название</label><input class="form-input" id="hName" placeholder="Например: Утробежка" maxlength="40" value="${h?esc(h.name):''}"></div>
-    <div class="form-group"><label class="form-label">Эмодзи</label><div class="emoji-picker-row"><div class="emoji-preview" id="ePrev">${selEmoji}</div><div class="emoji-grid">${EMOJIS.map(e=>`<button class="emoji-option ${e===selEmoji?'selected':''}" data-e="${e}">${e}</button>`).join('')}</div></div></div>
+    <div class="form-group"><label class="form-label">Название</label><input class="form-input" id="hName" placeholder="Например: Утробежка" maxlength="40" value="${h?esc(h.name):''}" inputmode="text" autocomplete="off"></div>
+    <div class="form-group"><label class="form-label">Эмодзи</label><div class="emoji-picker-row"><div class="emoji-preview" id="ePrev">${selEmoji}</div><div class="emoji-grid">${EMOJIS.map(e=>`<button class="emoji-option ${e===selEmoji?'selected':''}" data-e="${e}" type="button">${e}</button>`).join('')}</div></div></div>
     <div class="form-group"><label class="form-label">Цвет</label><div class="color-row">${COLORS.map(c=>`<div class="color-option ${c===selColor?'selected':''}" data-c="${c}" style="background:${c}"></div>`).join('')}</div></div>
-    <div class="form-group"><label class="form-label">Цель (необязательно)</label><div class="goal-inline"><input class="form-input" id="gVal" type="number" min="1" max="365" placeholder="—" value="${gv}"><span style="color:var(--text2);font-size:.81rem">раз в</span><select class="form-select" id="gType"><option value="week" ${gt==='week'?'selected':''}>Неделю</option><option value="month" ${gt==='month'?'selected':''}>Месяц</option><option value="year" ${gt==='year'?'selected':''}>Год</option></select></div></div>
-    <div class="modal-actions">${h?`<button class="btn btn-danger btn-sm" id="delHabitBtn">Удалить</button>`:''}<button class="btn btn-ghost btn-sm" onclick="closeModal()">Отмена</button><button class="btn btn-primary btn-sm" id="saveHabitBtn">${h?'Сохранить':'Создать'}</button></div>`);
+    <div class="form-group"><label class="form-label">Цель (необязательно)</label><div class="goal-inline"><input class="form-input" id="gVal" type="number" inputmode="numeric" min="1" max="365" placeholder="—" value="${gv}"><span style="color:var(--text2);font-size:.81rem">раз в</span><select class="form-select" id="gType"><option value="week" ${gt==='week'?'selected':''}>Неделю</option><option value="month" ${gt==='month'?'selected':''}>Месяц</option><option value="year" ${gt==='year'?'selected':''}>Год</option></select></div></div>
+    <div class="modal-actions">${h?`<button class="btn btn-danger btn-sm" id="delHabitBtn" type="button">Удалить</button>`:''}<button class="btn btn-ghost btn-sm" onclick="closeModal()" type="button">Отмена</button><button class="btn btn-primary btn-sm" id="saveHabitBtn" type="button">${h?'Сохранить':'Создать'}</button></div>`);
+
   document.querySelectorAll('.emoji-option').forEach(b=>{b.addEventListener('click',()=>{selEmoji=b.dataset.e;document.getElementById('ePrev').textContent=selEmoji;document.querySelectorAll('.emoji-option').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')})});
   document.querySelectorAll('.color-option').forEach(el=>{el.addEventListener('click',()=>{selColor=el.dataset.c;document.querySelectorAll('.color-option').forEach(x=>x.classList.remove('selected'));el.classList.add('selected')})});
   document.getElementById('saveHabitBtn').addEventListener('click',saveHabit);
-  document.getElementById('hName').addEventListener('keydown',e=>{if(e.key==='Enter')saveHabit()});
+
+  // On mobile: when name input gets focus, scroll modal body so input is visible
+  const nameInput=document.getElementById('hName');
+  nameInput.addEventListener('focus',()=>{
+    if(isMobile()){
+      setTimeout(()=>{nameInput.scrollIntoView({behavior:'smooth',block:'center'});},300);
+    }
+  });
+  nameInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();saveHabit();}});
+
   if(h){document.getElementById('delHabitBtn').addEventListener('click',()=>openConfirm('Удалить привычку?',`Привычка «${esc(h.name)}» и вся история будут удалены.`,()=>deleteHabit(h.id)))}
 }
+
 function saveHabit(){
   const name=document.getElementById('hName').value.trim();if(!name){showToast('Введите название','error');return}
   const gv=parseInt(document.getElementById('gVal').value);const gt=document.getElementById('gType').value;
@@ -1069,12 +854,51 @@ function deleteHabit(id){
   saveState();closeModal();render();showToast('Привычка удалена','info');
 }
 function openConfirm(title,text,onOk){
-  openModal(`<div class="modal-title">⚠️ ${title}</div><p class="confirm-text">${text}</p><div class="modal-actions"><button class="btn btn-ghost btn-sm" onclick="closeModal()">Отмена</button><button class="btn btn-danger btn-sm" id="confOk">Подтвердить</button></div>`);
+  openModal(`<div class="modal-title">⚠️ ${title}</div><p class="confirm-text">${text}</p><div class="modal-actions"><button class="btn btn-ghost btn-sm" onclick="closeModal()" type="button">Отмена</button><button class="btn btn-danger btn-sm" id="confOk" type="button">Подтвердить</button></div>`);
   document.getElementById('confOk').addEventListener('click',()=>{closeModal();onOk()});
 }
-function openModal(html){document.getElementById('modalBox').innerHTML=html;document.getElementById('modalOverlay').classList.add('open');setTimeout(()=>{const i=document.querySelector('#modalBox input');if(i)i.focus()},120)}
-function closeModal(){document.getElementById('modalOverlay').classList.remove('open');render()}
 
+/* ============================================================
+   MODAL — keyboard-aware height on mobile
+============================================================ */
+function openModal(html){
+  document.getElementById('modalBody').innerHTML=html;
+  const overlay=document.getElementById('modalOverlay');
+  const modal=document.getElementById('modalBox');
+  overlay.classList.add('open');
+
+  // Set max-height based on viewport
+  function setModalHeight(){
+    if(isMobile()){
+      // Use visualViewport if available (handles keyboard)
+      const vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
+      modal.style.maxHeight=Math.round(vh*0.92)+'px';
+    } else {
+      modal.style.maxHeight='90vh';
+    }
+  }
+  setModalHeight();
+
+  // Listen for keyboard appearance
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize',setModalHeight);
+    window._modalVPListener=setModalHeight;
+  }
+
+  setTimeout(()=>{const i=document.querySelector('#modalBody input[type="text"]');if(i&&!isMobile())i.focus();},150);
+}
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('open');
+  if(window.visualViewport&&window._modalVPListener){
+    window.visualViewport.removeEventListener('resize',window._modalVPListener);
+    window._modalVPListener=null;
+  }
+  render();
+}
+
+/* ============================================================
+   NAVIGATION
+============================================================ */
 function navigate(dir){
   if(currentView==='month')currentDate=new Date(currentDate.getFullYear(),currentDate.getMonth()+dir,1);
   else if(currentView==='week')currentDate.setDate(currentDate.getDate()+dir*7);
@@ -1086,13 +910,66 @@ function setView(v){
   ['vswDesktop','vswMobile'].forEach(id=>{const sw=document.getElementById(id);if(!sw)return;sw.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===v))});
   render();
 }
+
+/* ============================================================
+   SWIPE NAVIGATION (horizontal swipe on calendar)
+============================================================ */
+(function(){
+  const area=document.getElementById('swipe-area');
+  let startX=0,startY=0,startTime=0,locked=null;
+  const THRESHOLD=50,MAX_TIME=350,ANGLE=35;
+
+  area.addEventListener('touchstart',e=>{
+    if(e.touches.length!==1)return;
+    startX=e.touches[0].clientX;
+    startY=e.touches[0].clientY;
+    startTime=Date.now();
+    locked=null;
+  },{passive:true});
+
+  area.addEventListener('touchmove',e=>{
+    if(e.touches.length!==1)return;
+    const dx=e.touches[0].clientX-startX;
+    const dy=e.touches[0].clientY-startY;
+    if(locked===null){
+      if(Math.abs(dx)>8||Math.abs(dy)>8){
+        locked=Math.abs(dx)>Math.abs(dy)?'h':'v';
+      }
+    }
+    // Prevent scroll only for horizontal swipe
+    if(locked==='h')e.preventDefault();
+  },{passive:false});
+
+  area.addEventListener('touchend',e=>{
+    if(locked!=='h')return;
+    const dt=Date.now()-startTime;
+    const dx=e.changedTouches[0].clientX-startX;
+    const dy=e.changedTouches[0].clientY-startY;
+    const angle=Math.abs(Math.atan2(Math.abs(dy),Math.abs(dx))*180/Math.PI);
+
+    // Only year view doesn't swipe (too complex)
+    if(currentView==='year')return;
+    if(dt>MAX_TIME)return;
+    if(Math.abs(dx)<THRESHOLD)return;
+    if(angle>ANGLE)return;
+
+    // Swipe left → next, swipe right → prev
+    navigate(dx<0?1:-1);
+  },{passive:true});
+})();
+
+/* ============================================================
+   TOAST
+============================================================ */
 function showToast(msg,type='info'){
   const tc=document.getElementById('toast-wrap');const t=document.createElement('div');t.className=`toast ${type}`;
   const icon=type==='success'?'✅':type==='error'?'❌':'ℹ️';t.innerHTML=`<span>${icon}</span><span>${msg}</span>`;
   tc.appendChild(t);setTimeout(()=>{t.style.animation='tOut .22s ease forwards';setTimeout(()=>t.remove(),250)},2800);
 }
 
-/* Events */
+/* ============================================================
+   EVENTS
+============================================================ */
 document.getElementById('vswDesktop').addEventListener('click',e=>{const b=e.target.closest('.tab-btn');if(b)setView(b.dataset.view)});
 document.getElementById('vswMobile').addEventListener('click',e=>{const b=e.target.closest('.tab-btn');if(b)setView(b.dataset.view)});
 document.getElementById('prevBtn').addEventListener('click',()=>navigate(-1));
@@ -1103,6 +980,11 @@ document.getElementById('ssPrevBtn').addEventListener('click',()=>ssNavigate(-1)
 document.getElementById('ssNextBtn').addEventListener('click',()=>ssNavigate(1));
 document.getElementById('ssTodayBtn').addEventListener('click',()=>{ssDate=new Date();syncSsToolbar();renderSsBody()});
 document.getElementById('addHabitBtn').addEventListener('click',()=>openHabitModal());
+
+// Welcome banner button
+document.getElementById('welcome-banner').addEventListener('click',()=>openHabitModal());
+document.getElementById('wbAddBtn').addEventListener('click',e=>{e.stopPropagation();openHabitModal();});
+
 document.getElementById('habitsList').addEventListener('click',e=>{
   const btn=e.target.closest('[data-action]');if(!btn)return;e.stopPropagation();
   const id=btn.dataset.id;const h=state.habits.find(x=>x.id===id);if(!h)return;
@@ -1119,18 +1001,22 @@ document.getElementById('filterChips').addEventListener('click',e=>{
 });
 document.getElementById('filterAllBtn').addEventListener('click',()=>{activeFilters=null;render()});
 document.getElementById('clearDataBtn').addEventListener('click',()=>{
-  openConfirm('Очистить все данные?','Все привычки и история выполнения будут удалены с вашего устройства. Это действие нельзя отменить.',()=>{
-    localStorage.removeItem(SK);state={habits:[],completions:{},createdAt:Date.now()};activeFilters=null;render();showToast('Данные очищены','info');
-  });
+  openConfirm('Очистить все данные?','Все привычки и история выполнения будут удалены с вашего устройства. Это действие нельзя отменить.',()=>{localStorage.removeItem(SK);state={habits:[],completions:{},createdAt:Date.now()};activeFilters=null;render();showToast('Данные очищены','info');});
 });
 document.getElementById('mobileStatsBtn').addEventListener('click',openStatsScreen);
 document.getElementById('statsBackBtn').addEventListener('click',closeStatsScreen);
+
+// Modal overlay close on backdrop tap
 document.getElementById('modalOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('modalOverlay'))closeModal()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+
 const sidebar=document.getElementById('sidebar');
 const sbBackdrop=document.getElementById('sbBackdrop');
 document.getElementById('menuToggle').addEventListener('click',()=>{sidebar.classList.toggle('open');sbBackdrop.style.display=sidebar.classList.contains('open')?'block':'none'});
 sbBackdrop.addEventListener('click',()=>{sidebar.classList.remove('open');sbBackdrop.style.display='none'});
+
+// Re-render banner on resize (viewport changes)
+window.addEventListener('resize',()=>{renderWelcomeBanner()});
 
 render();
 </script>
