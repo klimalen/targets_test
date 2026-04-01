@@ -230,15 +230,72 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .ss-cal-title{font-size:.92rem;font-weight:600;flex:1;text-align:center}
 .ss-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:0}
 
-/* MODAL */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:flex-end;justify-content:center;padding:0;opacity:0;pointer-events:none;transition:opacity .22s ease}
+/* ============================================================
+   MODAL — два режима:
+   1. Обычный: bottom sheet (для подтверждений, выбора дня)
+   2. Form: fullscreen на мобильных (для форм с вводом)
+============================================================ */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);
+  z-index:1000;display:flex;align-items:flex-end;justify-content:center;
+  padding:0;opacity:0;pointer-events:none;transition:opacity .22s ease
+}
 .modal-overlay.open{opacity:1;pointer-events:all}
-.modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r) var(--r) 0 0;padding:0;width:100%;max-width:100%;box-shadow:var(--shadow);transform:translateY(100%);transition:transform .25s cubic-bezier(.32,0,.15,1);overflow:hidden;display:flex;flex-direction:column}
+.modal{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--r) var(--r) 0 0;
+  padding:0;width:100%;max-width:100%;
+  box-shadow:var(--shadow);
+  transform:translateY(100%);
+  transition:transform .25s cubic-bezier(.32,0,.15,1);
+  overflow:hidden;display:flex;flex-direction:column
+}
 .modal-overlay.open .modal{transform:translateY(0)}
 .modal-handle{width:36px;height:4px;border-radius:2px;background:var(--border);margin:10px auto 0;flex-shrink:0}
 .modal-body{overflow-y:auto;padding:16px 20px 24px;flex:1;-webkit-overflow-scrolling:touch}
 .modal-title{font-size:1rem;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+
+/* ── FULLSCREEN MODAL для форм на мобильных ── */
+/* Активируется классом .modal-overlay.form-mode на мобильных */
+@media(max-width:768px){
+  .modal-overlay.form-mode{
+    align-items:flex-start;  /* прижимаем к верху */
+    padding:0;
+  }
+  .modal-overlay.form-mode .modal{
+    border-radius:0;           /* полный экран — нет скруглений */
+    height:100%;               /* занимаем весь экран */
+    max-height:100%;
+    transform:translateY(-100%); /* появляется сверху вниз */
+  }
+  .modal-overlay.form-mode.open .modal{transform:translateY(0)}
+  .modal-overlay.form-mode .modal-handle{display:none}
+  /* Шапка формы с кнопкой закрытия */
+  .modal-form-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 18px;
+    background:var(--bg2);
+    border-bottom:1px solid var(--border);
+    flex-shrink:0;
+    position:sticky;top:0;z-index:2;
+  }
+  .modal-form-title{font-size:1rem;font-weight:700}
+  .modal-form-close{
+    width:32px;height:32px;border-radius:8px;
+    border:1px solid var(--border);background:var(--bg3);
+    color:var(--text2);font-size:1.1rem;
+    cursor:pointer;display:flex;align-items:center;justify-content:center;
+    transition:all var(--tr);font-family:inherit;
+  }
+  .modal-form-close:hover{border-color:var(--accent);color:var(--accent)}
+  /* Прячем обычный заголовок внутри body когда есть form-header */
+  .modal-overlay.form-mode .modal-body .modal-title{display:none}
+}
+/* На десктопе — центрированная модалка как обычно */
+@media(min-width:769px){
+  .modal-form-header{display:none} /* заголовок рендерится внутри body */
+}
 
 /* AUTH MODAL */
 .auth-modal-wrap{max-width:380px;margin:0 auto}
@@ -259,7 +316,6 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .form-select:focus{border-color:var(--accent)}
 .auth-error{background:rgba(247,95,107,.08);border:1px solid rgba(247,95,107,.25);border-radius:var(--rs);padding:9px 12px;font-size:.8rem;color:var(--red);margin-bottom:14px;line-height:1.45;display:none}
 .auth-error.show{display:block}
-/* Информационный блок (зелёный) */
 .auth-info{background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.25);border-radius:var(--rs);padding:9px 12px;font-size:.8rem;color:var(--green);margin-bottom:14px;line-height:1.45;display:none}
 .auth-info.show{display:block}
 .auth-submit-btn{width:100%;padding:11px;border-radius:var(--rs);border:none;background:var(--accent);color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;transition:all var(--tr);font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px}
@@ -269,14 +325,11 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 @keyframes spin{to{transform:rotate(360deg)}}
 .auth-submit-btn.loading .auth-spinner{display:block}
 .auth-submit-btn.loading .auth-btn-text{display:none}
-/* Ссылка «Забыли пароль?» */
 .auth-forgot{display:block;text-align:right;font-size:.75rem;color:var(--text3);cursor:pointer;margin-top:-8px;margin-bottom:14px;background:none;border:none;padding:0;font-family:inherit;transition:color var(--tr)}
 .auth-forgot:hover{color:var(--accent)}
-/* Дисклеймер */
 .auth-disclaimer{margin-top:10px;font-size:.71rem;color:var(--text3);text-align:center;line-height:1.5}
 .auth-disclaimer a{color:var(--text2);text-decoration:underline;text-underline-offset:2px;transition:color var(--tr)}
 .auth-disclaimer a:hover{color:var(--accent)}
-/* Кнопка «Назад» в форме */
 .auth-back-btn{display:flex;align-items:center;gap:5px;background:none;border:none;color:var(--text3);font-size:.8rem;cursor:pointer;padding:0 0 14px;font-family:inherit;transition:color var(--tr)}
 .auth-back-btn:hover{color:var(--accent)}
 
@@ -293,21 +346,23 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .settings-danger-zone{border:1px solid rgba(247,95,107,.2);border-radius:var(--rs);padding:12px 14px}
 .settings-danger-title{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--red);margin-bottom:8px}
 .settings-danger-desc{font-size:.76rem;color:var(--text2);margin-bottom:10px;line-height:1.45}
+/* Футер настроек */
+.settings-footer{
+  margin-top:22px;padding-top:16px;
+  border-top:1px solid var(--border);
+  text-align:center;
+}
+.settings-footer a{
+  font-size:.78rem;color:var(--text3);
+  text-decoration:underline;text-underline-offset:3px;
+  transition:color var(--tr);
+}
+.settings-footer a:hover{color:var(--accent)}
 
-/* ── RESET PASSWORD FULLSCREEN ── */
-/* Показывается поверх всего когда пользователь переходит
-   по ссылке из письма восстановления пароля */
-#reset-pw-screen{
-  display:none;position:fixed;inset:0;
-  background:var(--bg);z-index:5000;
-  align-items:center;justify-content:center;padding:20px;
-}
+/* RESET PASSWORD FULLSCREEN */
+#reset-pw-screen{display:none;position:fixed;inset:0;background:var(--bg);z-index:5000;align-items:center;justify-content:center;padding:20px}
 #reset-pw-screen.open{display:flex}
-.reset-pw-card{
-  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
-  padding:28px 24px;width:100%;max-width:400px;
-  box-shadow:var(--shadow);
-}
+.reset-pw-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:28px 24px;width:100%;max-width:400px;box-shadow:var(--shadow)}
 .reset-pw-logo{text-align:center;font-size:2rem;margin-bottom:6px}
 .reset-pw-title{font-size:1.05rem;font-weight:700;text-align:center;margin-bottom:4px}
 .reset-pw-sub{font-size:.8rem;color:var(--text2);text-align:center;margin-bottom:22px;line-height:1.5}
@@ -385,6 +440,10 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
   .modal{border-radius:var(--r);max-width:480px;transform:translateY(20px);max-height:90vh}
   .modal-overlay.open .modal{transform:translateY(0)}
   .modal-handle{display:none}
+  /* На десктопе form-mode = обычная центрированная модалка */
+  .modal-overlay.form-mode{align-items:center;padding:16px}
+  .modal-overlay.form-mode .modal{border-radius:var(--r);max-width:480px;height:auto;max-height:90vh;transform:translateY(20px)}
+  .modal-overlay.form-mode.open .modal{transform:translateY(0)}
 }
 @media(max-width:768px){
   #sidebar{position:fixed;left:0;top:0;bottom:0;z-index:200;transform:translateX(-100%)}
@@ -522,7 +581,7 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
   <div class="ss-body" id="ssBody"></div>
 </div>
 
-<!-- Reset Password Fullscreen (показывается по ссылке из письма) -->
+<!-- Reset Password Fullscreen -->
 <div id="reset-pw-screen">
   <div class="reset-pw-card">
     <div class="reset-pw-logo">🌿</div>
@@ -532,13 +591,11 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
     <div class="auth-info" id="resetPwSuccess"></div>
     <div class="form-group">
       <label class="form-label">Новый пароль</label>
-      <input class="form-input" id="resetPwInput" type="password"
-             autocomplete="new-password" placeholder="Минимум 6 символов">
+      <input class="form-input" id="resetPwInput" type="password" autocomplete="new-password" placeholder="Минимум 6 символов">
     </div>
     <div class="form-group">
       <label class="form-label">Повторите пароль</label>
-      <input class="form-input" id="resetPwConfirm" type="password"
-             autocomplete="new-password" placeholder="Повторите пароль">
+      <input class="form-input" id="resetPwConfirm" type="password" autocomplete="new-password" placeholder="Повторите пароль">
     </div>
     <button class="auth-submit-btn" id="resetPwSubmitBtn">
       <span class="auth-btn-text">Сохранить пароль</span>
@@ -571,6 +628,11 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal" id="modalBox">
     <div class="modal-handle"></div>
+    <!-- Шапка для form-mode на мобильных (рендерится JS) -->
+    <div class="modal-form-header" id="modalFormHeader" style="display:none">
+      <div class="modal-form-title" id="modalFormTitle"></div>
+      <button class="modal-form-close" id="modalFormCloseBtn">✕</button>
+    </div>
     <div class="modal-body" id="modalBody"></div>
   </div>
 </div>
@@ -602,7 +664,7 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     storageKey: 'habits_auth',
     storage: window.localStorage,
     autoRefreshToken: true,
-    detectSessionInUrl: true, // обязательно — ловит #type=recovery из URL
+    detectSessionInUrl: true,
   }
 });
 
@@ -768,81 +830,80 @@ async function migrateLocalData(){
 }
 
 /* ============================================================
-   AUTH INIT
-   detectSessionInUrl:true автоматически обменивает
-   #access_token из URL на сессию — это работает и для
-   обычного входа и для PASSWORD_RECOVERY
+   AUTH
 ============================================================ */
-async function initAuth(){
-  // Сначала — быстрый рендер из localStorage чтобы не было белого экрана
-  const local=loadLocalState();
-  state.habits=local.habits||[];
-  state.completions=local.completions||{};
-  state.celebrations=local.celebrations||{};
-  renderHeaderAuth();
-  render();
+function parseHashParams(){
+  const allHash=window.location.href.split('#').slice(1).join('#');
+  const params={};
+  allHash.split('&').forEach(part=>{const[k,v]=part.split('=');if(k)params[decodeURIComponent(k)]=decodeURIComponent(v||'');});
+  return params;
+}
 
-  // Проверяем текущую сессию
+async function initAuth(){
+  const hashParams=parseHashParams();
+  const isRecovery=hashParams['type']==='recovery';
+  const hasError=hashParams['error'];
+
+  if(hasError){
+    const errDesc=hashParams['error_description']||hashParams['error']||'';
+    if(window.history&&window.history.replaceState)window.history.replaceState(null,'',window.location.pathname);
+    const msg=errDesc.toLowerCase().includes('expired')?'Ссылка для сброса пароля устарела. Запросите новую.':'Ссылка недействительна. Запросите новую.';
+    const local=loadLocalState();
+    state.habits=local.habits||[];state.completions=local.completions||{};state.celebrations=local.celebrations||{};
+    renderHeaderAuth();render();
+    setTimeout(()=>{
+      showToast(msg,'error');
+      openAuthModal('login');
+      setTimeout(()=>document.getElementById('forgotBtn')?.click(),100);
+    },500);
+    sb.auth.onAuthStateChange(handleAuthChange);
+    return;
+  }
+
+  const local=loadLocalState();
+  state.habits=local.habits||[];state.completions=local.completions||{};state.celebrations=local.celebrations||{};
+  renderHeaderAuth();render();
+
+  if(isRecovery)showToast('Проверяем ссылку...','info');
+
   const{data:{user}}=await sb.auth.getUser();
   currentUser=user||null;
 
-  if(currentUser){
+  if(currentUser&&!isRecovery){
     await loadBackendData();
     migrateLocalData().then(()=>loadBackendData());
   }
   renderHeaderAuth();
+  sb.auth.onAuthStateChange(handleAuthChange);
+}
 
-  // Подписка на auth события
-  sb.auth.onAuthStateChange(async(event,session)=>{
-    console.log('[habits] auth event:', event);
-    const prevUser=currentUser;
-    currentUser=session?.user||null;
+async function handleAuthChange(event,session){
+  console.log('[habits] auth event:',event);
+  const prevUser=currentUser;
+  currentUser=session?.user||null;
 
-    if(event==='PASSWORD_RECOVERY'){
-      // Пользователь перешёл по ссылке из письма восстановления
-      // Supabase уже создал временную сессию — показываем форму смены пароля
-      showResetPasswordScreen();
-      return;
-    }
-
-    if(event==='SIGNED_IN'){
-      if(!prevUser){
-        // Новый вход (не просто обновление токена)
-        renderHeaderAuth();
-        await migrateLocalData();
-        await loadBackendData();
-        render();
-        // Не показываем toast если это был recovery (пользователь только что сменил пароль)
-      }
-    }
-
-    if(event==='SIGNED_OUT'){
-      currentUser=null;
-      const local=loadLocalState();
-      state.habits=local.habits||[];
-      state.completions=local.completions||{};
-      state.celebrations=local.celebrations||{};
-      activeFilters=null;
-      renderHeaderAuth();
-      render();
-    }
-
-    if(event==='TOKEN_REFRESHED'){
-      currentUser=session?.user||null;
-    }
-
-    if(event==='USER_UPDATED'){
-      // После успешной смены пароля
-      currentUser=session?.user||null;
-    }
-  });
+  if(event==='PASSWORD_RECOVERY'){
+    if(window.history&&window.history.replaceState)window.history.replaceState(null,'',window.location.pathname);
+    showResetPasswordScreen();
+    return;
+  }
+  if(event==='SIGNED_IN'&&!prevUser){
+    renderHeaderAuth();
+    await migrateLocalData();
+    await loadBackendData();
+    render();
+  }
+  if(event==='SIGNED_OUT'){
+    currentUser=null;
+    const local=loadLocalState();
+    state.habits=local.habits||[];state.completions=local.completions||{};state.celebrations=local.celebrations||{};
+    activeFilters=null;renderHeaderAuth();render();
+  }
+  if(event==='TOKEN_REFRESHED'||event==='USER_UPDATED')currentUser=session?.user||null;
 }
 
 function setSyncing(v){isSyncing=v;renderHeaderAuth();}
 
-/* ============================================================
-   AUTH ERROR TEXTS
-============================================================ */
 function authErrorText(error){
   if(!error)return'Произошла ошибка. Попробуйте позже.';
   const msg=(error.message||'').toLowerCase();
@@ -864,9 +925,7 @@ function renderHeaderAuth(){
   const el=document.getElementById('headerAuth');
   if(currentUser){
     el.innerHTML=`
-      ${isSyncing
-        ?`<div class="hdr-sync-badge syncing">⟳ Синхронизация...</div>`
-        :`<div class="hdr-sync-badge">☁️ Синхронизировано</div>`}
+      ${isSyncing?`<div class="hdr-sync-badge syncing">⟳ Синхронизация...</div>`:`<div class="hdr-sync-badge">☁️ Синхронизировано</div>`}
       <button class="hdr-settings-btn" id="settingsBtn" title="Настройки">⚙️</button>`;
     document.getElementById('settingsBtn').addEventListener('click',openSettingsModal);
   }else{
@@ -882,7 +941,6 @@ function renderHeaderAuth(){
 
 /* ============================================================
    AUTH MODAL
-   Три режима: login | register | forgot
 ============================================================ */
 function openAuthModal(initialMode='login'){
   const html=`
@@ -891,8 +949,6 @@ function openAuthModal(initialMode='login'){
         <button class="auth-tab ${initialMode==='login'?'active':''}" data-mode="login">Войти</button>
         <button class="auth-tab ${initialMode==='register'?'active':''}" data-mode="register">Регистрация</button>
       </div>
-
-      <!-- Ценностное предложение -->
       <div class="auth-value-props" id="authValueProps" style="${initialMode==='register'?'':'display:none'}">
         <div class="auth-vp-title">Зачем создавать профиль?</div>
         <div class="auth-vp-list">
@@ -901,33 +957,25 @@ function openAuthModal(initialMode='login'){
           <div class="auth-vp-item"><span class="auth-vp-icon">🔄</span><span>Отслеживайте прогресс и результаты</span></div>
         </div>
       </div>
-
-      <!-- Блок «забыл пароль» (показывается вместо основной формы) -->
       <div id="forgotBlock" style="display:none">
         <button class="auth-back-btn" id="forgotBackBtn">‹ Назад</button>
         <div class="auth-info" id="forgotInfo"></div>
         <div class="auth-error" id="forgotError"></div>
-        <p style="font-size:.82rem;color:var(--text2);margin-bottom:14px;line-height:1.5">
-          Введите email вашего аккаунта — мы отправим ссылку для смены пароля.
-        </p>
+        <p style="font-size:.82rem;color:var(--text2);margin-bottom:14px;line-height:1.5">Введите email вашего аккаунта — мы отправим ссылку для смены пароля.</p>
         <div class="form-group">
           <label class="form-label">Email</label>
-          <input class="form-input" id="forgotEmail" type="email" inputmode="email"
-                 autocomplete="email" placeholder="your@email.com">
+          <input class="form-input" id="forgotEmail" type="email" inputmode="email" autocomplete="email" placeholder="your@email.com">
         </div>
         <button class="auth-submit-btn" id="forgotSubmitBtn">
           <span class="auth-btn-text">Отправить ссылку</span>
           <div class="auth-spinner"></div>
         </button>
       </div>
-
-      <!-- Основная форма -->
       <div id="mainAuthBlock">
         <div class="auth-error" id="authError"></div>
         <div class="form-group">
           <label class="form-label">Email</label>
-          <input class="form-input" id="authEmail" type="email" inputmode="email"
-                 autocomplete="email" placeholder="your@email.com">
+          <input class="form-input" id="authEmail" type="email" inputmode="email" autocomplete="email" placeholder="your@email.com">
         </div>
         <div class="form-group">
           <label class="form-label">Пароль</label>
@@ -935,33 +983,25 @@ function openAuthModal(initialMode='login'){
                  autocomplete="${initialMode==='register'?'new-password':'current-password'}"
                  placeholder="${initialMode==='register'?'Минимум 6 символов':'Ваш пароль'}">
         </div>
-        <!-- Ссылка «Забыли пароль?» — только в режиме login -->
-        <button class="auth-forgot" id="forgotBtn"
-                style="${initialMode==='login'?'':'display:none'}">
-          Забыли пароль?
-        </button>
+        <button class="auth-forgot" id="forgotBtn" style="${initialMode==='login'?'':'display:none'}">Забыли пароль?</button>
         <button class="auth-submit-btn" id="authSubmitBtn">
-          <span class="auth-btn-text" id="authBtnText">
-            ${initialMode==='login'?'Войти':'Создать аккаунт'}
-          </span>
+          <span class="auth-btn-text" id="authBtnText">${initialMode==='login'?'Войти':'Создать аккаунт'}</span>
           <div class="auth-spinner"></div>
         </button>
-        <!-- Дисклеймер — только в режиме register -->
-        <div class="auth-disclaimer" id="authDisclaimer"
-             style="${initialMode==='register'?'':'display:none'}">
+        <div class="auth-disclaimer" id="authDisclaimer" style="${initialMode==='register'?'':'display:none'}">
           Нажимая «Создать аккаунт», вы соглашаетесь с
           <a href="${TERMS_URL}" target="_blank" rel="noopener">условиями использования</a>
-          и
-          <a href="${PRIVACY_URL}" target="_blank" rel="noopener">политикой конфиденциальности</a>.
+          и <a href="${PRIVACY_URL}" target="_blank" rel="noopener">политикой конфиденциальности</a>.
         </div>
       </div>
     </div>`;
 
-  openModal(html);
+  // Auth-форма открывается как fullscreen на мобильных
+  const title = initialMode==='login' ? 'Войти' : 'Регистрация';
+  openModal(html, {formMode: true, title});
 
   let mode=initialMode;
 
-  /* helpers */
   function showAuthError(msg){const el=document.getElementById('authError');if(el){el.textContent=msg;el.classList.add('show');}}
   function hideAuthError(){const el=document.getElementById('authError');if(el)el.classList.remove('show');}
   function setLoading(v){const btn=document.getElementById('authSubmitBtn');if(btn){btn.classList.toggle('loading',v);btn.disabled=v;}}
@@ -975,6 +1015,9 @@ function openAuthModal(initialMode='login'){
     const pw=document.getElementById('authPassword');
     if(pw){pw.placeholder=m==='register'?'Минимум 6 символов':'Ваш пароль';pw.autocomplete=m==='register'?'new-password':'current-password';}
     document.getElementById('authBtnText').textContent=m==='login'?'Войти':'Создать аккаунт';
+    // Обновляем заголовок шапки на мобильных
+    const fh=document.getElementById('modalFormTitle');
+    if(fh)fh.textContent=m==='login'?'Войти':'Регистрация';
     hideAuthError();
   }
 
@@ -983,6 +1026,7 @@ function openAuthModal(initialMode='login'){
     document.getElementById('mainAuthBlock').style.display='none';
     document.getElementById('authTabs').style.display='none';
     document.getElementById('authValueProps').style.display='none';
+    const fh=document.getElementById('modalFormTitle');if(fh)fh.textContent='Сброс пароля';
   }
   function hideForgotBlock(){
     document.getElementById('forgotBlock').style.display='none';
@@ -1010,32 +1054,18 @@ function openAuthModal(initialMode='login'){
       if(mode==='login'){
         const{error}=await sb.auth.signInWithPassword({email,password});
         if(error)throw error;
-        closeModal();
-        showToast('Добро пожаловать! 👋','success');
+        closeModal();showToast('Добро пожаловать! 👋','success');
       }else{
-        // РЕГИСТРАЦИЯ: confirm email отключён в Dashboard →
-        // signUp сразу возвращает session → пользователь войдёт автоматически
         const{data,error}=await sb.auth.signUp({email,password});
         if(error)throw error;
         closeModal();
-        // Если session есть сразу — onAuthStateChange SIGNED_IN сработает,
-        // но показываем toast здесь для мгновенной обратной связи
-        if(data.session){
-          showToast('Аккаунт создан! Добро пожаловать 🎉','success');
-        }else{
-          // На случай если confirm email включён — информируем пользователя
-          showToast('Проверьте почту для подтверждения аккаунта','info');
-        }
+        if(data.session)showToast('Аккаунт создан! Добро пожаловать 🎉','success');
+        else showToast('Проверьте почту для подтверждения аккаунта','info');
       }
-    }catch(e){
-      console.error('[habits] auth error',e);
-      showAuthError(authErrorText(e));
-    }finally{
-      setLoading(false);
-    }
+    }catch(e){console.error('[habits] auth error',e);showAuthError(authErrorText(e));}
+    finally{setLoading(false);}
   }
 
-  /* forgot password submit */
   async function submitForgot(){
     const email=(document.getElementById('forgotEmail')?.value||'').trim();
     const emailRx=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -1047,12 +1077,10 @@ function openAuthModal(initialMode='login'){
     const btn=document.getElementById('forgotSubmitBtn');
     if(btn){btn.classList.add('loading');btn.disabled=true;}
     try{
-      const { error } = await sb.auth.resetPasswordForEmail(email, {
-  redirectTo: 'https://klimalen.github.io/targets/'
-});
+      const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:'https://klimalen.github.io/targets/'});
       if(error)throw error;
       if(infoEl){infoEl.textContent='Письмо отправлено! Проверьте почту и перейдите по ссылке.';infoEl.classList.add('show');}
-      if(btn){btn.classList.remove('loading');btn.disabled=true;} // держим кнопку заблокированной
+      if(btn){btn.classList.remove('loading');btn.disabled=true;}
     }catch(e){
       console.error('[habits] resetPassword',e);
       if(errEl){errEl.textContent=authErrorText(e);errEl.classList.add('show');}
@@ -1060,13 +1088,11 @@ function openAuthModal(initialMode='login'){
     }
   }
 
-  /* events */
   document.querySelectorAll('.auth-tab').forEach(t=>t.addEventListener('click',()=>setMode(t.dataset.mode)));
   document.getElementById('authSubmitBtn')?.addEventListener('click',submit);
   document.getElementById('forgotBtn')?.addEventListener('click',showForgotBlock);
   document.getElementById('forgotBackBtn')?.addEventListener('click',hideForgotBlock);
   document.getElementById('forgotSubmitBtn')?.addEventListener('click',submitForgot);
-
   document.getElementById('authPassword')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submit();}});
   document.getElementById('authEmail')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('authPassword')?.focus();}});
   document.getElementById('forgotEmail')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitForgot();}});
@@ -1074,28 +1100,18 @@ function openAuthModal(initialMode='login'){
 
 /* ============================================================
    RESET PASSWORD SCREEN
-   Показывается когда пользователь переходит по ссылке
-   из письма восстановления пароля (событие PASSWORD_RECOVERY)
 ============================================================ */
 function showResetPasswordScreen(){
   const screen=document.getElementById('reset-pw-screen');
   screen.classList.add('open');
-
-  // Очищаем URL от токенов — чтобы при обновлении страницы
-  // форма не показывалась снова
-  if(window.history&&window.history.replaceState){
-    window.history.replaceState(null,'',window.location.pathname);
-  }
-
+  if(window.history&&window.history.replaceState)window.history.replaceState(null,'',window.location.pathname);
   const errEl=document.getElementById('resetPwError');
   const sucEl=document.getElementById('resetPwSuccess');
   const btn=document.getElementById('resetPwSubmitBtn');
-
   function showErr(msg){if(errEl){errEl.textContent=msg;errEl.classList.add('show');}if(sucEl)sucEl.classList.remove('show');}
   function hideErr(){if(errEl)errEl.classList.remove('show');}
   function showSuc(msg){if(sucEl){sucEl.textContent=msg;sucEl.classList.add('show');}if(errEl)errEl.classList.remove('show');}
   function setLoad(v){if(btn){btn.classList.toggle('loading',v);btn.disabled=v;}}
-
   async function submitNewPassword(){
     hideErr();
     const pw=document.getElementById('resetPwInput')?.value||'';
@@ -1107,31 +1123,13 @@ function showResetPasswordScreen(){
       const{error}=await sb.auth.updateUser({password:pw});
       if(error)throw error;
       showSuc('Пароль успешно изменён! Сейчас выполним вход...');
-      // Небольшая задержка чтобы пользователь увидел сообщение
-      setTimeout(()=>{
-        screen.classList.remove('open');
-        renderHeaderAuth();
-        render();
-        showToast('Пароль изменён. Добро пожаловать! 🔐','success');
-      },1800);
-    }catch(e){
-      console.error('[habits] updateUser',e);
-      showErr(authErrorText(e));
-      setLoad(false);
-    }
+      setTimeout(()=>{screen.classList.remove('open');renderHeaderAuth();render();showToast('Пароль изменён. Добро пожаловать! 🔐','success');},1800);
+    }catch(e){console.error('[habits] updateUser',e);showErr(authErrorText(e));setLoad(false);}
   }
-
-  // Убираем старые listeners заменой кнопки
-  const newBtn=btn.cloneNode(true);
-  btn.parentNode.replaceChild(newBtn,btn);
+  const newBtn=btn.cloneNode(true);btn.parentNode.replaceChild(newBtn,btn);
   document.getElementById('resetPwSubmitBtn').addEventListener('click',submitNewPassword);
-
-  document.getElementById('resetPwInput')?.addEventListener('keydown',e=>{
-    if(e.key==='Enter'){e.preventDefault();document.getElementById('resetPwConfirm')?.focus();}
-  });
-  document.getElementById('resetPwConfirm')?.addEventListener('keydown',e=>{
-    if(e.key==='Enter'){e.preventDefault();submitNewPassword();}
-  });
+  document.getElementById('resetPwInput')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('resetPwConfirm')?.focus();}});
+  document.getElementById('resetPwConfirm')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitNewPassword();}});
 }
 
 /* ============================================================
@@ -1153,15 +1151,7 @@ function openSettingsModal(){
         <span>Ваши привычки автоматически синхронизируются между всеми устройствами, где вы вошли в аккаунт.</span>
       </div>
     </div>
-    ${ /* СТАТИСТИКА В НАСТРОЙКАХ — скрыто
-    <div class="settings-section">
-      <div class="settings-section-title">Статистика</div>
-      <div class="stat-card" style="margin-bottom:0">
-        <div style="display:flex;justify-content:space-between;align-items:center;font-size:.82rem"><span>Привычек</span><strong>${state.habits.length}</strong></div>
-        <div style="display:flex;justify-content:space-between;align-items:center;font-size:.82rem;margin-top:6px"><span>Выполнений всего</span><strong>${allTimeTotal()}</strong></div>
-      </div>
-    </div>
-    */ ''}
+    ${ /* СТАТИСТИКА — скрыто */ ''}
     <div class="settings-section">
       <div class="settings-section-title">Аккаунт</div>
       <button class="btn btn-secondary btn-full" id="settingsChangePwBtn" style="margin-bottom:8px">🔑 Сменить пароль</button>
@@ -1173,23 +1163,20 @@ function openSettingsModal(){
         <div class="settings-danger-desc">Удаление профиля необратимо. Все привычки и история будут удалены с сервера.</div>
         <button class="btn btn-danger btn-full btn-sm" id="settingsDeleteBtn">🗑 Удалить профиль</button>
       </div>
-    </div>`);
+    </div>
+    <div class="settings-footer">
+      <a href="https://klimova-a.tilda.ws/connect" target="_blank" rel="noopener">Связаться</a>
+    </div>`,
+    {formMode: true, title: '⚙️ Настройки'}
+  );
 
-  document.getElementById('settingsChangePwBtn')?.addEventListener('click',()=>{
-    closeModal();
-    openChangePasswordModal();
-  });
-  document.getElementById('settingsLogoutBtn')?.addEventListener('click',async()=>{
-    closeModal();await sb.auth.signOut();showToast('Вы вышли из аккаунта','info');
-  });
-  document.getElementById('settingsDeleteBtn')?.addEventListener('click',()=>{
-    openConfirm('Удалить профиль?','Все ваши привычки и история выполнения будут безвозвратно удалены. Это действие нельзя отменить.',deleteUserProfile);
-  });
+  document.getElementById('settingsChangePwBtn')?.addEventListener('click',()=>{closeModal();openChangePasswordModal();});
+  document.getElementById('settingsLogoutBtn')?.addEventListener('click',async()=>{closeModal();await sb.auth.signOut();showToast('Вы вышли из аккаунта','info');});
+  document.getElementById('settingsDeleteBtn')?.addEventListener('click',()=>{openConfirm('Удалить профиль?','Все ваши привычки и история выполнения будут безвозвратно удалены. Это действие нельзя отменить.',deleteUserProfile);});
 }
 
 /* ============================================================
-   CHANGE PASSWORD MODAL (для авторизованных пользователей)
-   Используется из настроек
+   CHANGE PASSWORD MODAL
 ============================================================ */
 function openChangePasswordModal(){
   openModal(`
@@ -1198,13 +1185,11 @@ function openChangePasswordModal(){
     <div class="auth-info" id="chpwSuccess"></div>
     <div class="form-group">
       <label class="form-label">Новый пароль</label>
-      <input class="form-input" id="chpwNew" type="password"
-             autocomplete="new-password" placeholder="Минимум 6 символов">
+      <input class="form-input" id="chpwNew" type="password" autocomplete="new-password" placeholder="Минимум 6 символов">
     </div>
     <div class="form-group">
       <label class="form-label">Повторите пароль</label>
-      <input class="form-input" id="chpwConfirm" type="password"
-             autocomplete="new-password" placeholder="Повторите новый пароль">
+      <input class="form-input" id="chpwConfirm" type="password" autocomplete="new-password" placeholder="Повторите новый пароль">
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost btn-sm" onclick="closeModal()">Отмена</button>
@@ -1212,14 +1197,15 @@ function openChangePasswordModal(){
         <span class="auth-btn-text">Сохранить</span>
         <div class="auth-spinner"></div>
       </button>
-    </div>`);
+    </div>`,
+    {formMode: true, title: '🔑 Смена пароля'}
+  );
 
   const errEl=document.getElementById('chpwError');
   const sucEl=document.getElementById('chpwSuccess');
   function showErr(msg){if(errEl){errEl.textContent=msg;errEl.classList.add('show');}if(sucEl)sucEl.classList.remove('show');}
   function showSuc(msg){if(sucEl){sucEl.textContent=msg;sucEl.classList.add('show');}if(errEl)errEl.classList.remove('show');}
   function setLoad(v){const btn=document.getElementById('chpwSubmitBtn');if(btn){btn.classList.toggle('loading',v);btn.disabled=v;}}
-
   async function submit(){
     const pw=document.getElementById('chpwNew')?.value||'';
     const pw2=document.getElementById('chpwConfirm')?.value||'';
@@ -1232,13 +1218,8 @@ function openChangePasswordModal(){
       if(error)throw error;
       showSuc('Пароль успешно изменён!');
       setTimeout(()=>closeModal(),1500);
-    }catch(e){
-      console.error('[habits] changePassword',e);
-      showErr(authErrorText(e));
-      setLoad(false);
-    }
+    }catch(e){console.error('[habits] changePassword',e);showErr(authErrorText(e));setLoad(false);}
   }
-
   document.getElementById('chpwSubmitBtn')?.addEventListener('click',submit);
   document.getElementById('chpwNew')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('chpwConfirm')?.focus();}});
   document.getElementById('chpwConfirm')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submit();}});
@@ -1328,9 +1309,6 @@ function lastWeekPct(){
 }
 function allTimeTotal(){let n=0;Object.values(state.completions).forEach(day=>n+=Object.values(day).filter(Boolean).length);return n;}
 
-/* ============================================================
-   PERIOD KEY
-============================================================ */
 function getPeriodKey(type,ref){
   const d=new Date(ref||new Date());
   if(type==='week'){const s=weekStart(d);const wn=Math.ceil(((s-new Date(s.getFullYear(),0,1))/86400000+1)/7);return`${s.getFullYear()}-W${String(wn).padStart(2,'0')}`;}
@@ -1537,6 +1515,7 @@ function openDayModal(date){
   const dateStr=`${date.getDate()} ${MGEN[date.getMonth()]} ${date.getFullYear()}`;
   const mkList=()=>state.habits.map(hb=>{const done=getDone(hb.id,key);return`<div class="day-toggle ${done?'checked':''}" data-hid="${hb.id}"><div class="tog-emoji" style="background:${hb.color}22">${hb.emoji}</div><div class="tog-name">${esc(hb.name)}</div><div class="tog-check">${done?'✓':''}</div></div>`;}).join('');
   const emptyBlock=`<div class="empty-state"><div class="empty-state-icon">🌱</div><div class="empty-state-title">Нет привычек</div><div class="empty-state-desc">Создайте первую привычку — и начните отмечать!</div><button class="first-habit-btn" onclick="closeModal();openHabitModal()">🌱 Создать первую привычку</button></div>`;
+  // День — bottom sheet (нет полей ввода)
   openModal(`<div class="modal-title">📅 ${dateStr}</div>${!state.habits.length?emptyBlock:`<div class="day-habit-list" id="dayList">${mkList()}</div>`}<div class="modal-actions" id="dayActions">${(state.habits.length&&dayDone(key).length)?`<button class="btn btn-secondary btn-sm" id="clearDayBtn">Очистить день</button>`:''}<button class="btn btn-primary btn-sm" id="dayDoneBtn">Готово</button></div>`);
   if(state.habits.length){attachDayToggles(key,mkList);const cb=document.getElementById('clearDayBtn');if(cb)cb.addEventListener('click',()=>clearDay(key,mkList));}
   document.getElementById('dayDoneBtn').addEventListener('click',()=>{closeModal();setTimeout(flushCelebrations,300);});
@@ -1581,18 +1560,23 @@ function openHabitModal(hid=null){
   editId=hid;const h=hid?state.habits.find(x=>x.id===hid):null;
   selEmoji=h?h.emoji:'🏃';selColor=h?h.color:COLORS[0];
   const gt=h&&h.goal?h.goal.type:'week';const gv=h&&h.goal?h.goal.value:'';
+  const title=h?'Редактировать привычку':'Новая привычка';
+
   openModal(`
     <div class="modal-title">${h?'✏️ Редактировать':'➕ Новая привычка'}</div>
     <div class="form-group"><label class="form-label">Название</label><input class="form-input" id="hName" placeholder="Например: Бег" maxlength="40" value="${h?esc(h.name):''}" inputmode="text" autocomplete="off" enterkeyhint="done"></div>
     <div class="form-group"><label class="form-label">Эмодзи</label><div class="emoji-picker-row"><div class="emoji-preview" id="ePrev">${selEmoji}</div><div class="emoji-grid">${EMOJIS.map(e=>`<button class="emoji-option ${e===selEmoji?'selected':''}" data-e="${e}" type="button">${e}</button>`).join('')}</div></div></div>
     <div class="form-group"><label class="form-label">Цвет</label><div class="color-row">${COLORS.map(c=>`<div class="color-option ${c===selColor?'selected':''}" data-c="${c}" style="background:${c}"></div>`).join('')}</div></div>
     <div class="form-group"><label class="form-label">Цель (необязательно)</label><div class="goal-inline"><input class="form-input" id="gVal" type="number" inputmode="numeric" min="1" max="365" placeholder="—" value="${gv}"><span style="color:var(--text2);font-size:.81rem">раз в</span><select class="form-select" id="gType"><option value="week" ${gt==='week'?'selected':''}>Неделю</option><option value="month" ${gt==='month'?'selected':''}>Месяц</option><option value="year" ${gt==='year'?'selected':''}>Год</option></select></div></div>
-    <div class="modal-actions">${h?`<button class="btn btn-danger btn-sm" id="delHabitBtn" type="button">Удалить</button>`:''}<button class="btn btn-ghost btn-sm" onclick="closeModal()" type="button">Отмена</button><button class="btn btn-primary btn-sm" id="saveHabitBtn" type="button">${h?'Сохранить':'Создать'}</button></div>`);
+    <div class="modal-actions">${h?`<button class="btn btn-danger btn-sm" id="delHabitBtn" type="button">Удалить</button>`:''}<button class="btn btn-ghost btn-sm" onclick="closeModal()" type="button">Отмена</button><button class="btn btn-primary btn-sm" id="saveHabitBtn" type="button">${h?'Сохранить':'Создать'}</button></div>`,
+    {formMode: true, title}
+  );
+
   document.querySelectorAll('.emoji-option').forEach(b=>{b.addEventListener('click',()=>{selEmoji=b.dataset.e;document.getElementById('ePrev').textContent=selEmoji;document.querySelectorAll('.emoji-option').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');});});
   document.querySelectorAll('.color-option').forEach(el=>{el.addEventListener('click',()=>{selColor=el.dataset.c;document.querySelectorAll('.color-option').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');});});
   document.getElementById('saveHabitBtn').addEventListener('click',saveHabit);
   const nameInput=document.getElementById('hName');
-  nameInput.addEventListener('focus',()=>{if(isMobile())setTimeout(()=>nameInput.scrollIntoView({behavior:'smooth',block:'center'}),300);});
+  nameInput.addEventListener('focus',()=>{if(isMobile())setTimeout(()=>nameInput.scrollIntoView({behavior:'smooth',block:'nearest'}),300);});
   nameInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();nameInput.blur();}});
   if(h)document.getElementById('delHabitBtn').addEventListener('click',()=>openConfirm('Удалить привычку?',`Привычка «${esc(h.name)}» и вся история будут удалены.`,()=>deleteHabit(h.id)));
 }
@@ -1619,26 +1603,79 @@ async function deleteHabit(id){
 }
 
 function openConfirm(title,text,onOk){
+  // Подтверждение — bottom sheet, нет ввода
   openModal(`<div class="modal-title">⚠️ ${title}</div><p class="confirm-text">${text}</p><div class="modal-actions"><button class="btn btn-ghost btn-sm" onclick="closeModal()">Отмена</button><button class="btn btn-danger btn-sm" id="confOk">Подтвердить</button></div>`);
   document.getElementById('confOk').addEventListener('click',()=>{closeModal();onOk();});
 }
 
 /* ============================================================
-   MODAL
+   MODAL — единая функция с поддержкой form-mode
+   options: { formMode: bool, title: string }
 ============================================================ */
-function openModal(html){
-  document.getElementById('modalBody').innerHTML=html;
-  const overlay=document.getElementById('modalOverlay');
-  const modal=document.getElementById('modalBox');
+function openModal(html, options={}){
+  const overlay = document.getElementById('modalOverlay');
+  const modal   = document.getElementById('modalBox');
+  const header  = document.getElementById('modalFormHeader');
+  const hTitle  = document.getElementById('modalFormTitle');
+  const hClose  = document.getElementById('modalFormCloseBtn');
+
+  document.getElementById('modalBody').innerHTML = html;
+
+  const useFormMode = options.formMode && isMobile();
+
+  if(useFormMode){
+    overlay.classList.add('form-mode');
+    // Показываем шапку с заголовком и кнопкой закрытия
+    hTitle.textContent = options.title || '';
+    header.style.display = 'flex';
+  } else {
+    overlay.classList.remove('form-mode');
+    header.style.display = 'none';
+  }
+
   overlay.classList.add('open');
-  function setH(){if(isMobile()){const vh=window.visualViewport?window.visualViewport.height:window.innerHeight;modal.style.maxHeight=Math.round(vh*0.92)+'px';}else modal.style.maxHeight='90vh';}
+
+  // Высота модалки
+  function setH(){
+    if(useFormMode){
+      // fullscreen — высота задаётся через CSS height:100%
+      modal.style.maxHeight = '';
+    } else if(isMobile()){
+      const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      modal.style.maxHeight = Math.round(vh * 0.92) + 'px';
+    } else {
+      modal.style.maxHeight = '90vh';
+    }
+  }
   setH();
-  if(window.visualViewport){window.visualViewport.addEventListener('resize',setH);window._modalVPListener=setH;}
-  setTimeout(()=>{const i=document.querySelector('#modalBody input[type="text"],#modalBody input[type="email"]');if(i&&!isMobile())i.focus();},150);
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', setH);
+    window._modalVPListener = setH;
+  }
+
+  // Кнопка закрытия в шапке
+  const newClose = hClose.cloneNode(true);
+  hClose.parentNode.replaceChild(newClose, hClose);
+  document.getElementById('modalFormCloseBtn').addEventListener('click', closeModal);
+
+  // Фокус на первое текстовое поле (только десктоп)
+  if(!isMobile()){
+    setTimeout(()=>{
+      const i=document.querySelector('#modalBody input[type="text"],#modalBody input[type="email"]');
+      if(i)i.focus();
+    },150);
+  }
 }
+
 function closeModal(){
-  document.getElementById('modalOverlay').classList.remove('open');
-  if(window.visualViewport&&window._modalVPListener){window.visualViewport.removeEventListener('resize',window._modalVPListener);window._modalVPListener=null;}
+  const overlay = document.getElementById('modalOverlay');
+  overlay.classList.remove('open');
+  overlay.classList.remove('form-mode');
+  document.getElementById('modalFormHeader').style.display = 'none';
+  if(window.visualViewport && window._modalVPListener){
+    window.visualViewport.removeEventListener('resize', window._modalVPListener);
+    window._modalVPListener = null;
+  }
 }
 
 /* ============================================================
@@ -1741,7 +1778,9 @@ document.getElementById('clearDataBtn').addEventListener('click',()=>{
   );
 });
 
-document.getElementById('modalOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('modalOverlay'))closeModal();});
+document.getElementById('modalOverlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('modalOverlay'))closeModal();
+});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
 const sidebar=document.getElementById('sidebar');
@@ -1753,134 +1792,9 @@ window.addEventListener('resize',()=>renderWelcomeBanner());
 /* ============================================================
    BOOT
 ============================================================ */
-
-// Парсим хэш URL ДО инициализации Supabase
-// Supabase с detectSessionInUrl:true сам обработает токены,
-// но нам нужно знать тип заранее для правильного UX
-function parseHashParams() {
-  const hash = window.location.hash.replace(/^#/, '');
-  const params = {};
-  // URL может содержать два # подряд (баг GitHub Pages + Supabase)
-  // Берём всё после первого #
-  const allHash = window.location.href.split('#').slice(1).join('#');
-  allHash.split('&').forEach(part => {
-    const [k, v] = part.split('=');
-    if (k) params[decodeURIComponent(k)] = decodeURIComponent(v || '');
-  });
-  return params;
-}
-
-async function initAuth() {
-  const hashParams = parseHashParams();
-  const isRecovery = hashParams['type'] === 'recovery';
-  const hasError = hashParams['error'];
-
-  // Если в URL есть ошибка (например otp_expired)
-  if (hasError) {
-    const errDesc = hashParams['error_description'] || hashParams['error'] || '';
-    // Чистим URL
-    if (window.history && window.history.replaceState) {
-      window.history.replaceState(null, '', window.location.pathname);
-    }
-    const msg = errDesc.toLowerCase().includes('expired')
-      ? 'Ссылка для сброса пароля устарела. Запросите новую.'
-      : 'Ссылка недействительна. Запросите новую.';
-    // Рендерим приложение и показываем ошибку
-    const local = loadLocalState();
-    state.habits = local.habits || [];
-    state.completions = local.completions || {};
-    state.celebrations = local.celebrations || {};
-    renderHeaderAuth();
-    render();
-    // Небольшая задержка чтобы UI успел отрисоваться
-    setTimeout(() => {
-      showToast(msg, 'error');
-      // Открываем форму запроса нового письма
-      openAuthModal('login');
-      // Переключаем на forgot после открытия модалки
-      setTimeout(() => {
-        document.getElementById('forgotBtn')?.click();
-      }, 100);
-    }, 500);
-    // Всё равно подписываемся на auth
-    sb.auth.onAuthStateChange(handleAuthChange);
-    return;
-  }
-
-  // Быстрый рендер из localStorage чтобы не было белого экрана
-  const local = loadLocalState();
-  state.habits = local.habits || [];
-  state.completions = local.completions || {};
-  state.celebrations = local.celebrations || {};
-  renderHeaderAuth();
-  render();
-
-  // Если это recovery-ссылка — Supabase сам создаст сессию через detectSessionInUrl
-  // onAuthStateChange получит PASSWORD_RECOVERY и покажет форму
-  // Просто подписываемся и ждём
-  if (isRecovery) {
-    // Показываем индикатор загрузки пока Supabase обрабатывает токен
-    showToast('Проверяем ссылку...', 'info');
-  }
-
-  // Проверяем текущую сессию
-  const { data: { user } } = await sb.auth.getUser();
-  currentUser = user || null;
-
-  if (currentUser && !isRecovery) {
-    await loadBackendData();
-    migrateLocalData().then(() => loadBackendData());
-  }
-  renderHeaderAuth();
-
-  // Подписка на auth события
-  sb.auth.onAuthStateChange(handleAuthChange);
-}
-
-async function handleAuthChange(event, session) {
-  console.log('[habits] auth event:', event);
-  const prevUser = currentUser;
-  currentUser = session?.user || null;
-
-  if (event === 'PASSWORD_RECOVERY') {
-    // Supabase успешно обработал recovery-токен
-    // Очищаем URL
-    if (window.history && window.history.replaceState) {
-      window.history.replaceState(null, '', window.location.pathname);
-    }
-    showResetPasswordScreen();
-    return;
-  }
-
-  if (event === 'SIGNED_IN') {
-    if (!prevUser) {
-      renderHeaderAuth();
-      await migrateLocalData();
-      await loadBackendData();
-      render();
-    }
-  }
-
-  if (event === 'SIGNED_OUT') {
-    currentUser = null;
-    const local = loadLocalState();
-    state.habits = local.habits || [];
-    state.completions = local.completions || {};
-    state.celebrations = local.celebrations || {};
-    activeFilters = null;
-    renderHeaderAuth();
-    render();
-  }
-
-  if (event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
-    currentUser = session?.user || null;
-  }
-}
-
 renderHeaderAuth();
 render();
-initAuth().catch(e => console.error('[habits] initAuth failed', e));
-
+initAuth().catch(e=>console.error('[habits] initAuth failed',e));
 </script>
 </body>
 </html>
