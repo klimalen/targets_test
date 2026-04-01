@@ -73,17 +73,13 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .tip-bubble.hidden{display:none}
 .stats-link-btn{display:flex;align-items:center;gap:8px;width:100%;margin-top:10px;padding:9px 12px;border-radius:var(--rs);background:var(--bg4);border:1px solid var(--border);color:var(--text2);font-size:.82rem;font-weight:500;cursor:pointer;transition:all var(--tr)}
 .stats-link-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--glow)}
-
-/* ── ПРАВКА 1: иконки редактирования/удаления всегда видны ── */
 .habit-item{display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:var(--rs);transition:background var(--tr)}
 .habit-item:hover{background:var(--bg3)}
 .habit-dot{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
 .habit-info{flex:1;min-width:0}
 .habit-name{font-size:.86rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .habit-goal-tag{display:inline-flex;align-items:center;gap:3px;background:var(--bg4);border:1px solid var(--border);border-radius:20px;padding:2px 7px;font-size:.66rem;color:var(--text2);margin-top:3px}
-/* Убрали opacity:0 и transition — иконки всегда видны */
 .habit-actions{display:flex;gap:2px;flex-shrink:0}
-
 .filter-section{padding:11px 15px 12px;border-bottom:1px solid var(--border)}
 .filter-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
 .filter-title{font-size:.69rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--text3)}
@@ -263,6 +259,9 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .form-select:focus{border-color:var(--accent)}
 .auth-error{background:rgba(247,95,107,.08);border:1px solid rgba(247,95,107,.25);border-radius:var(--rs);padding:9px 12px;font-size:.8rem;color:var(--red);margin-bottom:14px;line-height:1.45;display:none}
 .auth-error.show{display:block}
+/* Информационный блок (зелёный) */
+.auth-info{background:rgba(62,207,142,.08);border:1px solid rgba(62,207,142,.25);border-radius:var(--rs);padding:9px 12px;font-size:.8rem;color:var(--green);margin-bottom:14px;line-height:1.45;display:none}
+.auth-info.show{display:block}
 .auth-submit-btn{width:100%;padding:11px;border-radius:var(--rs);border:none;background:var(--accent);color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;transition:all var(--tr);font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px}
 .auth-submit-btn:hover:not(:disabled){background:var(--accent2);box-shadow:0 0 14px var(--glow)}
 .auth-submit-btn:disabled{opacity:.5;cursor:not-allowed}
@@ -270,22 +269,16 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 @keyframes spin{to{transform:rotate(360deg)}}
 .auth-submit-btn.loading .auth-spinner{display:block}
 .auth-submit-btn.loading .auth-btn-text{display:none}
-
-/* ── ПРАВКА 4: дисклеймер под кнопкой регистрации ── */
-.auth-disclaimer{
-  margin-top:10px;
-  font-size:.71rem;
-  color:var(--text3);
-  text-align:center;
-  line-height:1.5;
-}
-.auth-disclaimer a{
-  color:var(--text2);
-  text-decoration:underline;
-  text-underline-offset:2px;
-  transition:color var(--tr);
-}
+/* Ссылка «Забыли пароль?» */
+.auth-forgot{display:block;text-align:right;font-size:.75rem;color:var(--text3);cursor:pointer;margin-top:-8px;margin-bottom:14px;background:none;border:none;padding:0;font-family:inherit;transition:color var(--tr)}
+.auth-forgot:hover{color:var(--accent)}
+/* Дисклеймер */
+.auth-disclaimer{margin-top:10px;font-size:.71rem;color:var(--text3);text-align:center;line-height:1.5}
+.auth-disclaimer a{color:var(--text2);text-decoration:underline;text-underline-offset:2px;transition:color var(--tr)}
 .auth-disclaimer a:hover{color:var(--accent)}
+/* Кнопка «Назад» в форме */
+.auth-back-btn{display:flex;align-items:center;gap:5px;background:none;border:none;color:var(--text3);font-size:.8rem;cursor:pointer;padding:0 0 14px;font-family:inherit;transition:color var(--tr)}
+.auth-back-btn:hover{color:var(--accent)}
 
 /* SETTINGS MODAL */
 .settings-section{margin-bottom:20px}
@@ -300,6 +293,24 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .settings-danger-zone{border:1px solid rgba(247,95,107,.2);border-radius:var(--rs);padding:12px 14px}
 .settings-danger-title{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--red);margin-bottom:8px}
 .settings-danger-desc{font-size:.76rem;color:var(--text2);margin-bottom:10px;line-height:1.45}
+
+/* ── RESET PASSWORD FULLSCREEN ── */
+/* Показывается поверх всего когда пользователь переходит
+   по ссылке из письма восстановления пароля */
+#reset-pw-screen{
+  display:none;position:fixed;inset:0;
+  background:var(--bg);z-index:5000;
+  align-items:center;justify-content:center;padding:20px;
+}
+#reset-pw-screen.open{display:flex}
+.reset-pw-card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);
+  padding:28px 24px;width:100%;max-width:400px;
+  box-shadow:var(--shadow);
+}
+.reset-pw-logo{text-align:center;font-size:2rem;margin-bottom:6px}
+.reset-pw-title{font-size:1.05rem;font-weight:700;text-align:center;margin-bottom:4px}
+.reset-pw-sub{font-size:.8rem;color:var(--text2);text-align:center;margin-bottom:22px;line-height:1.5}
 
 /* CELEBRATION */
 #cel-overlay{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(8px);z-index:3000;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease}
@@ -322,7 +333,7 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .cel-p{position:absolute;top:-10px;font-size:1.2rem;animation:fall 2.5s ease-in both}
 @keyframes fall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(120px) rotate(360deg);opacity:0}}
 
-/* PWA BANNER */
+/* PWA */
 #pwa-banner{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);z-index:2000;background:var(--bg2);border:1px solid var(--accent);border-radius:var(--r);padding:18px 20px;box-shadow:0 8px 32px rgba(0,0,0,.6),0 0 0 1px var(--glow);display:flex;flex-direction:column;gap:14px;width:min(92vw,400px);transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s ease;opacity:0;pointer-events:none}
 #pwa-banner.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:all}
 .pwa-top{display:flex;align-items:center;gap:14px}
@@ -392,6 +403,7 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
   #pwa-banner{bottom:16px}
   .header-auth-guest{gap:4px}
   .hdr-btn{padding:5px 9px;font-size:.73rem}
+  .reset-pw-card{padding:22px 16px}
 }
 @media(min-width:769px){.stats-link-btn{display:none}}
 @media(max-width:480px){
@@ -510,6 +522,31 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
   <div class="ss-body" id="ssBody"></div>
 </div>
 
+<!-- Reset Password Fullscreen (показывается по ссылке из письма) -->
+<div id="reset-pw-screen">
+  <div class="reset-pw-card">
+    <div class="reset-pw-logo">🌿</div>
+    <div class="reset-pw-title">Новый пароль</div>
+    <div class="reset-pw-sub">Придумайте новый пароль для вашего аккаунта</div>
+    <div class="auth-error" id="resetPwError"></div>
+    <div class="auth-info" id="resetPwSuccess"></div>
+    <div class="form-group">
+      <label class="form-label">Новый пароль</label>
+      <input class="form-input" id="resetPwInput" type="password"
+             autocomplete="new-password" placeholder="Минимум 6 символов">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Повторите пароль</label>
+      <input class="form-input" id="resetPwConfirm" type="password"
+             autocomplete="new-password" placeholder="Повторите пароль">
+    </div>
+    <button class="auth-submit-btn" id="resetPwSubmitBtn">
+      <span class="auth-btn-text">Сохранить пароль</span>
+      <div class="auth-spinner"></div>
+    </button>
+  </div>
+</div>
+
 <!-- PWA Banner -->
 <div id="pwa-banner">
   <button class="pwa-close" id="pwaBannerClose">✕</button>
@@ -550,12 +587,6 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 <div id="toast-wrap"></div>
 <div id="sbBackdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199"></div>
 
-<!-- ============================================================
-     СТРАНИЦЫ: Политика и Условия (скрытые div-ы, открываются
-     в новой вкладке через data-url на ссылках)
-     Реализованы как отдельные Blob-страницы
-============================================================ -->
-
 <script>
 'use strict';
 
@@ -571,23 +602,21 @@ const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     storageKey: 'habits_auth',
     storage: window.localStorage,
     autoRefreshToken: true,
-    detectSessionInUrl: true,
+    detectSessionInUrl: true, // обязательно — ловит #type=recovery из URL
   }
 });
 
 /* ============================================================
-   LEGAL PAGES — генерируем Blob URL при старте
-   Ссылки в дисклеймере указывают на эти URL
+   LEGAL PAGES
 ============================================================ */
-const PRIVACY_HTML = `<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Политика конфиденциальности — Habits</title><style>:root{--bg:#0f0f13;--bg2:#16161d;--bg3:#1e1e28;--border:#2e2e3e;--text:#e8e8f0;--text2:#b7b7c9;--text3:#8a8aa3;--accent:#7c6af7;--max:860px;--r:18px;--shadow:0 18px 48px rgba(0,0,0,.35)}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,Segoe UI,system-ui,-apple-system,sans-serif;background:linear-gradient(180deg,var(--bg) 0%,#12121a 100%);color:var(--text);line-height:1.68}.topbar{position:sticky;top:0;z-index:20;backdrop-filter:blur(10px);background:rgba(15,15,19,.78);border-bottom:1px solid rgba(46,46,62,.7)}.topbar-inner{max-width:var(--max);margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-weight:700;color:var(--text);text-decoration:none;font-size:1rem}.brand span{color:var(--accent)}.back{color:var(--text2);text-decoration:none;font-size:.92rem;padding:8px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg2)}.wrap{max-width:var(--max);margin:0 auto;padding:28px 18px 80px}.hero{margin-top:20px;padding:28px 24px;border:1px solid var(--border);border-radius:24px;background:radial-gradient(circle at top right,rgba(124,106,247,.14),transparent 35%),var(--bg2);box-shadow:var(--shadow)}h1{margin:0 0 10px;font-size:2rem;line-height:1.15}.lead{margin:0;color:var(--text2);font-size:1rem;max-width:720px}.meta{margin-top:16px;color:var(--text3);font-size:.88rem}.card{margin-top:18px;padding:26px 24px;background:var(--bg2);border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow)}h2{margin:0 0 12px;font-size:1.18rem}p{margin:0 0 12px}ul{margin:0 0 12px 20px;padding:0}li{margin:0 0 8px}.footer{margin-top:22px;color:var(--text3);font-size:.86rem;text-align:center}a{color:#b3a6ff}@media(max-width:640px){h1{font-size:1.6rem}.hero,.card{padding:20px 16px;border-radius:18px}.topbar-inner{padding:12px 14px}.wrap{padding:18px 14px 60px}}</style></head><body><div class="topbar"><div class="topbar-inner"><a class="brand" href="javascript:window.close()">🌿 <span>Habits</span></a><a class="back" href="javascript:window.close()">← Назад в приложение</a></div></div><main class="wrap"><section class="hero"><h1>Политика конфиденциальности</h1><p class="lead">Настоящая политика описывает, какие данные собираются в сервисе Habits, как они используются, где хранятся и какие права есть у пользователя.</p><div class="meta">Последнее обновление: 1 апреля 2026</div></section><section class="card"><h2>1. Какие данные мы собираем</h2><p>В рамках работы сервиса могут обрабатываться следующие категории данных:</p><ul><li>email, указанный при регистрации или входе;</li><li>данные, которые пользователь создаёт в приложении, включая привычки, отметки выполнения и связанную историю;</li><li>технические данные, необходимые для аутентификации, поддержания сессии и корректной работы приложения;</li><li>локальные данные, временно сохранённые на устройстве пользователя до входа в аккаунт.</li></ul></section><section class="card"><h2>2. Как используются данные</h2><p>Данные используются для:</p><ul><li>создания и поддержки пользовательского аккаунта;</li><li>сохранения истории использования приложения;</li><li>синхронизации данных между устройствами;</li><li>переноса локально сохранённых данных в аккаунт после регистрации или входа;</li><li>обеспечения стабильной и безопасной работы сервиса.</li></ul></section><section class="card"><h2>3. Где хранятся данные</h2><p>Данные аккаунта и история пользователя хранятся в облачной инфраструктуре Supabase. Часть данных до авторизации или в рамках технической работы приложения может храниться локально на устройстве пользователя, например в localStorage.</p></section><section class="card"><h2>4. Передача данных третьим лицам</h2><p>Мы не продаём персональные данные пользователя и не передаём их третьим лицам, за исключением технических подрядчиков и инфраструктурных сервисов, необходимых для работы приложения. На текущем этапе таким сервисом является Supabase.</p></section><section class="card"><h2>5. Основания для обработки</h2><p>Обработка данных осуществляется для предоставления функций сервиса, поддержки пользовательского аккаунта, сохранения истории и синхронизации между устройствами.</p></section><section class="card"><h2>6. Защита данных</h2><p>Мы принимаем разумные технические и организационные меры для защиты данных, включая использование механизмов аутентификации, разграничение доступа к пользовательским данным и защищённое соединение при передаче данных.</p></section><section class="card"><h2>7. Права пользователя</h2><p>Пользователь имеет право:</p><ul><li>получить доступ к своим данным в рамках функциональности сервиса;</li><li>удалить аккаунт и связанные с ним данные;</li><li>прекратить использование приложения в любой момент.</li></ul></section><section class="card"><h2>8. Cookies и локальное хранилище</h2><p>Сервис может использовать localStorage и иные технические механизмы хранения данных для поддержания сессии, сохранения настроек и временного хранения пользовательских данных до их синхронизации с аккаунтом.</p></section><section class="card"><h2>9. Удаление данных</h2><p>Пользователь может удалить профиль через интерфейс приложения. После удаления аккаунта связанные с ним данные удаляются без возможности восстановления в стандартном пользовательском сценарии.</p></section><section class="card"><h2>10. Изменение политики</h2><p>Настоящая политика может обновляться. Актуальная версия публикуется на этой странице.</p></section><section class="card"><h2>11. Контакты</h2><p>Если у вас есть вопросы по обработке данных, свяжитесь с владельцем сервиса через контактный канал, указанный в приложении.</p></section><div class="footer">Habits</div></main></body></html>`;
+const PRIVACY_HTML=`<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Политика конфиденциальности — Habits</title><style>:root{--bg:#0f0f13;--bg2:#16161d;--bg3:#1e1e28;--border:#2e2e3e;--text:#e8e8f0;--text2:#b7b7c9;--text3:#8a8aa3;--accent:#7c6af7;--max:860px;--shadow:0 18px 48px rgba(0,0,0,.35)}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,Segoe UI,system-ui,sans-serif;background:linear-gradient(180deg,var(--bg) 0%,#12121a 100%);color:var(--text);line-height:1.68}.topbar{position:sticky;top:0;z-index:20;backdrop-filter:blur(10px);background:rgba(15,15,19,.78);border-bottom:1px solid rgba(46,46,62,.7)}.topbar-inner{max-width:var(--max);margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-weight:700;color:var(--text);text-decoration:none;font-size:1rem}.brand span{color:var(--accent)}.back{color:var(--text2);text-decoration:none;font-size:.92rem;padding:8px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg2)}.wrap{max-width:var(--max);margin:0 auto;padding:28px 18px 80px}.hero{margin-top:20px;padding:28px 24px;border:1px solid var(--border);border-radius:24px;background:radial-gradient(circle at top right,rgba(124,106,247,.14),transparent 35%),var(--bg2);box-shadow:var(--shadow)}h1{margin:0 0 10px;font-size:2rem;line-height:1.15}.lead{margin:0;color:var(--text2);font-size:1rem;max-width:720px}.meta{margin-top:16px;color:var(--text3);font-size:.88rem}.card{margin-top:18px;padding:26px 24px;background:var(--bg2);border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow)}h2{margin:0 0 12px;font-size:1.18rem}p{margin:0 0 12px}ul{margin:0 0 12px 20px;padding:0}li{margin:0 0 8px}.footer{margin-top:22px;color:var(--text3);font-size:.86rem;text-align:center}a{color:#b3a6ff}@media(max-width:640px){h1{font-size:1.6rem}.hero,.card{padding:20px 16px;border-radius:18px}.topbar-inner{padding:12px 14px}.wrap{padding:18px 14px 60px}}</style></head><body><div class="topbar"><div class="topbar-inner"><a class="brand" href="javascript:window.close()">🌿 <span>Habits</span></a><a class="back" href="javascript:window.close()">← Назад в приложение</a></div></div><main class="wrap"><section class="hero"><h1>Политика конфиденциальности</h1><p class="lead">Настоящая политика описывает, какие данные собираются в сервисе Habits, как они используются, где хранятся и какие права есть у пользователя.</p><div class="meta">Последнее обновление: 1 апреля 2026</div></section><section class="card"><h2>1. Какие данные мы собираем</h2><ul><li>email, указанный при регистрации или входе;</li><li>данные, которые пользователь создаёт в приложении, включая привычки, отметки выполнения и связанную историю;</li><li>технические данные для аутентификации, поддержания сессии и корректной работы приложения;</li><li>локальные данные, временно сохранённые на устройстве до входа в аккаунт.</li></ul></section><section class="card"><h2>2. Как используются данные</h2><ul><li>создание и поддержка пользовательского аккаунта;</li><li>сохранение истории использования приложения;</li><li>синхронизация данных между устройствами;</li><li>перенос локально сохранённых данных в аккаунт после регистрации или входа;</li><li>обеспечение стабильной и безопасной работы сервиса.</li></ul></section><section class="card"><h2>3. Где хранятся данные</h2><p>Данные аккаунта хранятся в облачной инфраструктуре Supabase. Часть данных до авторизации может храниться локально на устройстве пользователя в localStorage.</p></section><section class="card"><h2>4. Передача данных третьим лицам</h2><p>Мы не продаём персональные данные. Единственный технический подрядчик на текущем этапе — Supabase.</p></section><section class="card"><h2>5. Права пользователя</h2><ul><li>получить доступ к своим данным в рамках функциональности сервиса;</li><li>удалить аккаунт и связанные с ним данные;</li><li>прекратить использование приложения в любой момент.</li></ul></section><section class="card"><h2>6. Удаление данных</h2><p>Пользователь может удалить профиль через интерфейс приложения. После удаления данные удаляются без возможности восстановления.</p></section><section class="card"><h2>7. Изменение политики</h2><p>Настоящая политика может обновляться. Актуальная версия публикуется на этой странице.</p></section><div class="footer">Habits</div></main></body></html>`;
 
-const TERMS_HTML = `<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Условия использования — Habits</title><style>:root{--bg:#0f0f13;--bg2:#16161d;--bg3:#1e1e28;--border:#2e2e3e;--text:#e8e8f0;--text2:#b7b7c9;--text3:#8a8aa3;--accent:#7c6af7;--max:860px;--r:18px;--shadow:0 18px 48px rgba(0,0,0,.35)}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,Segoe UI,system-ui,-apple-system,sans-serif;background:linear-gradient(180deg,var(--bg) 0%,#12121a 100%);color:var(--text);line-height:1.68}.topbar{position:sticky;top:0;z-index:20;backdrop-filter:blur(10px);background:rgba(15,15,19,.78);border-bottom:1px solid rgba(46,46,62,.7)}.topbar-inner{max-width:var(--max);margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-weight:700;color:var(--text);text-decoration:none;font-size:1rem}.brand span{color:var(--accent)}.back{color:var(--text2);text-decoration:none;font-size:.92rem;padding:8px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg2)}.wrap{max-width:var(--max);margin:0 auto;padding:28px 18px 80px}.hero{margin-top:20px;padding:28px 24px;border:1px solid var(--border);border-radius:24px;background:radial-gradient(circle at top right,rgba(124,106,247,.14),transparent 35%),var(--bg2);box-shadow:var(--shadow)}h1{margin:0 0 10px;font-size:2rem;line-height:1.15}.lead{margin:0;color:var(--text2);font-size:1rem;max-width:720px}.meta{margin-top:16px;color:var(--text3);font-size:.88rem}.card{margin-top:18px;padding:26px 24px;background:var(--bg2);border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow)}h2{margin:0 0 12px;font-size:1.18rem}p{margin:0 0 12px}ul{margin:0 0 12px 20px;padding:0}li{margin:0 0 8px}.footer{margin-top:22px;color:var(--text3);font-size:.86rem;text-align:center}a{color:#b3a6ff}@media(max-width:640px){h1{font-size:1.6rem}.hero,.card{padding:20px 16px;border-radius:18px}.topbar-inner{padding:12px 14px}.wrap{padding:18px 14px 60px}}</style></head><body><div class="topbar"><div class="topbar-inner"><a class="brand" href="javascript:window.close()">🌿 <span>Habits</span></a><a class="back" href="javascript:window.close()">← Назад в приложение</a></div></div><main class="wrap"><section class="hero"><h1>Условия использования</h1><p class="lead">Настоящие условия регулируют доступ и использование сервиса Habits. Используя приложение, вы подтверждаете, что ознакомились с этими условиями и принимаете их.</p><div class="meta">Последнее обновление: 1 апреля 2026</div></section><section class="card"><h2>1. Общие положения</h2><p>Habits — это сервис для ведения и отслеживания привычек. Пользователь может использовать приложение как в гостевом режиме, так и через зарегистрированный аккаунт.</p><p>Если вы не согласны с настоящими условиями, пожалуйста, не используйте сервис.</p></section><section class="card"><h2>2. Функциональность сервиса</h2><p>Сервис может предоставлять следующие возможности:</p><ul><li>создание и редактирование привычек;</li><li>отметка выполнения привычек;</li><li>хранение истории действий;</li><li>синхронизация данных между устройствами после регистрации или входа;</li><li>удаление аккаунта и связанных данных.</li></ul></section><section class="card"><h2>3. Регистрация и аккаунт</h2><p>Для доступа к синхронизации и облачному хранению данных пользователь может создать аккаунт, указав email и пароль.</p><p>Пользователь обязуется:</p><ul><li>предоставлять корректный email;</li><li>обеспечивать конфиденциальность своих данных для входа;</li><li>не передавать доступ к аккаунту третьим лицам.</li></ul></section><section class="card"><h2>4. Гостевой режим</h2><p>До регистрации пользователь может пользоваться приложением без создания аккаунта. В этом случае часть данных может храниться локально на устройстве пользователя.</p><p>После регистрации или входа локальные данные могут быть перенесены в аккаунт для синхронизации между устройствами.</p></section><section class="card"><h2>5. Данные пользователя</h2><p>Для работы сервиса могут использоваться:</p><ul><li>данные аккаунта, включая email;</li><li>данные, созданные пользователем внутри приложения;</li><li>локально сохранённые данные, связанные с использованием сервиса;</li><li>технические данные, необходимые для поддержки сессии и корректной работы приложения.</li></ul></section><section class="card"><h2>6. Ограничения использования</h2><p>Пользователь обязуется не использовать сервис для действий, которые нарушают применимое законодательство, мешают работе приложения или направлены на получение несанкционированного доступа к данным других пользователей.</p></section><section class="card"><h2>7. Удаление аккаунта</h2><p>Пользователь может удалить свой аккаунт через интерфейс приложения. При удалении аккаунта связанные с ним данные удаляются без возможности восстановления в рамках стандартного пользовательского интерфейса.</p></section><section class="card"><h2>8. Ограничение ответственности</h2><p>Сервис предоставляется по принципу «как есть». Мы прилагаем разумные усилия для обеспечения стабильной работы приложения, но не гарантируем абсолютное отсутствие ошибок, перебоев или технических ограничений.</p></section><section class="card"><h2>9. Изменение условий</h2><p>Настоящие условия могут быть изменены или дополнены. Актуальная версия публикуется на этой странице.</p></section><section class="card"><h2>10. Контакты</h2><p>Если у вас есть вопросы по условиям использования, свяжитесь с владельцем сервиса через контактный канал, указанный в приложении.</p></section><div class="footer">Habits</div></main></body></html>`;
+const TERMS_HTML=`<!DOCTYPE html><html lang="ru"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>Условия использования — Habits</title><style>:root{--bg:#0f0f13;--bg2:#16161d;--bg3:#1e1e28;--border:#2e2e3e;--text:#e8e8f0;--text2:#b7b7c9;--text3:#8a8aa3;--accent:#7c6af7;--max:860px;--shadow:0 18px 48px rgba(0,0,0,.35)}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;font-family:Inter,Segoe UI,system-ui,sans-serif;background:linear-gradient(180deg,var(--bg) 0%,#12121a 100%);color:var(--text);line-height:1.68}.topbar{position:sticky;top:0;z-index:20;backdrop-filter:blur(10px);background:rgba(15,15,19,.78);border-bottom:1px solid rgba(46,46,62,.7)}.topbar-inner{max-width:var(--max);margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-weight:700;color:var(--text);text-decoration:none;font-size:1rem}.brand span{color:var(--accent)}.back{color:var(--text2);text-decoration:none;font-size:.92rem;padding:8px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg2)}.wrap{max-width:var(--max);margin:0 auto;padding:28px 18px 80px}.hero{margin-top:20px;padding:28px 24px;border:1px solid var(--border);border-radius:24px;background:radial-gradient(circle at top right,rgba(124,106,247,.14),transparent 35%),var(--bg2);box-shadow:var(--shadow)}h1{margin:0 0 10px;font-size:2rem;line-height:1.15}.lead{margin:0;color:var(--text2);font-size:1rem;max-width:720px}.meta{margin-top:16px;color:var(--text3);font-size:.88rem}.card{margin-top:18px;padding:26px 24px;background:var(--bg2);border:1px solid var(--border);border-radius:22px;box-shadow:var(--shadow)}h2{margin:0 0 12px;font-size:1.18rem}p{margin:0 0 12px}ul{margin:0 0 12px 20px;padding:0}li{margin:0 0 8px}.footer{margin-top:22px;color:var(--text3);font-size:.86rem;text-align:center}a{color:#b3a6ff}@media(max-width:640px){h1{font-size:1.6rem}.hero,.card{padding:20px 16px;border-radius:18px}.topbar-inner{padding:12px 14px}.wrap{padding:18px 14px 60px}}</style></head><body><div class="topbar"><div class="topbar-inner"><a class="brand" href="javascript:window.close()">🌿 <span>Habits</span></a><a class="back" href="javascript:window.close()">← Назад в приложение</a></div></div><main class="wrap"><section class="hero"><h1>Условия использования</h1><p class="lead">Настоящие условия регулируют доступ и использование сервиса Habits.</p><div class="meta">Последнее обновление: 1 апреля 2026</div></section><section class="card"><h2>1. Общие положения</h2><p>Habits — сервис для ведения и отслеживания привычек. Используя приложение, вы принимаете настоящие условия.</p></section><section class="card"><h2>2. Функциональность</h2><ul><li>создание и редактирование привычек;</li><li>отметка выполнения привычек;</li><li>хранение истории;</li><li>синхронизация данных между устройствами после входа;</li><li>удаление аккаунта и данных.</li></ul></section><section class="card"><h2>3. Регистрация</h2><p>Для синхронизации пользователь может создать аккаунт, указав email и пароль. Пользователь обязуется хранить данные входа в безопасности.</p></section><section class="card"><h2>4. Гостевой режим</h2><p>До регистрации приложение работает без аккаунта. После входа локальные данные переносятся в аккаунт.</p></section><section class="card"><h2>5. Ограничение ответственности</h2><p>Сервис предоставляется «как есть». Мы прилагаем разумные усилия для стабильной работы, но не гарантируем абсолютное отсутствие ошибок.</p></section><section class="card"><h2>6. Удаление аккаунта</h2><p>Пользователь может удалить аккаунт через интерфейс приложения. Данные удаляются без возможности восстановления.</p></section><section class="card"><h2>7. Изменение условий</h2><p>Условия могут обновляться. Актуальная версия публикуется на этой странице.</p></section><div class="footer">Habits</div></main></body></html>`;
 
-// Создаём Blob URL один раз при загрузке
-const _privacyBlob = new Blob([PRIVACY_HTML], {type:'text/html'});
-const _termsBlob   = new Blob([TERMS_HTML],   {type:'text/html'});
-const PRIVACY_URL  = URL.createObjectURL(_privacyBlob);
-const TERMS_URL    = URL.createObjectURL(_termsBlob);
+const _privacyBlob=new Blob([PRIVACY_HTML],{type:'text/html'});
+const _termsBlob=new Blob([TERMS_HTML],{type:'text/html'});
+const PRIVACY_URL=URL.createObjectURL(_privacyBlob);
+const TERMS_URL=URL.createObjectURL(_termsBlob);
 
 /* ============================================================
    PWA + FAVICON
@@ -596,15 +625,13 @@ const TERMS_URL    = URL.createObjectURL(_termsBlob);
   function makeIcon(size){
     const c=document.createElement('canvas');c.width=size;c.height=size;
     const ctx=c.getContext('2d');ctx.fillStyle='#7c6af7';
-    const r=size*0.22;
-    ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(size-r,0);
+    const r=size*0.22;ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(size-r,0);
     ctx.quadraticCurveTo(size,0,size,r);ctx.lineTo(size,size-r);
     ctx.quadraticCurveTo(size,size,size-r,size);ctx.lineTo(r,size);
     ctx.quadraticCurveTo(0,size,0,size-r);ctx.lineTo(0,r);
     ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();ctx.fill();
     ctx.font=(size*0.55)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText('🌿',size/2,size/2+size*0.03);
-    return c.toDataURL('image/png');
+    ctx.fillText('🌿',size/2,size/2+size*0.03);return c.toDataURL('image/png');
   }
   const icon=makeIcon(192);
   document.getElementById('favicon').href=icon;
@@ -644,21 +671,13 @@ let activeFilters=null;
 let ssView='month';
 let ssDate=new Date();
 let isSyncing=false;
-
-// Хранит привычки, выполненные за текущий день-сеанс модалки,
-// чтобы проверять поздравление только при нажатии «Готово»
 let _pendingCelebrationChecks=[];
 
 /* ============================================================
    LOCAL STORAGE
 ============================================================ */
-function loadLocalState(){
-  try{const r=localStorage.getItem(SK);if(r)return JSON.parse(r);}catch(e){console.warn('[habits] loadLocalState',e);}
-  return{habits:[],completions:{},celebrations:{},createdAt:Date.now()};
-}
-function saveLocalState(){
-  try{localStorage.setItem(SK,JSON.stringify(state));}catch(e){console.warn('[habits] saveLocalState',e);}
-}
+function loadLocalState(){try{const r=localStorage.getItem(SK);if(r)return JSON.parse(r);}catch(e){}return{habits:[],completions:{},celebrations:{},createdAt:Date.now()};}
+function saveLocalState(){try{localStorage.setItem(SK,JSON.stringify(state));}catch(e){}}
 function saveState(){if(!currentUser)saveLocalState();}
 
 /* ============================================================
@@ -709,14 +728,9 @@ async function getBackendHabitId(localId){
 async function toggleCompletionBackend(localId,dateKey,isDone){
   if(!currentUser)return;
   const habitId=await getBackendHabitId(localId);
-  if(!habitId){console.error('[habits] toggleCompletionBackend: no habitId',localId);return;}
-  if(isDone){
-    const{error}=await sb.from('completions').upsert({habit_id:habitId,date:dateKey},{onConflict:'habit_id,date'});
-    if(error)console.error('[habits] toggleCompletion insert',error);
-  }else{
-    const{error}=await sb.from('completions').delete().eq('habit_id',habitId).eq('date',dateKey);
-    if(error)console.error('[habits] toggleCompletion delete',error);
-  }
+  if(!habitId)return;
+  if(isDone){const{error}=await sb.from('completions').upsert({habit_id:habitId,date:dateKey},{onConflict:'habit_id,date'});if(error)console.error('[habits] completion insert',error);}
+  else{const{error}=await sb.from('completions').delete().eq('habit_id',habitId).eq('date',dateKey);if(error)console.error('[habits] completion delete',error);}
 }
 
 async function saveCelebrationsBackend(){
@@ -742,36 +756,93 @@ async function migrateLocalData(){
       if(hErr)throw hErr;
       const idMap={};for(const h of(insertedHabits||[]))idMap[h.local_id]=h.id;
       const completionsToInsert=[];
-      for(const[dateKey,dayData]of Object.entries(local.completions||{})){for(const[localId,done]of Object.entries(dayData)){if(!done)continue;const backendId=idMap[localId];if(!backendId)continue;if(!/^\d{4}-\d{2}-\d{2}$/.test(dateKey))continue;completionsToInsert.push({habit_id:backendId,date:dateKey});}}
+      for(const[dateKey,dayData]of Object.entries(local.completions||{}))for(const[localId,done]of Object.entries(dayData)){if(!done)continue;const backendId=idMap[localId];if(!backendId)continue;if(!/^\d{4}-\d{2}-\d{2}$/.test(dateKey))continue;completionsToInsert.push({habit_id:backendId,date:dateKey});}
       const BATCH=500;
-      for(let i=0;i<completionsToInsert.length;i+=BATCH){const batch=completionsToInsert.slice(i,i+BATCH);const{error:cErr}=await sb.from('completions').upsert(batch,{onConflict:'habit_id,date',ignoreDuplicates:true});if(cErr)console.warn('[habits] migration completions batch',cErr);}
+      for(let i=0;i<completionsToInsert.length;i+=BATCH){const batch=completionsToInsert.slice(i,i+BATCH);await sb.from('completions').upsert(batch,{onConflict:'habit_id,date',ignoreDuplicates:true});}
     }
-    if(local.celebrations&&Object.keys(local.celebrations).length>0){await sb.from('profiles').update({celebrations:local.celebrations}).eq('id',currentUser.id);}
+    if(local.celebrations&&Object.keys(local.celebrations).length>0)await sb.from('profiles').update({celebrations:local.celebrations}).eq('id',currentUser.id);
     await sb.from('profiles').update({has_migrated_local_data:true}).eq('id',currentUser.id);
     showToast('Данные успешно перенесены в облако ☁️','success');
-  }catch(e){console.error('[habits] migrateLocalData error',e);showToast('Не удалось перенести часть данных. Данные на устройстве сохранены.','error');}
+  }catch(e){console.error('[habits] migrateLocalData',e);showToast('Не удалось перенести часть данных. Данные на устройстве сохранены.','error');}
   finally{setSyncing(false);}
 }
 
 /* ============================================================
-   AUTH
+   AUTH INIT
+   detectSessionInUrl:true автоматически обменивает
+   #access_token из URL на сессию — это работает и для
+   обычного входа и для PASSWORD_RECOVERY
 ============================================================ */
 async function initAuth(){
+  // Сначала — быстрый рендер из localStorage чтобы не было белого экрана
+  const local=loadLocalState();
+  state.habits=local.habits||[];
+  state.completions=local.completions||{};
+  state.celebrations=local.celebrations||{};
+  renderHeaderAuth();
+  render();
+
+  // Проверяем текущую сессию
   const{data:{user}}=await sb.auth.getUser();
   currentUser=user||null;
-  if(currentUser){await loadBackendData();migrateLocalData().then(()=>loadBackendData());}
-  else{const local=loadLocalState();state.habits=local.habits||[];state.completions=local.completions||{};state.celebrations=local.celebrations||{};}
-  renderHeaderAuth();render();
+
+  if(currentUser){
+    await loadBackendData();
+    migrateLocalData().then(()=>loadBackendData());
+  }
+  renderHeaderAuth();
+
+  // Подписка на auth события
   sb.auth.onAuthStateChange(async(event,session)=>{
-    const prevUser=currentUser;currentUser=session?.user||null;
-    if(event==='SIGNED_IN'&&!prevUser){await migrateLocalData();await loadBackendData();renderHeaderAuth();render();showToast('Вход выполнен! Данные синхронизируются 🔄','success');}
-    if(event==='SIGNED_OUT'){currentUser=null;const local=loadLocalState();state.habits=local.habits||[];state.completions=local.completions||{};state.celebrations=local.celebrations||{};activeFilters=null;renderHeaderAuth();render();}
-    if(event==='TOKEN_REFRESHED'){currentUser=session?.user||null;}
+    console.log('[habits] auth event:', event);
+    const prevUser=currentUser;
+    currentUser=session?.user||null;
+
+    if(event==='PASSWORD_RECOVERY'){
+      // Пользователь перешёл по ссылке из письма восстановления
+      // Supabase уже создал временную сессию — показываем форму смены пароля
+      showResetPasswordScreen();
+      return;
+    }
+
+    if(event==='SIGNED_IN'){
+      if(!prevUser){
+        // Новый вход (не просто обновление токена)
+        renderHeaderAuth();
+        await migrateLocalData();
+        await loadBackendData();
+        render();
+        // Не показываем toast если это был recovery (пользователь только что сменил пароль)
+      }
+    }
+
+    if(event==='SIGNED_OUT'){
+      currentUser=null;
+      const local=loadLocalState();
+      state.habits=local.habits||[];
+      state.completions=local.completions||{};
+      state.celebrations=local.celebrations||{};
+      activeFilters=null;
+      renderHeaderAuth();
+      render();
+    }
+
+    if(event==='TOKEN_REFRESHED'){
+      currentUser=session?.user||null;
+    }
+
+    if(event==='USER_UPDATED'){
+      // После успешной смены пароля
+      currentUser=session?.user||null;
+    }
   });
 }
 
 function setSyncing(v){isSyncing=v;renderHeaderAuth();}
 
+/* ============================================================
+   AUTH ERROR TEXTS
+============================================================ */
 function authErrorText(error){
   if(!error)return'Произошла ошибка. Попробуйте позже.';
   const msg=(error.message||'').toLowerCase();
@@ -780,13 +851,14 @@ function authErrorText(error){
   if(msg.includes('user not found'))return'Пользователь не найден.';
   if(msg.includes('email not confirmed'))return'Email не подтверждён. Проверьте почту.';
   if(msg.includes('password')&&msg.includes('least'))return'Пароль слишком короткий. Минимум 6 символов.';
+  if(msg.includes('same_password'))return'Новый пароль должен отличаться от текущего.';
   if(msg.includes('rate limit')||msg.includes('too many'))return'Слишком много попыток. Подождите немного.';
   if(msg.includes('network')||msg.includes('fetch'))return'Нет соединения с сервером. Проверьте интернет.';
-  return'Не удалось выполнить вход. Попробуйте позже.';
+  return'Не удалось выполнить действие. Попробуйте позже.';
 }
 
 /* ============================================================
-   HEADER AUTH RENDER
+   HEADER AUTH
 ============================================================ */
 function renderHeaderAuth(){
   const el=document.getElementById('headerAuth');
@@ -810,17 +882,17 @@ function renderHeaderAuth(){
 
 /* ============================================================
    AUTH MODAL
-   ПРАВКА 4: дисклеймер показывается в режиме register
-   ПРАВКА 2: Enter в поле названия скрывает клавиатуру
-             (реализовано также в openHabitModal ниже)
+   Три режима: login | register | forgot
 ============================================================ */
 function openAuthModal(initialMode='login'){
   const html=`
     <div class="auth-modal-wrap">
-      <div class="auth-tabs">
+      <div class="auth-tabs" id="authTabs">
         <button class="auth-tab ${initialMode==='login'?'active':''}" data-mode="login">Войти</button>
         <button class="auth-tab ${initialMode==='register'?'active':''}" data-mode="register">Регистрация</button>
       </div>
+
+      <!-- Ценностное предложение -->
       <div class="auth-value-props" id="authValueProps" style="${initialMode==='register'?'':'display:none'}">
         <div class="auth-vp-title">Зачем создавать профиль?</div>
         <div class="auth-vp-list">
@@ -829,27 +901,59 @@ function openAuthModal(initialMode='login'){
           <div class="auth-vp-item"><span class="auth-vp-icon">🔄</span><span>История привычек не потеряется</span></div>
         </div>
       </div>
-      <div class="auth-error" id="authError"></div>
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <input class="form-input" id="authEmail" type="email" inputmode="email" autocomplete="email" placeholder="your@email.com">
+
+      <!-- Блок «забыл пароль» (показывается вместо основной формы) -->
+      <div id="forgotBlock" style="display:none">
+        <button class="auth-back-btn" id="forgotBackBtn">‹ Назад</button>
+        <div class="auth-info" id="forgotInfo"></div>
+        <div class="auth-error" id="forgotError"></div>
+        <p style="font-size:.82rem;color:var(--text2);margin-bottom:14px;line-height:1.5">
+          Введите email вашего аккаунта — мы отправим ссылку для смены пароля.
+        </p>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" id="forgotEmail" type="email" inputmode="email"
+                 autocomplete="email" placeholder="your@email.com">
+        </div>
+        <button class="auth-submit-btn" id="forgotSubmitBtn">
+          <span class="auth-btn-text">Отправить ссылку</span>
+          <div class="auth-spinner"></div>
+        </button>
       </div>
-      <div class="form-group">
-        <label class="form-label">Пароль</label>
-        <input class="form-input" id="authPassword" type="password"
-          autocomplete="${initialMode==='register'?'new-password':'current-password'}"
-          placeholder="${initialMode==='register'?'Минимум 6 символов':'Ваш пароль'}">
-      </div>
-      <button class="auth-submit-btn" id="authSubmitBtn">
-        <span class="auth-btn-text" id="authBtnText">${initialMode==='login'?'Войти':'Создать аккаунт'}</span>
-        <div class="auth-spinner"></div>
-      </button>
-      <!-- ПРАВКА 4: дисклеймер -->
-      <div class="auth-disclaimer" id="authDisclaimer" style="${initialMode==='register'?'':'display:none'}">
-        Нажимая «Создать аккаунт», вы соглашаетесь с
-        <a href="${TERMS_URL}" target="_blank" rel="noopener">условиями использования</a>
-        и
-        <a href="${PRIVACY_URL}" target="_blank" rel="noopener">политикой конфиденциальности</a>.
+
+      <!-- Основная форма -->
+      <div id="mainAuthBlock">
+        <div class="auth-error" id="authError"></div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input class="form-input" id="authEmail" type="email" inputmode="email"
+                 autocomplete="email" placeholder="your@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Пароль</label>
+          <input class="form-input" id="authPassword" type="password"
+                 autocomplete="${initialMode==='register'?'new-password':'current-password'}"
+                 placeholder="${initialMode==='register'?'Минимум 6 символов':'Ваш пароль'}">
+        </div>
+        <!-- Ссылка «Забыли пароль?» — только в режиме login -->
+        <button class="auth-forgot" id="forgotBtn"
+                style="${initialMode==='login'?'':'display:none'}">
+          Забыли пароль?
+        </button>
+        <button class="auth-submit-btn" id="authSubmitBtn">
+          <span class="auth-btn-text" id="authBtnText">
+            ${initialMode==='login'?'Войти':'Создать аккаунт'}
+          </span>
+          <div class="auth-spinner"></div>
+        </button>
+        <!-- Дисклеймер — только в режиме register -->
+        <div class="auth-disclaimer" id="authDisclaimer"
+             style="${initialMode==='register'?'':'display:none'}">
+          Нажимая «Создать аккаунт», вы соглашаетесь с
+          <a href="${TERMS_URL}" target="_blank" rel="noopener">условиями использования</a>
+          и
+          <a href="${PRIVACY_URL}" target="_blank" rel="noopener">политикой конфиденциальности</a>.
+        </div>
       </div>
     </div>`;
 
@@ -857,45 +961,179 @@ function openAuthModal(initialMode='login'){
 
   let mode=initialMode;
 
-  function setMode(m){
-    mode=m;
-    document.querySelectorAll('.auth-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===m));
-    const vp=document.getElementById('authValueProps');if(vp)vp.style.display=m==='register'?'block':'none';
-    const disc=document.getElementById('authDisclaimer');if(disc)disc.style.display=m==='register'?'block':'none';
-    const pw=document.getElementById('authPassword');
-    if(pw){pw.placeholder=m==='register'?'Минимум 6 символов':'Ваш пароль';pw.autocomplete=m==='register'?'new-password':'current-password';}
-    const btn=document.getElementById('authBtnText');if(btn)btn.textContent=m==='login'?'Войти':'Создать аккаунт';
-    hideAuthError();
-  }
+  /* helpers */
   function showAuthError(msg){const el=document.getElementById('authError');if(el){el.textContent=msg;el.classList.add('show');}}
   function hideAuthError(){const el=document.getElementById('authError');if(el)el.classList.remove('show');}
   function setLoading(v){const btn=document.getElementById('authSubmitBtn');if(btn){btn.classList.toggle('loading',v);btn.disabled=v;}}
+
+  function setMode(m){
+    mode=m;
+    document.querySelectorAll('.auth-tab').forEach(t=>t.classList.toggle('active',t.dataset.mode===m));
+    document.getElementById('authValueProps').style.display=m==='register'?'block':'none';
+    document.getElementById('authDisclaimer').style.display=m==='register'?'block':'none';
+    document.getElementById('forgotBtn').style.display=m==='login'?'block':'none';
+    const pw=document.getElementById('authPassword');
+    if(pw){pw.placeholder=m==='register'?'Минимум 6 символов':'Ваш пароль';pw.autocomplete=m==='register'?'new-password':'current-password';}
+    document.getElementById('authBtnText').textContent=m==='login'?'Войти':'Создать аккаунт';
+    hideAuthError();
+  }
+
+  function showForgotBlock(){
+    document.getElementById('forgotBlock').style.display='block';
+    document.getElementById('mainAuthBlock').style.display='none';
+    document.getElementById('authTabs').style.display='none';
+    document.getElementById('authValueProps').style.display='none';
+  }
+  function hideForgotBlock(){
+    document.getElementById('forgotBlock').style.display='none';
+    document.getElementById('mainAuthBlock').style.display='block';
+    document.getElementById('authTabs').style.display='flex';
+    setMode(mode);
+  }
+
   function validateForm(){
     const email=(document.getElementById('authEmail')?.value||'').trim();
     const password=(document.getElementById('authPassword')?.value||'');
     const emailRx=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if(!emailRx.test(email)){showAuthError('Введите корректный email-адрес.');document.getElementById('authEmail')?.classList.add('error');return false;}
-    document.getElementById('authEmail')?.classList.remove('error');
-    if(!password){showAuthError('Введите пароль.');document.getElementById('authPassword')?.classList.add('error');return false;}
-    document.getElementById('authPassword')?.classList.remove('error');
-    if(mode==='register'&&password.length<6){showAuthError('Пароль слишком короткий. Минимум 6 символов.');document.getElementById('authPassword')?.classList.add('error');return false;}
+    if(!emailRx.test(email)){showAuthError('Введите корректный email-адрес.');return false;}
+    if(!password){showAuthError('Введите пароль.');return false;}
+    if(mode==='register'&&password.length<6){showAuthError('Пароль слишком короткий. Минимум 6 символов.');return false;}
     return true;
   }
+
   async function submit(){
     if(!validateForm())return;
     hideAuthError();setLoading(true);
     const email=document.getElementById('authEmail').value.trim();
     const password=document.getElementById('authPassword').value;
     try{
-      if(mode==='login'){const{error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;closeModal();}
-      else{const{error}=await sb.auth.signUp({email,password});if(error)throw error;closeModal();showToast('🎉 Аккаунт создан','success');}
-    }catch(e){console.error('[habits] auth error',e);showAuthError(authErrorText(e));}
-    finally{setLoading(false);}
+      if(mode==='login'){
+        const{error}=await sb.auth.signInWithPassword({email,password});
+        if(error)throw error;
+        closeModal();
+        showToast('Добро пожаловать! 👋','success');
+      }else{
+        // РЕГИСТРАЦИЯ: confirm email отключён в Dashboard →
+        // signUp сразу возвращает session → пользователь войдёт автоматически
+        const{data,error}=await sb.auth.signUp({email,password});
+        if(error)throw error;
+        closeModal();
+        // Если session есть сразу — onAuthStateChange SIGNED_IN сработает,
+        // но показываем toast здесь для мгновенной обратной связи
+        if(data.session){
+          showToast('Аккаунт создан! Добро пожаловать 🎉','success');
+        }else{
+          // На случай если confirm email включён — информируем пользователя
+          showToast('Проверьте почту для подтверждения аккаунта','info');
+        }
+      }
+    }catch(e){
+      console.error('[habits] auth error',e);
+      showAuthError(authErrorText(e));
+    }finally{
+      setLoading(false);
+    }
   }
+
+  /* forgot password submit */
+  async function submitForgot(){
+    const email=(document.getElementById('forgotEmail')?.value||'').trim();
+    const emailRx=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const errEl=document.getElementById('forgotError');
+    const infoEl=document.getElementById('forgotInfo');
+    if(errEl){errEl.textContent='';errEl.classList.remove('show');}
+    if(infoEl)infoEl.classList.remove('show');
+    if(!emailRx.test(email)){if(errEl){errEl.textContent='Введите корректный email-адрес.';errEl.classList.add('show');}return;}
+    const btn=document.getElementById('forgotSubmitBtn');
+    if(btn){btn.classList.add('loading');btn.disabled=true;}
+    try{
+      const{error}=await sb.auth.resetPasswordForEmail(email,{
+        // redirectTo: URL страницы — Supabase добавит #type=recovery&access_token=...
+        // detectSessionInUrl:true в конфиге клиента поймает это автоматически
+        redirectTo: window.location.href
+      });
+      if(error)throw error;
+      if(infoEl){infoEl.textContent='Письмо отправлено! Проверьте почту и перейдите по ссылке.';infoEl.classList.add('show');}
+      if(btn){btn.classList.remove('loading');btn.disabled=true;} // держим кнопку заблокированной
+    }catch(e){
+      console.error('[habits] resetPassword',e);
+      if(errEl){errEl.textContent=authErrorText(e);errEl.classList.add('show');}
+      if(btn){btn.classList.remove('loading');btn.disabled=false;}
+    }
+  }
+
+  /* events */
   document.querySelectorAll('.auth-tab').forEach(t=>t.addEventListener('click',()=>setMode(t.dataset.mode)));
   document.getElementById('authSubmitBtn')?.addEventListener('click',submit);
+  document.getElementById('forgotBtn')?.addEventListener('click',showForgotBlock);
+  document.getElementById('forgotBackBtn')?.addEventListener('click',hideForgotBlock);
+  document.getElementById('forgotSubmitBtn')?.addEventListener('click',submitForgot);
+
   document.getElementById('authPassword')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submit();}});
   document.getElementById('authEmail')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('authPassword')?.focus();}});
+  document.getElementById('forgotEmail')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submitForgot();}});
+}
+
+/* ============================================================
+   RESET PASSWORD SCREEN
+   Показывается когда пользователь переходит по ссылке
+   из письма восстановления пароля (событие PASSWORD_RECOVERY)
+============================================================ */
+function showResetPasswordScreen(){
+  const screen=document.getElementById('reset-pw-screen');
+  screen.classList.add('open');
+
+  // Очищаем URL от токенов — чтобы при обновлении страницы
+  // форма не показывалась снова
+  if(window.history&&window.history.replaceState){
+    window.history.replaceState(null,'',window.location.pathname);
+  }
+
+  const errEl=document.getElementById('resetPwError');
+  const sucEl=document.getElementById('resetPwSuccess');
+  const btn=document.getElementById('resetPwSubmitBtn');
+
+  function showErr(msg){if(errEl){errEl.textContent=msg;errEl.classList.add('show');}if(sucEl)sucEl.classList.remove('show');}
+  function hideErr(){if(errEl)errEl.classList.remove('show');}
+  function showSuc(msg){if(sucEl){sucEl.textContent=msg;sucEl.classList.add('show');}if(errEl)errEl.classList.remove('show');}
+  function setLoad(v){if(btn){btn.classList.toggle('loading',v);btn.disabled=v;}}
+
+  async function submitNewPassword(){
+    hideErr();
+    const pw=document.getElementById('resetPwInput')?.value||'';
+    const pw2=document.getElementById('resetPwConfirm')?.value||'';
+    if(pw.length<6){showErr('Пароль слишком короткий. Минимум 6 символов.');return;}
+    if(pw!==pw2){showErr('Пароли не совпадают.');return;}
+    setLoad(true);
+    try{
+      const{error}=await sb.auth.updateUser({password:pw});
+      if(error)throw error;
+      showSuc('Пароль успешно изменён! Сейчас выполним вход...');
+      // Небольшая задержка чтобы пользователь увидел сообщение
+      setTimeout(()=>{
+        screen.classList.remove('open');
+        renderHeaderAuth();
+        render();
+        showToast('Пароль изменён. Добро пожаловать! 🔐','success');
+      },1800);
+    }catch(e){
+      console.error('[habits] updateUser',e);
+      showErr(authErrorText(e));
+      setLoad(false);
+    }
+  }
+
+  // Убираем старые listeners заменой кнопки
+  const newBtn=btn.cloneNode(true);
+  btn.parentNode.replaceChild(newBtn,btn);
+  document.getElementById('resetPwSubmitBtn').addEventListener('click',submitNewPassword);
+
+  document.getElementById('resetPwInput')?.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){e.preventDefault();document.getElementById('resetPwConfirm')?.focus();}
+  });
+  document.getElementById('resetPwConfirm')?.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){e.preventDefault();submitNewPassword();}
+  });
 }
 
 /* ============================================================
@@ -904,7 +1142,7 @@ function openAuthModal(initialMode='login'){
 function openSettingsModal(){
   if(!currentUser){openAuthModal('login');return;}
   const emailInitial=currentUser.email?currentUser.email[0].toUpperCase():'?';
-  const html=`
+  openModal(`
     <div class="modal-title">⚙️ Настройки</div>
     <div class="settings-section">
       <div class="settings-section-title">Профиль</div>
@@ -926,6 +1164,7 @@ function openSettingsModal(){
     </div>
     <div class="settings-section">
       <div class="settings-section-title">Аккаунт</div>
+      <button class="btn btn-secondary btn-full" id="settingsChangePwBtn" style="margin-bottom:8px">🔑 Сменить пароль</button>
       <button class="btn btn-secondary btn-full" id="settingsLogoutBtn">🚪 Выйти из аккаунта</button>
     </div>
     <div class="settings-section">
@@ -934,10 +1173,75 @@ function openSettingsModal(){
         <div class="settings-danger-desc">Удаление профиля необратимо. Все привычки и история будут удалены с сервера.</div>
         <button class="btn btn-danger btn-full btn-sm" id="settingsDeleteBtn">🗑 Удалить профиль</button>
       </div>
-    </div>`;
-  openModal(html);
-  document.getElementById('settingsLogoutBtn')?.addEventListener('click',async()=>{closeModal();await sb.auth.signOut();showToast('Вы вышли из аккаунта','info');});
-  document.getElementById('settingsDeleteBtn')?.addEventListener('click',()=>{openConfirm('Удалить профиль?','Все ваши привычки и история выполнения будут безвозвратно удалены. Это действие нельзя отменить.',deleteUserProfile);});
+    </div>`);
+
+  document.getElementById('settingsChangePwBtn')?.addEventListener('click',()=>{
+    closeModal();
+    openChangePasswordModal();
+  });
+  document.getElementById('settingsLogoutBtn')?.addEventListener('click',async()=>{
+    closeModal();await sb.auth.signOut();showToast('Вы вышли из аккаунта','info');
+  });
+  document.getElementById('settingsDeleteBtn')?.addEventListener('click',()=>{
+    openConfirm('Удалить профиль?','Все ваши привычки и история выполнения будут безвозвратно удалены. Это действие нельзя отменить.',deleteUserProfile);
+  });
+}
+
+/* ============================================================
+   CHANGE PASSWORD MODAL (для авторизованных пользователей)
+   Используется из настроек
+============================================================ */
+function openChangePasswordModal(){
+  openModal(`
+    <div class="modal-title">🔑 Смена пароля</div>
+    <div class="auth-error" id="chpwError"></div>
+    <div class="auth-info" id="chpwSuccess"></div>
+    <div class="form-group">
+      <label class="form-label">Новый пароль</label>
+      <input class="form-input" id="chpwNew" type="password"
+             autocomplete="new-password" placeholder="Минимум 6 символов">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Повторите пароль</label>
+      <input class="form-input" id="chpwConfirm" type="password"
+             autocomplete="new-password" placeholder="Повторите новый пароль">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Отмена</button>
+      <button class="auth-submit-btn btn-sm" id="chpwSubmitBtn" style="width:auto;padding:8px 18px">
+        <span class="auth-btn-text">Сохранить</span>
+        <div class="auth-spinner"></div>
+      </button>
+    </div>`);
+
+  const errEl=document.getElementById('chpwError');
+  const sucEl=document.getElementById('chpwSuccess');
+  function showErr(msg){if(errEl){errEl.textContent=msg;errEl.classList.add('show');}if(sucEl)sucEl.classList.remove('show');}
+  function showSuc(msg){if(sucEl){sucEl.textContent=msg;sucEl.classList.add('show');}if(errEl)errEl.classList.remove('show');}
+  function setLoad(v){const btn=document.getElementById('chpwSubmitBtn');if(btn){btn.classList.toggle('loading',v);btn.disabled=v;}}
+
+  async function submit(){
+    const pw=document.getElementById('chpwNew')?.value||'';
+    const pw2=document.getElementById('chpwConfirm')?.value||'';
+    if(errEl)errEl.classList.remove('show');
+    if(pw.length<6){showErr('Пароль слишком короткий. Минимум 6 символов.');return;}
+    if(pw!==pw2){showErr('Пароли не совпадают.');return;}
+    setLoad(true);
+    try{
+      const{error}=await sb.auth.updateUser({password:pw});
+      if(error)throw error;
+      showSuc('Пароль успешно изменён!');
+      setTimeout(()=>closeModal(),1500);
+    }catch(e){
+      console.error('[habits] changePassword',e);
+      showErr(authErrorText(e));
+      setLoad(false);
+    }
+  }
+
+  document.getElementById('chpwSubmitBtn')?.addEventListener('click',submit);
+  document.getElementById('chpwNew')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();document.getElementById('chpwConfirm')?.focus();}});
+  document.getElementById('chpwConfirm')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();submit();}});
 }
 
 async function deleteUserProfile(){
@@ -968,7 +1272,7 @@ async function toggleDoneAsync(hid,key){
   if(!currentUser)saveLocalState();
   else{
     toggleCompletionBackend(hid,key,isDoneNow).catch(e=>{
-      console.error('[habits] toggleCompletionBackend failed, reverting',e);
+      console.error('[habits] toggleCompletion failed, reverting',e);
       if(isDoneNow){if(!state.completions[key])state.completions[key]={};delete state.completions[key][hid];if(!Object.keys(state.completions[key]).length)delete state.completions[key];}
       else{if(!state.completions[key])state.completions[key]={};state.completions[key][hid]=true;}
       renderCalendar();showToast('Не удалось сохранить отметку','error');
@@ -1036,9 +1340,6 @@ function getPeriodKey(type,ref){
 
 /* ============================================================
    CELEBRATION
-   ПРАВКА 3: checkGoalAfterToggle вызывается только при «Готово»
-   Накапливаем hid в _pendingCelebrationChecks,
-   показываем поздравления после закрытия дня
 ============================================================ */
 function checkGoalAfterToggle(hid){
   const h=state.habits.find(x=>x.id===hid);
@@ -1049,29 +1350,19 @@ function checkGoalAfterToggle(hid){
   if(state.celebrations[celKey])return;
   const done=periodStats(hid,goalType,new Date());
   if(done<goalValue)return;
-  // Цель достигнута — сохраняем ключ, но НЕ показываем сразу
   state.celebrations[celKey]=true;
-  if(currentUser){saveCelebrationsBackend().catch(e=>console.warn('[habits] saveCelebrations',e));}
+  if(currentUser)saveCelebrationsBackend().catch(e=>console.warn('[habits] saveCelebrations',e));
   else saveLocalState();
-  // Добавляем в очередь для отображения после «Готово»
   _pendingCelebrationChecks.push(hid);
 }
 
 function flushCelebrations(){
-  // Показываем поздравления последовательно (по одному)
-  // берём уникальные hid
   const unique=[...new Set(_pendingCelebrationChecks)];
   _pendingCelebrationChecks=[];
   if(!unique.length)return;
-  // Показываем первое; если их несколько — остальные через toast
-  const first=unique[0];
-  const h=state.habits.find(x=>x.id===first);
+  const h=state.habits.find(x=>x.id===unique[0]);
   if(h&&h.goal)showCelebration(h,h.goal.type,h.goal.value);
-  // Остальные — тихо (редкий случай)
-  for(let i=1;i<unique.length;i++){
-    const hb=state.habits.find(x=>x.id===unique[i]);
-    if(hb)showToast(`🎯 Цель «${hb.name}» тоже достигнута!`,'success');
-  }
+  for(let i=1;i<unique.length;i++){const hb=state.habits.find(x=>x.id===unique[i]);if(hb)showToast(`🎯 Цель «${hb.name}» тоже достигнута!`,'success');}
 }
 
 function showCelebration(habit,goalType,goalValue){
@@ -1153,46 +1444,18 @@ const QS_DATA=[
   {icon:'✅',label:'Выполнений за всё время',tip:'Суммарное количество отметок выполнения по всем привычкам за всё время.'},
   {icon:'📈',label:'Успех прошлой недели',tip:'Средний процент выполнения целей за прошлую неделю. Учитываются только привычки с заданными целями.'},
 ];
-
 function renderQS(){
   const list=document.getElementById('qsList');
   const vals=[state.habits.length,allTimeTotal(),(()=>{const p=lastWeekPct();return p!==null?p+'%':'—';})()];
-  list.innerHTML=QS_DATA.map((d,i)=>`
-    <div class="qs-card" data-qs="${i}">
-      <div class="qs-icon">${d.icon}</div>
-      <div class="qs-body"><div class="qs-num">${vals[i]}</div><div class="qs-label">${d.label}</div></div>
-      <button class="tip-btn" data-tip="${i}" title="Подробнее">?</button>
-      <div class="tip-bubble hidden" id="tip${i}">${d.tip}</div>
-    </div>`).join('');
-  list.querySelectorAll('.qs-card').forEach(card=>{
-    card.addEventListener('click',e=>{
-      e.stopPropagation();const id=card.dataset.qs;const b=document.getElementById('tip'+id);
-      const was=b.classList.contains('hidden');list.querySelectorAll('.tip-bubble').forEach(x=>x.classList.add('hidden'));
-      if(was)b.classList.remove('hidden');
-    });
-  });
+  list.innerHTML=QS_DATA.map((d,i)=>`<div class="qs-card" data-qs="${i}"><div class="qs-icon">${d.icon}</div><div class="qs-body"><div class="qs-num">${vals[i]}</div><div class="qs-label">${d.label}</div></div><button class="tip-btn" title="Подробнее">?</button><div class="tip-bubble hidden" id="tip${i}">${d.tip}</div></div>`).join('');
+  list.querySelectorAll('.qs-card').forEach(card=>{card.addEventListener('click',e=>{e.stopPropagation();const id=card.dataset.qs;const b=document.getElementById('tip'+id);const was=b.classList.contains('hidden');list.querySelectorAll('.tip-bubble').forEach(x=>x.classList.add('hidden'));if(was)b.classList.remove('hidden');});});
 }
 document.addEventListener('click',()=>document.querySelectorAll('.tip-bubble').forEach(b=>b.classList.add('hidden')));
 
 function renderHabits(){
   const el=document.getElementById('habitsList');
-  if(!state.habits.length){
-    el.innerHTML=`<div class="empty-state" style="padding:16px 0 4px"><div class="empty-state-icon">🌱</div><div class="empty-state-title">Нет привычек</div><div class="empty-state-desc">Добавьте первую привычку, чтобы начать отслеживать прогресс</div></div>`;
-    return;
-  }
-  // ПРАВКА 1: иконки всегда видны (нет класса с opacity:0)
-  el.innerHTML=state.habits.map(h=>`
-    <div class="habit-item">
-      <div class="habit-dot" style="background:${h.color}22;border:1px solid ${h.color}44">${h.emoji}</div>
-      <div class="habit-info">
-        <div class="habit-name">${esc(h.name)}</div>
-        ${h.goal?`<div class="habit-goal-tag">🎯 ${h.goal.value} ${GL[h.goal.type]}</div>`:''}
-      </div>
-      <div class="habit-actions">
-        <button class="icon-btn" data-action="edit" data-id="${h.id}">✏️</button>
-        <button class="icon-btn danger" data-action="delete" data-id="${h.id}">🗑</button>
-      </div>
-    </div>`).join('');
+  if(!state.habits.length){el.innerHTML=`<div class="empty-state" style="padding:16px 0 4px"><div class="empty-state-icon">🌱</div><div class="empty-state-title">Нет привычек</div><div class="empty-state-desc">Добавьте первую привычку, чтобы начать отслеживать прогресс</div></div>`;return;}
+  el.innerHTML=state.habits.map(h=>`<div class="habit-item"><div class="habit-dot" style="background:${h.color}22;border:1px solid ${h.color}44">${h.emoji}</div><div class="habit-info"><div class="habit-name">${esc(h.name)}</div>${h.goal?`<div class="habit-goal-tag">🎯 ${h.goal.value} ${GL[h.goal.type]}</div>`:''}</div><div class="habit-actions"><button class="icon-btn" data-action="edit" data-id="${h.id}">✏️</button><button class="icon-btn danger" data-action="delete" data-id="${h.id}">🗑</button></div></div>`).join('');
 }
 
 function renderFilter(){
@@ -1249,9 +1512,7 @@ function renderMiniMonth(y,m){
   for(let d=1;d<=last.getDate();d++){const dt=new Date(y,m,d);const key=dkd(dt);const done=filtDone(key);const isT=isToday(dt);let cls='mini-day';if(isT)cls+=' today-mini';if(done.length)cls+=' has-habits';const title=done.length?`${d}: ${done.map(hb=>hb.emoji+hb.name).join(', ')}`:String(d);const inner=done.length?`<span class="mini-day-num">${d}</span><div class="mini-emojis">${done.map(hb=>`<span class="mini-emoji">${hb.emoji}</span>`).join('')}</div>`:d;h+=`<div class="${cls}" data-day="${dt.getTime()}" title="${esc(title)}">${inner}</div>`;}
   return h;
 }
-function attachCalEvents(){
-  document.querySelectorAll('[data-day]').forEach(el=>{el.addEventListener('click',e=>{e.stopPropagation();openDayModal(new Date(parseInt(el.dataset.day)));});});
-}
+function attachCalEvents(){document.querySelectorAll('[data-day]').forEach(el=>{el.addEventListener('click',e=>{e.stopPropagation();openDayModal(new Date(parseInt(el.dataset.day)));});});}
 
 function renderInlineStats(){
   const el=document.getElementById('inline-stats');
@@ -1269,36 +1530,16 @@ function ssNavigate(dir){if(ssView==='month')ssDate=new Date(ssDate.getFullYear(
 
 /* ============================================================
    DAY MODAL
-   ПРАВКА 3: поздравление — только при нажатии «Готово»
 ============================================================ */
 function openDayModal(date){
-  // Сбрасываем очередь при открытии нового дня
   _pendingCelebrationChecks=[];
-
   const key=dkd(date);
   const dateStr=`${date.getDate()} ${MGEN[date.getMonth()]} ${date.getFullYear()}`;
   const mkList=()=>state.habits.map(hb=>{const done=getDone(hb.id,key);return`<div class="day-toggle ${done?'checked':''}" data-hid="${hb.id}"><div class="tog-emoji" style="background:${hb.color}22">${hb.emoji}</div><div class="tog-name">${esc(hb.name)}</div><div class="tog-check">${done?'✓':''}</div></div>`;}).join('');
   const emptyBlock=`<div class="empty-state"><div class="empty-state-icon">🌱</div><div class="empty-state-title">Нет привычек</div><div class="empty-state-desc">Создайте первую привычку — и начните отмечать!</div><button class="first-habit-btn" onclick="closeModal();openHabitModal()">🌱 Создать первую привычку</button></div>`;
-
-  openModal(`
-    <div class="modal-title">📅 ${dateStr}</div>
-    ${!state.habits.length?emptyBlock:`<div class="day-habit-list" id="dayList">${mkList()}</div>`}
-    <div class="modal-actions" id="dayActions">
-      ${(state.habits.length&&dayDone(key).length)?`<button class="btn btn-secondary btn-sm" id="clearDayBtn">Очистить день</button>`:''}
-      <button class="btn btn-primary btn-sm" id="dayDoneBtn">Готово</button>
-    </div>`);
-
-  if(state.habits.length){
-    attachDayToggles(key,mkList);
-    const cb=document.getElementById('clearDayBtn');if(cb)cb.addEventListener('click',()=>clearDay(key,mkList));
-  }
-
-  // ПРАВКА 3: «Готово» — закрываем модалку и показываем поздравления
-  document.getElementById('dayDoneBtn').addEventListener('click',()=>{
-    closeModal();
-    // Небольшая задержка, чтобы модалка успела закрыться
-    setTimeout(flushCelebrations,300);
-  });
+  openModal(`<div class="modal-title">📅 ${dateStr}</div>${!state.habits.length?emptyBlock:`<div class="day-habit-list" id="dayList">${mkList()}</div>`}<div class="modal-actions" id="dayActions">${(state.habits.length&&dayDone(key).length)?`<button class="btn btn-secondary btn-sm" id="clearDayBtn">Очистить день</button>`:''}<button class="btn btn-primary btn-sm" id="dayDoneBtn">Готово</button></div>`);
+  if(state.habits.length){attachDayToggles(key,mkList);const cb=document.getElementById('clearDayBtn');if(cb)cb.addEventListener('click',()=>clearDay(key,mkList));}
+  document.getElementById('dayDoneBtn').addEventListener('click',()=>{closeModal();setTimeout(flushCelebrations,300);});
 }
 
 function attachDayToggles(key,mkList){
@@ -1307,11 +1548,9 @@ function attachDayToggles(key,mkList){
       el.removeEventListener('click',h);
       const hid=el.dataset.hid;
       const isDoneNow=await toggleDoneAsync(hid,key);
-      // ПРАВКА 3: проверяем цель, но не показываем сразу — добавляем в очередь
       if(isDoneNow)checkGoalAfterToggle(hid);
       const l=document.getElementById('dayList');if(l)l.innerHTML=mkList();
-      attachDayToggles(key,mkList);
-      updClearBtn(key,mkList);
+      attachDayToggles(key,mkList);updClearBtn(key,mkList);
       renderCalendar();renderInlineStats();renderStatsPanel();renderQS();
     });
   });
@@ -1319,10 +1558,9 @@ function attachDayToggles(key,mkList){
 
 async function clearDay(key,mkList){
   const prevDay={...(state.completions[key]||{})};
-  delete state.completions[key];
-  _pendingCelebrationChecks=[];
+  delete state.completions[key];_pendingCelebrationChecks=[];
   if(!currentUser)saveLocalState();
-  else{const hids=Object.keys(prevDay);for(const hid of hids)toggleCompletionBackend(hid,key,false).catch(e=>console.warn('[habits] clearDay',e));}
+  else{const hids=Object.keys(prevDay);for(const hid of hids)toggleCompletionBackend(hid,key,false).catch(()=>{});}
   const l=document.getElementById('dayList');if(l)l.innerHTML=mkList();
   attachDayToggles(key,mkList);updClearBtn(key,mkList);
   renderCalendar();renderInlineStats();renderStatsPanel();renderQS();
@@ -1337,70 +1575,26 @@ function updClearBtn(key,mkList){
 
 /* ============================================================
    HABIT MODAL
-   ПРАВКА 2: Enter в поле названия только скрывает клавиатуру,
-             НЕ закрывает модалку и НЕ сохраняет привычку
 ============================================================ */
 let editId=null,selEmoji='🏃',selColor=COLORS[0];
-
 function openHabitModal(hid=null){
   editId=hid;const h=hid?state.habits.find(x=>x.id===hid):null;
   selEmoji=h?h.emoji:'🏃';selColor=h?h.color:COLORS[0];
   const gt=h&&h.goal?h.goal.type:'week';const gv=h&&h.goal?h.goal.value:'';
-
   openModal(`
     <div class="modal-title">${h?'✏️ Редактировать':'➕ Новая привычка'}</div>
-    <div class="form-group">
-      <label class="form-label">Название</label>
-      <input class="form-input" id="hName" placeholder="Например: Утробежка" maxlength="40"
-             value="${h?esc(h.name):''}" inputmode="text" autocomplete="off"
-             enterkeyhint="done">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Эмодзи</label>
-      <div class="emoji-picker-row">
-        <div class="emoji-preview" id="ePrev">${selEmoji}</div>
-        <div class="emoji-grid">${EMOJIS.map(e=>`<button class="emoji-option ${e===selEmoji?'selected':''}" data-e="${e}" type="button">${e}</button>`).join('')}</div>
-      </div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Цвет</label>
-      <div class="color-row">${COLORS.map(c=>`<div class="color-option ${c===selColor?'selected':''}" data-c="${c}" style="background:${c}"></div>`).join('')}</div>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Цель (необязательно)</label>
-      <div class="goal-inline">
-        <input class="form-input" id="gVal" type="number" inputmode="numeric" min="1" max="365" placeholder="—" value="${gv}">
-        <span style="color:var(--text2);font-size:.81rem">раз в</span>
-        <select class="form-select" id="gType">
-          <option value="week" ${gt==='week'?'selected':''}>Неделю</option>
-          <option value="month" ${gt==='month'?'selected':''}>Месяц</option>
-          <option value="year" ${gt==='year'?'selected':''}>Год</option>
-        </select>
-      </div>
-    </div>
-    <div class="modal-actions">
-      ${h?`<button class="btn btn-danger btn-sm" id="delHabitBtn" type="button">Удалить</button>`:''}
-      <button class="btn btn-ghost btn-sm" onclick="closeModal()" type="button">Отмена</button>
-      <button class="btn btn-primary btn-sm" id="saveHabitBtn" type="button">${h?'Сохранить':'Создать'}</button>
-    </div>`);
-
+    <div class="form-group"><label class="form-label">Название</label><input class="form-input" id="hName" placeholder="Например: Утробежка" maxlength="40" value="${h?esc(h.name):''}" inputmode="text" autocomplete="off" enterkeyhint="done"></div>
+    <div class="form-group"><label class="form-label">Эмодзи</label><div class="emoji-picker-row"><div class="emoji-preview" id="ePrev">${selEmoji}</div><div class="emoji-grid">${EMOJIS.map(e=>`<button class="emoji-option ${e===selEmoji?'selected':''}" data-e="${e}" type="button">${e}</button>`).join('')}</div></div></div>
+    <div class="form-group"><label class="form-label">Цвет</label><div class="color-row">${COLORS.map(c=>`<div class="color-option ${c===selColor?'selected':''}" data-c="${c}" style="background:${c}"></div>`).join('')}</div></div>
+    <div class="form-group"><label class="form-label">Цель (необязательно)</label><div class="goal-inline"><input class="form-input" id="gVal" type="number" inputmode="numeric" min="1" max="365" placeholder="—" value="${gv}"><span style="color:var(--text2);font-size:.81rem">раз в</span><select class="form-select" id="gType"><option value="week" ${gt==='week'?'selected':''}>Неделю</option><option value="month" ${gt==='month'?'selected':''}>Месяц</option><option value="year" ${gt==='year'?'selected':''}>Год</option></select></div></div>
+    <div class="modal-actions">${h?`<button class="btn btn-danger btn-sm" id="delHabitBtn" type="button">Удалить</button>`:''}<button class="btn btn-ghost btn-sm" onclick="closeModal()" type="button">Отмена</button><button class="btn btn-primary btn-sm" id="saveHabitBtn" type="button">${h?'Сохранить':'Создать'}</button></div>`);
   document.querySelectorAll('.emoji-option').forEach(b=>{b.addEventListener('click',()=>{selEmoji=b.dataset.e;document.getElementById('ePrev').textContent=selEmoji;document.querySelectorAll('.emoji-option').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');});});
   document.querySelectorAll('.color-option').forEach(el=>{el.addEventListener('click',()=>{selColor=el.dataset.c;document.querySelectorAll('.color-option').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');});});
   document.getElementById('saveHabitBtn').addEventListener('click',saveHabit);
-
   const nameInput=document.getElementById('hName');
   nameInput.addEventListener('focus',()=>{if(isMobile())setTimeout(()=>nameInput.scrollIntoView({behavior:'smooth',block:'center'}),300);});
-
-  // ПРАВКА 2: Enter только убирает клавиатуру, не сохраняет
-  nameInput.addEventListener('keydown',e=>{
-    if(e.key==='Enter'){
-      e.preventDefault();
-      // Снимаем фокус → клавиатура скрывается на мобильном
-      nameInput.blur();
-    }
-  });
-
-  if(h){document.getElementById('delHabitBtn').addEventListener('click',()=>openConfirm('Удалить привычку?',`Привычка «${esc(h.name)}» и вся история будут удалены.`,()=>deleteHabit(h.id)));}
+  nameInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();nameInput.blur();}});
+  if(h)document.getElementById('delHabitBtn').addEventListener('click',()=>openConfirm('Удалить привычку?',`Привычка «${esc(h.name)}» и вся история будут удалены.`,()=>deleteHabit(h.id)));
 }
 
 async function saveHabit(){
@@ -1409,8 +1603,8 @@ async function saveHabit(){
   const gv=parseInt(document.getElementById('gVal').value);
   const gt=document.getElementById('gType').value;
   const goal=gv>0?{type:gt,value:gv}:null;
-  if(editId){const h=state.habits.find(x=>x.id===editId);if(h)Object.assign(h,{name,emoji:selEmoji,color:selColor,goal});if(currentUser)await upsertHabitBackend(h).catch(e=>console.error('[habits] saveHabit update',e));showToast('Привычка обновлена','success');}
-  else{const newHabit={id:'h_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),name,emoji:selEmoji,color:selColor,goal,createdAt:Date.now()};state.habits.push(newHabit);if(currentUser)await upsertHabitBackend(newHabit).catch(e=>console.error('[habits] saveHabit create',e));showToast('Привычка добавлена 🎉','success');}
+  if(editId){const h=state.habits.find(x=>x.id===editId);if(h)Object.assign(h,{name,emoji:selEmoji,color:selColor,goal});if(currentUser)await upsertHabitBackend(h).catch(e=>console.error(e));showToast('Привычка обновлена','success');}
+  else{const nh={id:'h_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),name,emoji:selEmoji,color:selColor,goal,createdAt:Date.now()};state.habits.push(nh);if(currentUser)await upsertHabitBackend(nh).catch(e=>console.error(e));showToast('Привычка добавлена 🎉','success');}
   if(!currentUser)saveLocalState();
   closeModal();render();
 }
@@ -1420,12 +1614,12 @@ async function deleteHabit(id){
   Object.keys(state.completions).forEach(k=>{if(state.completions[k])delete state.completions[k][id];if(state.completions[k]&&!Object.keys(state.completions[k]).length)delete state.completions[k];});
   if(activeFilters)activeFilters.delete(id);
   if(!currentUser)saveLocalState();
-  else await archiveHabitBackend(id).catch(e=>console.error('[habits] deleteHabit',e));
+  else await archiveHabitBackend(id).catch(e=>console.error(e));
   closeModal();render();showToast('Привычка удалена','info');
 }
 
 function openConfirm(title,text,onOk){
-  openModal(`<div class="modal-title">⚠️ ${title}</div><p class="confirm-text">${text}</p><div class="modal-actions"><button class="btn btn-ghost btn-sm" onclick="closeModal()" type="button">Отмена</button><button class="btn btn-danger btn-sm" id="confOk" type="button">Подтвердить</button></div>`);
+  openModal(`<div class="modal-title">⚠️ ${title}</div><p class="confirm-text">${text}</p><div class="modal-actions"><button class="btn btn-ghost btn-sm" onclick="closeModal()">Отмена</button><button class="btn btn-danger btn-sm" id="confOk">Подтвердить</button></div>`);
   document.getElementById('confOk').addEventListener('click',()=>{closeModal();onOk();});
 }
 
@@ -1437,9 +1631,9 @@ function openModal(html){
   const overlay=document.getElementById('modalOverlay');
   const modal=document.getElementById('modalBox');
   overlay.classList.add('open');
-  function setModalHeight(){if(isMobile()){const vh=window.visualViewport?window.visualViewport.height:window.innerHeight;modal.style.maxHeight=Math.round(vh*0.92)+'px';}else{modal.style.maxHeight='90vh';}}
-  setModalHeight();
-  if(window.visualViewport){window.visualViewport.addEventListener('resize',setModalHeight);window._modalVPListener=setModalHeight;}
+  function setH(){if(isMobile()){const vh=window.visualViewport?window.visualViewport.height:window.innerHeight;modal.style.maxHeight=Math.round(vh*0.92)+'px';}else modal.style.maxHeight='90vh';}
+  setH();
+  if(window.visualViewport){window.visualViewport.addEventListener('resize',setH);window._modalVPListener=setH;}
   setTimeout(()=>{const i=document.querySelector('#modalBody input[type="text"],#modalBody input[type="email"]');if(i&&!isMobile())i.focus();},150);
 }
 function closeModal(){
@@ -1541,7 +1735,7 @@ document.getElementById('clearDataBtn').addEventListener('click',()=>{
     'Очистить все данные?',
     currentUser?'Все привычки и история будут удалены с устройства И с сервера. Это действие нельзя отменить.':'Все привычки и история будут удалены с вашего устройства. Это действие нельзя отменить.',
     async()=>{
-      if(currentUser){setSyncing(true);try{await sb.rpc('delete_user_data');}catch(e){console.error('[habits] clearData',e);showToast('Не удалось очистить данные на сервере','error');}finally{setSyncing(false);}}
+      if(currentUser){setSyncing(true);try{await sb.rpc('delete_user_data');}catch(e){console.error(e);showToast('Не удалось очистить данные на сервере','error');}finally{setSyncing(false);}}
       localStorage.removeItem(SK);state={habits:[],completions:{},celebrations:{}};activeFilters=null;render();showToast('Данные очищены','info');
     }
   );
