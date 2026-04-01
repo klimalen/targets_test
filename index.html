@@ -4,33 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#7c6af7">
-
-<!-- SEO & мессенджеры -->
 <meta name="description" content="Трекер привычек с календарём, стриками и статистикой. Работает офлайн.">
 <title>🌿 Habits — Календарь Привычек</title>
-
-<!-- Open Graph (превью в мессенджерах) -->
 <meta property="og:title" content="🌿 Habits — Календарь Привычек">
 <meta property="og:description" content="Отслеживай привычки, строй стрики и достигай целей. Работает офлайн.">
 <meta property="og:type" content="website">
-<meta property="og:image" content="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='630'%3E%3Crect width='1200' height='630' fill='%230f0f13'/%3E%3Crect x='80' y='60' width='1040' height='510' rx='32' fill='%2316161d' stroke='%232e2e3e' stroke-width='2'/%3E%3Ccircle cx='600' cy='220' r='90' fill='%237c6af7' opacity='.15'/%3E%3Ctext x='600' y='250' text-anchor='middle' font-size='110' font-family='system-ui'%3E🌿%3C/text%3E%3Ctext x='600' y='360' text-anchor='middle' font-size='64' font-weight='700' fill='%23e8e8f0' font-family='system-ui,sans-serif'%3EHabits%3C/text%3E%3Ctext x='600' y='430' text-anchor='middle' font-size='30' fill='%239090a8' font-family='system-ui,sans-serif'%3EКалендарь привычек%3C/text%3E%3Ctext x='600' y='490' text-anchor='middle' font-size='24' fill='%235a5a72' font-family='system-ui,sans-serif'%3EСтрики · Цели · Статистика · Офлайн%3C/text%3E%3C/svg%3E">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="🌿 Habits — Календарь Привычек">
-<meta name="twitter:description" content="Отслеживай привычки, строй стрики и достигай целей.">
-
-<!-- PWA -->
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Habits">
 <link id="pwa-manifest" rel="manifest">
 <link id="apple-touch-icon" rel="apple-touch-icon">
-<!-- Favicon устанавливается скриптом через Canvas -->
 <link id="favicon" rel="icon" type="image/png">
 
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
 <style>
+/* ============================================================
+   BASE RESET & VARIABLES
+============================================================ */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0f0f13;--bg2:#16161d;--bg3:#1e1e28;--bg4:#252532;
@@ -46,24 +39,68 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 ::-webkit-scrollbar-track{background:var(--bg2)}
 ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
+/* ============================================================
+   LAYOUT
+============================================================ */
 #app{display:flex;flex-direction:column;min-height:100vh}
-header{height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;gap:12px;flex-shrink:0}
+header{
+  height:54px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 22px;background:var(--bg2);border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;gap:12px;flex-shrink:0
+}
 .logo{font-size:1.15rem;font-weight:700;display:flex;align-items:center;gap:8px;white-space:nowrap}
 .logo span{color:var(--accent)}
 .menu-toggle{display:none;background:none;border:none;color:var(--text);font-size:1.3rem;cursor:pointer;padding:4px}
 .main-content{display:flex;flex:1;overflow:hidden}
 
-/* SIDEBAR */
-#sidebar{width:290px;min-width:270px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;transition:transform var(--tr)}
+/* ============================================================
+   HEADER AUTH ZONE
+============================================================ */
+.header-auth{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.header-auth-guest{display:flex;gap:6px}
+.hdr-btn{
+  padding:6px 13px;border-radius:var(--rs);border:1px solid var(--border);
+  background:var(--bg3);color:var(--text2);font-size:.78rem;font-weight:500;
+  cursor:pointer;transition:all var(--tr);white-space:nowrap;font-family:inherit
+}
+.hdr-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--glow)}
+.hdr-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.hdr-btn.primary:hover{background:var(--accent2);box-shadow:0 0 10px var(--glow)}
+.hdr-sync-badge{
+  display:flex;align-items:center;gap:5px;
+  padding:4px 9px;border-radius:20px;
+  background:rgba(62,207,142,.1);border:1px solid rgba(62,207,142,.25);
+  color:var(--green);font-size:.7rem;font-weight:600;
+  white-space:nowrap
+}
+.hdr-sync-badge.syncing{
+  background:rgba(124,106,247,.1);border-color:rgba(124,106,247,.25);
+  color:var(--accent);animation:pulse 1.5s ease-in-out infinite
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.hdr-settings-btn{
+  width:32px;height:32px;border-radius:8px;border:1px solid var(--border);
+  background:var(--bg3);color:var(--text2);font-size:1rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all var(--tr)
+}
+.hdr-settings-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--glow)}
+
+/* ============================================================
+   SIDEBAR
+============================================================ */
+#sidebar{
+  width:290px;min-width:270px;background:var(--bg2);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0;
+  transition:transform var(--tr)
+}
 .sb-section{padding:16px 15px 14px;border-bottom:1px solid var(--border)}
 .sb-title{font-size:.69rem;font-weight:600;text-transform:uppercase;letter-spacing:.09em;color:var(--text3);margin-bottom:11px}
 .qs-list{display:flex;flex-direction:column;gap:7px}
-
-/* QS-card — кликабельна целиком для тултипа */
 .qs-card{
   background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);
   padding:11px 12px 10px;display:flex;align-items:center;gap:11px;
-  position:relative;cursor:pointer;transition:border-color var(--tr);
+  position:relative;cursor:pointer;transition:border-color var(--tr)
 }
 .qs-card:hover{border-color:var(--accent)}
 .qs-icon{font-size:1.3rem;width:34px;height:34px;border-radius:8px;background:var(--bg4);display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -75,18 +112,22 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
   width:15px;height:15px;border-radius:50%;
   background:var(--bg4);border:1px solid var(--border);color:var(--text3);
   font-size:.58rem;font-weight:700;display:flex;align-items:center;justify-content:center;
-  cursor:pointer;transition:all var(--tr);z-index:2;line-height:1;
+  cursor:pointer;transition:all var(--tr);z-index:2;line-height:1
 }
 .tip-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff}
 .tip-bubble{
   position:absolute;top:calc(100% + 7px);left:0;right:0;
   background:var(--bg4);border:1px solid var(--accent);border-radius:var(--rs);
   padding:9px 11px;font-size:.73rem;color:var(--text2);line-height:1.55;
-  box-shadow:var(--shadow);z-index:600;pointer-events:none;
+  box-shadow:var(--shadow);z-index:600;pointer-events:none
 }
 .tip-bubble::before{content:'';position:absolute;bottom:100%;right:16px;border:5px solid transparent;border-bottom-color:var(--accent)}
 .tip-bubble.hidden{display:none}
-.stats-link-btn{display:flex;align-items:center;gap:8px;width:100%;margin-top:10px;padding:9px 12px;border-radius:var(--rs);background:var(--bg4);border:1px solid var(--border);color:var(--text2);font-size:.82rem;font-weight:500;cursor:pointer;transition:all var(--tr)}
+.stats-link-btn{
+  display:flex;align-items:center;gap:8px;width:100%;margin-top:10px;
+  padding:9px 12px;border-radius:var(--rs);background:var(--bg4);border:1px solid var(--border);
+  color:var(--text2);font-size:.82rem;font-weight:500;cursor:pointer;transition:all var(--tr)
+}
 .stats-link-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--glow)}
 .habit-item{display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:var(--rs);transition:background var(--tr)}
 .habit-item:hover{background:var(--bg3)}
@@ -105,7 +146,9 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .filter-chip.on{opacity:1;border-color:currentColor}
 .filter-chip.off{opacity:.28;filter:grayscale(.9)}
 
-/* BUTTONS */
+/* ============================================================
+   BUTTONS
+============================================================ */
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--rs);border:none;cursor:pointer;font-size:.84rem;font-weight:500;transition:all var(--tr);white-space:nowrap;font-family:inherit}
 .btn-primary{background:var(--accent);color:#fff}
 .btn-primary:hover{background:var(--accent2);box-shadow:0 0 14px var(--glow)}
@@ -126,7 +169,9 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .tab-btn{padding:6px 14px;border-radius:6px;border:none;background:transparent;color:var(--text2);cursor:pointer;font-size:.81rem;font-weight:500;transition:all var(--tr);white-space:nowrap;font-family:inherit}
 .tab-btn.active{background:var(--accent);color:#fff;box-shadow:0 2px 8px var(--glow)}
 
-/* MAIN */
+/* ============================================================
+   MAIN
+============================================================ */
 #main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
 .mobile-view-strip{display:none;padding:12px 14px 0;background:var(--bg)}
 .mobile-view-strip .tab-switcher{width:100%}
@@ -246,7 +291,9 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .ss-cal-title{font-size:.92rem;font-weight:600;flex:1;text-align:center}
 .ss-body{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:0}
 
-/* Modal */
+/* ============================================================
+   MODAL
+============================================================ */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:flex-end;justify-content:center;padding:0;opacity:0;pointer-events:none;transition:opacity .22s ease}
 .modal-overlay.open{opacity:1;pointer-events:all}
 .modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r) var(--r) 0 0;padding:0;width:100%;max-width:100%;box-shadow:var(--shadow);transform:translateY(100%);transition:transform .25s cubic-bezier(.32,0,.15,1);overflow:hidden;display:flex;flex-direction:column}
@@ -255,12 +302,154 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .modal-body{overflow-y:auto;padding:16px 20px 24px;flex:1;-webkit-overflow-scrolling:touch}
 .modal-title{font-size:1rem;font-weight:700;margin-bottom:18px;display:flex;align-items:center;gap:8px}
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
+
+/* ============================================================
+   AUTH MODAL
+============================================================ */
+.auth-modal-wrap{max-width:380px;margin:0 auto}
+.auth-tabs{display:flex;gap:0;margin-bottom:22px;border-bottom:1px solid var(--border)}
+.auth-tab{flex:1;padding:10px;text-align:center;font-size:.88rem;font-weight:600;cursor:pointer;border:none;background:none;color:var(--text3);transition:all var(--tr);border-bottom:2px solid transparent;margin-bottom:-1px}
+.auth-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.auth-value-props{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:12px 14px;margin-bottom:18px}
+.auth-vp-title{font-size:.72rem;font-weight:600;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em}
+.auth-vp-list{display:flex;flex-direction:column;gap:5px}
+.auth-vp-item{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--text2)}
+.auth-vp-icon{font-size:1rem;flex-shrink:0}
 .form-group{margin-bottom:15px}
 .form-label{display:block;font-size:.73rem;font-weight:600;color:var(--text2);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
 .form-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:9px 12px;color:var(--text);font-size:.87rem;outline:none;transition:border-color var(--tr);font-family:inherit}
 .form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+.form-input.error{border-color:var(--red)}
 .form-select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:9px 12px;color:var(--text);font-size:.87rem;outline:none;cursor:pointer;font-family:inherit;transition:border-color var(--tr)}
 .form-select:focus{border-color:var(--accent)}
+.auth-error{
+  background:rgba(247,95,107,.08);border:1px solid rgba(247,95,107,.25);
+  border-radius:var(--rs);padding:9px 12px;
+  font-size:.8rem;color:var(--red);margin-bottom:14px;line-height:1.45;
+  display:none
+}
+.auth-error.show{display:block}
+.auth-submit-btn{
+  width:100%;padding:11px;border-radius:var(--rs);border:none;
+  background:var(--accent);color:#fff;font-size:.9rem;font-weight:600;
+  cursor:pointer;transition:all var(--tr);font-family:inherit;
+  display:flex;align-items:center;justify-content:center;gap:8px
+}
+.auth-submit-btn:hover:not(:disabled){background:var(--accent2);box-shadow:0 0 14px var(--glow)}
+.auth-submit-btn:disabled{opacity:.5;cursor:not-allowed}
+.auth-spinner{
+  width:16px;height:16px;border:2px solid rgba(255,255,255,.3);
+  border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.auth-submit-btn.loading .auth-spinner{display:block}
+.auth-submit-btn.loading .auth-btn-text{display:none}
+
+/* ============================================================
+   SETTINGS MODAL
+============================================================ */
+.settings-section{margin-bottom:20px}
+.settings-section:last-child{margin-bottom:0}
+.settings-section-title{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:10px}
+.settings-user-card{
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);
+  padding:13px 14px;display:flex;align-items:center;gap:12px;margin-bottom:12px
+}
+.settings-avatar{
+  width:42px;height:42px;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;font-weight:700;color:#fff;flex-shrink:0
+}
+.settings-email{font-size:.83rem;font-weight:600;margin-bottom:2px;word-break:break-all}
+.settings-status{font-size:.72rem;color:var(--green);display:flex;align-items:center;gap:4px}
+.settings-sync-info{
+  background:rgba(62,207,142,.06);border:1px solid rgba(62,207,142,.15);
+  border-radius:var(--rs);padding:10px 13px;margin-bottom:12px;
+  font-size:.78rem;color:var(--text2);line-height:1.5;
+  display:flex;align-items:flex-start;gap:8px
+}
+.settings-sync-icon{font-size:1rem;flex-shrink:0;margin-top:1px}
+.settings-guest-info{
+  background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);
+  padding:14px;margin-bottom:14px;text-align:center
+}
+.settings-guest-icon{font-size:2rem;margin-bottom:8px}
+.settings-guest-title{font-size:.9rem;font-weight:600;margin-bottom:5px}
+.settings-guest-desc{font-size:.78rem;color:var(--text2);line-height:1.5;margin-bottom:14px}
+.settings-guest-btns{display:flex;gap:8px;justify-content:center}
+.settings-danger-zone{
+  border:1px solid rgba(247,95,107,.2);border-radius:var(--rs);
+  padding:12px 14px
+}
+.settings-danger-title{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--red);margin-bottom:8px}
+.settings-danger-desc{font-size:.76rem;color:var(--text2);margin-bottom:10px;line-height:1.45}
+
+/* ============================================================
+   CELEBRATION
+============================================================ */
+#cel-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.72);backdrop-filter:blur(8px);
+  z-index:3000;display:flex;align-items:flex-end;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .3s ease
+}
+#cel-overlay.open{opacity:1;pointer-events:all}
+.cel-sheet{
+  background:var(--bg2);border:1px solid var(--border);border-radius:24px 24px 0 0;
+  width:100%;max-width:520px;padding-bottom:40px;
+  transform:translateY(100%);transition:transform .4s cubic-bezier(.34,1.2,.64,1);
+  overflow:hidden;position:relative
+}
+#cel-overlay.open .cel-sheet{transform:translateY(0)}
+.cel-handle{width:36px;height:4px;border-radius:2px;background:var(--border);margin:14px auto 0;display:block}
+.cel-body{padding:20px 28px 0;text-align:center}
+.cel-stars{font-size:2.4rem;margin-bottom:10px;animation:celPop .5s ease both}
+@keyframes celPop{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+.cel-title{font-size:1.55rem;font-weight:800;margin-bottom:8px;background:linear-gradient(135deg,var(--accent),var(--green));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.cel-sub{font-size:.88rem;color:var(--text2);line-height:1.55;margin-bottom:20px}
+.cel-habit-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:14px 16px;margin-bottom:22px;display:flex;align-items:center;gap:14px;text-align:left}
+.cel-habit-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
+.cel-habit-name{font-size:.95rem;font-weight:700;margin-bottom:2px}
+.cel-habit-goal{font-size:.78rem;color:var(--green);font-weight:500}
+.cel-btn{display:block;width:calc(100% - 56px);margin:0 auto;padding:14px 20px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;border-radius:var(--rs);font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px var(--glow);transition:all var(--tr)}
+.cel-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px var(--glow)}
+.cel-particles{position:absolute;top:0;left:0;right:0;height:100px;pointer-events:none;overflow:hidden}
+.cel-p{position:absolute;top:-10px;font-size:1.2rem;animation:fall 2.5s ease-in both}
+@keyframes fall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(120px) rotate(360deg);opacity:0}}
+
+/* ============================================================
+   PWA BANNER
+============================================================ */
+#pwa-banner{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);z-index:2000;background:var(--bg2);border:1px solid var(--accent);border-radius:var(--r);padding:18px 20px;box-shadow:0 8px 32px rgba(0,0,0,.6),0 0 0 1px var(--glow);display:flex;flex-direction:column;gap:14px;width:min(92vw,400px);transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s ease;opacity:0;pointer-events:none}
+#pwa-banner.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:all}
+.pwa-top{display:flex;align-items:center;gap:14px}
+.pwa-icon{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;box-shadow:0 4px 12px var(--glow)}
+.pwa-title{font-size:.95rem;font-weight:700;margin-bottom:3px}
+.pwa-desc{font-size:.78rem;color:var(--text2);line-height:1.45}
+.pwa-actions{display:flex;gap:8px}
+.pwa-actions .btn{flex:1;justify-content:center;font-size:.82rem;padding:8px 12px}
+.pwa-close{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--text3);font-size:1rem;cursor:pointer;padding:2px 4px;transition:color var(--tr);line-height:1;font-family:inherit}
+.pwa-close:hover{color:var(--text)}
+.pwa-ios-hint{display:flex;align-items:flex-start;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;font-size:.76rem;color:var(--text2);line-height:1.5}
+
+/* ============================================================
+   TOAST
+============================================================ */
+#toast-wrap{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.toast{background:var(--bg4);border:1px solid var(--border);border-radius:var(--rs);padding:9px 14px;font-size:.8rem;color:var(--text);box-shadow:var(--shadow);animation:tIn .22s ease forwards;pointer-events:all;max-width:265px;display:flex;align-items:center;gap:7px}
+.toast.success{border-left:3px solid var(--green)}.toast.error{border-left:3px solid var(--red)}.toast.info{border-left:3px solid var(--accent)}
+@keyframes tIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes tOut{from{opacity:1}to{opacity:0;transform:translateY(8px)}}
+
+/* ============================================================
+   MISC
+============================================================ */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:30px 14px;color:var(--text3);text-align:center}
+.empty-state-icon{font-size:2.4rem}.empty-state-title{font-size:.88rem;font-weight:600;color:var(--text2)}.empty-state-desc{font-size:.77rem;line-height:1.5;max-width:215px}
+.confirm-text{font-size:.86rem;color:var(--text2);line-height:1.55;margin-bottom:6px}
+.first-habit-btn{display:inline-flex;align-items:center;gap:7px;margin-top:14px;padding:9px 18px;background:var(--accent);color:#fff;border:none;border-radius:var(--rs);font-size:.84rem;font-weight:600;cursor:pointer;font-family:inherit;transition:all var(--tr)}
+.first-habit-btn:hover{background:var(--accent2);box-shadow:0 0 14px var(--glow)}
 .emoji-grid{display:flex;flex-wrap:wrap;gap:4px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:7px;max-height:130px;overflow-y:auto;flex:1}
 .emoji-option{width:32px;height:32px;border-radius:6px;border:none;background:transparent;cursor:pointer;font-size:1.15rem;display:flex;align-items:center;justify-content:center;transition:background var(--tr)}
 .emoji-option:hover{background:var(--bg4)}.emoji-option.selected{background:var(--accent)}
@@ -279,95 +468,9 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .tog-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:transparent;transition:all var(--tr);flex-shrink:0}
 .day-toggle.checked .tog-check{background:var(--green);border-color:var(--green);color:#fff}
 
-/* ── CELEBRATION HALF-SCREEN ── */
-#cel-overlay{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.72);
-  backdrop-filter:blur(8px);
-  z-index:3000;
-  display:flex;align-items:flex-end;justify-content:center;
-  opacity:0;pointer-events:none;
-  transition:opacity .3s ease;
-}
-#cel-overlay.open{opacity:1;pointer-events:all}
-.cel-sheet{
-  background:var(--bg2);
-  border:1px solid var(--border);
-  border-radius:24px 24px 0 0;
-  width:100%;max-width:520px;
-  padding-bottom:40px;
-  transform:translateY(100%);
-  transition:transform .4s cubic-bezier(.34,1.2,.64,1);
-  overflow:hidden;position:relative;
-}
-#cel-overlay.open .cel-sheet{transform:translateY(0)}
-.cel-handle{width:36px;height:4px;border-radius:2px;background:var(--border);margin:14px auto 0;display:block}
-.cel-body{padding:20px 28px 0;text-align:center}
-/* анимированные конфетти-звёзды */
-.cel-stars{font-size:2.4rem;margin-bottom:10px;animation:celPop .5s ease both}
-@keyframes celPop{0%{transform:scale(.5);opacity:0}70%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
-.cel-title{
-  font-size:1.55rem;font-weight:800;margin-bottom:8px;
-  background:linear-gradient(135deg,var(--accent),var(--green));
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-.cel-sub{font-size:.88rem;color:var(--text2);line-height:1.55;margin-bottom:20px}
-.cel-habit-card{
-  background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);
-  padding:14px 16px;margin-bottom:22px;
-  display:flex;align-items:center;gap:14px;text-align:left;
-}
-.cel-habit-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.5rem;flex-shrink:0}
-.cel-habit-name{font-size:.95rem;font-weight:700;margin-bottom:2px}
-.cel-habit-goal{font-size:.78rem;color:var(--green);font-weight:500}
-.cel-btn{
-  display:block;width:calc(100% - 56px);margin:0 auto;
-  padding:14px 20px;
-  background:linear-gradient(135deg,var(--accent),var(--accent2));
-  color:#fff;border:none;border-radius:var(--rs);
-  font-size:.95rem;font-weight:700;cursor:pointer;font-family:inherit;
-  box-shadow:0 4px 20px var(--glow);transition:all var(--tr);
-}
-.cel-btn:hover{transform:translateY(-1px);box-shadow:0 6px 28px var(--glow)}
-/* плавающие частицы */
-.cel-particles{position:absolute;top:0;left:0;right:0;height:100px;pointer-events:none;overflow:hidden}
-.cel-p{position:absolute;top:-10px;font-size:1.2rem;animation:fall 2.5s ease-in both}
-@keyframes fall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(120px) rotate(360deg);opacity:0}}
-
-/* PWA Banner */
-#pwa-banner{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);z-index:2000;background:var(--bg2);border:1px solid var(--accent);border-radius:var(--r);padding:18px 20px;box-shadow:0 8px 32px rgba(0,0,0,.6),0 0 0 1px var(--glow);display:flex;flex-direction:column;gap:14px;width:min(92vw,400px);transition:transform .35s cubic-bezier(.34,1.56,.64,1),opacity .35s ease;opacity:0;pointer-events:none}
-#pwa-banner.show{transform:translateX(-50%) translateY(0);opacity:1;pointer-events:all}
-.pwa-top{display:flex;align-items:center;gap:14px}
-.pwa-icon{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0;box-shadow:0 4px 12px var(--glow)}
-.pwa-title{font-size:.95rem;font-weight:700;margin-bottom:3px}
-.pwa-desc{font-size:.78rem;color:var(--text2);line-height:1.45}
-.pwa-actions{display:flex;gap:8px}
-.pwa-actions .btn{flex:1;justify-content:center;font-size:.82rem;padding:8px 12px}
-.pwa-close{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--text3);font-size:1rem;cursor:pointer;padding:2px 4px;transition:color var(--tr);line-height:1;font-family:inherit}
-.pwa-close:hover{color:var(--text)}
-.pwa-ios-hint{display:flex;align-items:flex-start;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;font-size:.76rem;color:var(--text2);line-height:1.5}
-
-/* TOAST */
-#toast-wrap{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:7px;pointer-events:none}
-.toast{background:var(--bg4);border:1px solid var(--border);border-radius:var(--rs);padding:9px 14px;font-size:.8rem;color:var(--text);box-shadow:var(--shadow);animation:tIn .22s ease forwards;pointer-events:all;max-width:265px;display:flex;align-items:center;gap:7px}
-.toast.success{border-left:3px solid var(--green)}.toast.error{border-left:3px solid var(--red)}.toast.info{border-left:3px solid var(--accent)}
-@keyframes tIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes tOut{from{opacity:1}to{opacity:0;transform:translateY(8px)}}
-.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:30px 14px;color:var(--text3);text-align:center}
-.empty-state-icon{font-size:2.4rem}.empty-state-title{font-size:.88rem;font-weight:600;color:var(--text2)}.empty-state-desc{font-size:.77rem;line-height:1.5;max-width:215px}
-.confirm-text{font-size:.86rem;color:var(--text2);line-height:1.55;margin-bottom:6px}
-
-/* Кнопка «Создать первую привычку» в пустых состояниях */
-.first-habit-btn{
-  display:inline-flex;align-items:center;gap:7px;
-  margin-top:14px;padding:9px 18px;
-  background:var(--accent);color:#fff;border:none;border-radius:var(--rs);
-  font-size:.84rem;font-weight:600;cursor:pointer;
-  font-family:inherit;transition:all var(--tr);
-}
-.first-habit-btn:hover{background:var(--accent2);box-shadow:0 0 14px var(--glow)}
-
-/* RESPONSIVE */
+/* ============================================================
+   RESPONSIVE
+============================================================ */
 @media(max-width:1100px){#stats-panel{display:none!important}#inline-stats{display:block}}
 @media(min-width:1101px){
   #inline-stats{display:none!important}#welcome-banner{display:none!important}#stats-panel{display:flex}
@@ -391,11 +494,14 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
   .year-grid{grid-template-columns:repeat(2,1fr)}
   .stats-link-btn{display:flex}
   #pwa-banner{bottom:16px}
+  .header-auth-guest{gap:4px}
+  .hdr-btn{padding:5px 9px;font-size:.73rem}
 }
 @media(min-width:769px){.stats-link-btn{display:none}}
 @media(max-width:480px){
   .cal-day{min-height:46px;padding:4px}
   .day-habit-badge{width:18px;height:18px;font-size:.63rem}
+  .hdr-sync-badge{display:none}
 }
 </style>
 </head>
@@ -406,6 +512,7 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
     <button class="menu-toggle" id="menuToggle">☰</button>
     <div class="logo">🌿 <span>Habits</span></div>
   </div>
+
   <div class="desktop-view-switcher">
     <div class="tab-switcher" id="vswDesktop">
       <button class="tab-btn" data-view="week">Неделя</button>
@@ -413,7 +520,11 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
       <button class="tab-btn" data-view="year">Год</button>
     </div>
   </div>
-  <div style="width:120px"></div>
+
+  <!-- AUTH ZONE -->
+  <div class="header-auth" id="headerAuth">
+    <!-- Рендерится JS -->
+  </div>
 </header>
 
 <div class="main-content">
@@ -515,7 +626,7 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
     <div class="pwa-icon">🌿</div>
     <div>
       <div class="pwa-title">Установить приложение</div>
-      <div class="pwa-desc" id="pwaBannerDesc">Добавьте Habits на главный экран для быстрого доступа. Работает без интернета.</div>
+      <div class="pwa-desc">Добавьте Habits на главный экран для быстрого доступа. Работает без интернета.</div>
     </div>
   </div>
   <div class="pwa-ios-hint" id="pwaIosHint" style="display:none">
@@ -536,7 +647,7 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
   </div>
 </div>
 
-<!-- CELEBRATION HALF-SCREEN -->
+<!-- Celebration -->
 <div id="cel-overlay">
   <div class="cel-sheet">
     <div class="cel-particles" id="celParticles"></div>
@@ -549,230 +660,887 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 <div id="sbBackdrop" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199"></div>
 
 <script>
+'use strict';
+
+/* ============================================================
+   SUPABASE
+============================================================ */
+const SUPABASE_URL = 'https://zwucnogryxntjypbfpwe.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_z3z4QbvoZVAoLQJFZZCFAQ_o1guHFAd';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    persistSession: true,
+    storageKey: 'habits_auth',
+    storage: window.localStorage,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  }
+});
+
 /* ============================================================
    PWA + FAVICON
 ============================================================ */
 (function(){
-  'use strict';
-  var APP_VERSION='habits-v2';
   function makeIcon(size){
-    var c=document.createElement('canvas');c.width=size;c.height=size;
-    var ctx=c.getContext('2d');ctx.fillStyle='#7c6af7';
-    var r=size*0.22;
-    ctx.beginPath();ctx.moveTo(r,0);ctx.lineTo(size-r,0);ctx.quadraticCurveTo(size,0,size,r);
-    ctx.lineTo(size,size-r);ctx.quadraticCurveTo(size,size,size-r,size);
-    ctx.lineTo(r,size);ctx.quadraticCurveTo(0,size,0,size-r);
-    ctx.lineTo(0,r);ctx.quadraticCurveTo(0,0,r,0);ctx.closePath();ctx.fill();
-    ctx.font=(size*0.55)+'px serif';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText('🌿',size/2,size/2+size*0.03);
+    const c = document.createElement('canvas'); c.width = size; c.height = size;
+    const ctx = c.getContext('2d'); ctx.fillStyle = '#7c6af7';
+    const r = size * 0.22;
+    ctx.beginPath(); ctx.moveTo(r,0); ctx.lineTo(size-r,0);
+    ctx.quadraticCurveTo(size,0,size,r); ctx.lineTo(size,size-r);
+    ctx.quadraticCurveTo(size,size,size-r,size); ctx.lineTo(r,size);
+    ctx.quadraticCurveTo(0,size,0,size-r); ctx.lineTo(0,r);
+    ctx.quadraticCurveTo(0,0,r,0); ctx.closePath(); ctx.fill();
+    ctx.font = (size * 0.55) + 'px serif';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('🌿', size/2, size/2 + size*0.03);
     return c.toDataURL('image/png');
   }
-  var icon192=makeIcon(192),icon512=makeIcon(512);
-  // Favicon
-  document.getElementById('favicon').href=icon192;
-  document.getElementById('apple-touch-icon').href=icon192;
-  // Manifest
-  var manifest={name:'Календарь Привычек',short_name:'Habits',description:'Трекер привычек с календарём и статистикой',start_url:window.location.href,scope:window.location.origin+'/',display:'standalone',orientation:'any',background_color:'#0f0f13',theme_color:'#7c6af7',lang:'ru',categories:['productivity','lifestyle'],icons:[{src:icon192,sizes:'192x192',type:'image/png',purpose:'any maskable'},{src:icon512,sizes:'512x512',type:'image/png',purpose:'any maskable'}]};
-  var mBlob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
-  document.getElementById('pwa-manifest').href=URL.createObjectURL(mBlob);
-  // SW
-  var swCode=['var CACHE="'+APP_VERSION+'";','var PAGE_URL="'+window.location.href+'";','self.addEventListener("install",function(e){e.waitUntil(caches.open(CACHE).then(function(c){return c.add(PAGE_URL).catch(function(){});}).then(function(){return self.skipWaiting();}));});','self.addEventListener("activate",function(e){e.waitUntil(caches.keys().then(function(keys){return Promise.all(keys.filter(function(k){return k!==CACHE;}).map(function(k){return caches.delete(k);}));}).then(function(){return self.clients.claim();}));});','self.addEventListener("fetch",function(e){if(e.request.method!=="GET")return;if(e.request.url.startsWith("chrome-extension://"))return;if(e.request.url.startsWith("blob:"))return;e.respondWith(caches.match(e.request).then(function(cached){if(cached){fetch(e.request).then(function(r){if(r&&r.status===200)caches.open(CACHE).then(function(c){c.put(e.request,r);});}).catch(function(){});return cached;}return fetch(e.request.clone()).then(function(r){if(r&&r.status===200){var cl=r.clone();caches.open(CACHE).then(function(c){c.put(e.request,cl);});}return r;}).catch(function(){return caches.match(PAGE_URL);});}));});'].join('\n');
+  const icon = makeIcon(192);
+  document.getElementById('favicon').href = icon;
+  document.getElementById('apple-touch-icon').href = icon;
+
+  const manifest = {
+    name:'Календарь Привычек', short_name:'Habits',
+    start_url: window.location.href, scope: window.location.origin + '/',
+    display:'standalone', background_color:'#0f0f13', theme_color:'#7c6af7', lang:'ru',
+    icons:[{src:icon,sizes:'192x192',type:'image/png',purpose:'any maskable'},
+           {src:makeIcon(512),sizes:'512x512',type:'image/png',purpose:'any maskable'}]
+  };
+  const mBlob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
+  document.getElementById('pwa-manifest').href = URL.createObjectURL(mBlob);
+
+  const swCode = `
+var CACHE="habits-v3";
+self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>c.add(location.href).catch(()=>{})).then(()=>self.skipWaiting()))});
+self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
+self.addEventListener("fetch",e=>{if(e.request.method!=="GET"||e.request.url.startsWith("chrome-extension://")||e.request.url.startsWith("blob:"))return;
+e.respondWith(caches.match(e.request).then(cached=>{const fresh=fetch(e.request.clone()).then(r=>{if(r&&r.status===200)caches.open(CACHE).then(c=>c.put(e.request,r.clone()));return r;}).catch(()=>caches.match(location.href));return cached||fresh;}));});`;
   if('serviceWorker' in navigator){
-    var swBlob=new Blob([swCode],{type:'application/javascript'});
-    navigator.serviceWorker.register(URL.createObjectURL(swBlob),{scope:'./'}).then(function(reg){window._SW_REG=reg;}).catch(function(){});
+    const swBlob = new Blob([swCode], {type:'application/javascript'});
+    navigator.serviceWorker.register(URL.createObjectURL(swBlob), {scope: './'}).catch(()=>{});
   }
-  window._pwaPrompt=null;
-  window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window._pwaPrompt=e;window.dispatchEvent(new CustomEvent('pwa-installable'));});
-  window.addEventListener('appinstalled',function(){window._pwaPrompt=null;window.dispatchEvent(new CustomEvent('pwa-installed'));});
-  window.isPWAInstalled=function(){return window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true||document.referrer.includes('android-app://');};
-  window.isIOS=function(){return /iphone|ipad|ipod/i.test(navigator.userAgent);};
-})();
-
-/* PWA Banner */
-(function(){
-  var shown=false;
-  function canShow(){if(shown)return false;if(window.isPWAInstalled())return false;var d=localStorage.getItem('pwa_dismissed');if(d&&Date.now()-parseInt(d)<24*60*60*1000)return false;return true;}
-  function showBanner(){if(!canShow())return;shown=true;var banner=document.getElementById('pwa-banner');var isIos=window.isIOS()&&!window._pwaPrompt;if(isIos){document.getElementById('pwaIosHint').style.display='flex';document.getElementById('pwaInstallBtn').style.display='none';}banner.classList.add('show');}
-  function hideBanner(){document.getElementById('pwa-banner').classList.remove('show');}
-  function scheduleBanner(){if(!canShow())return;setTimeout(showBanner,45000);}
-  window.addEventListener('pwa-installable',function(){scheduleBanner();});
-  if(window.isIOS()&&!window.isPWAInstalled()){scheduleBanner();}
-  document.getElementById('pwaInstallBtn').addEventListener('click',async function(){if(!window._pwaPrompt)return;hideBanner();window._pwaPrompt.prompt();var res=await window._pwaPrompt.userChoice;window._pwaPrompt=null;if(res.outcome==='accepted'){showToast('Приложение установлено! 🎉','success');}});
-  function dismiss(){hideBanner();localStorage.setItem('pwa_dismissed',Date.now().toString());}
-  document.getElementById('pwaDismissBtn').addEventListener('click',dismiss);
-  document.getElementById('pwaBannerClose').addEventListener('click',dismiss);
-  window.addEventListener('pwa-installed',function(){hideBanner();showToast('Habits добавлен на главный экран! 🌿','success');});
+  window._pwaPrompt = null;
+  window.addEventListener('beforeinstallprompt', e=>{e.preventDefault(); window._pwaPrompt=e; window.dispatchEvent(new CustomEvent('pwa-installable'));});
+  window.addEventListener('appinstalled', ()=>{window._pwaPrompt=null; window.dispatchEvent(new CustomEvent('pwa-installed'));});
+  window.isPWAInstalled = ()=> window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  window.isIOS = ()=> /iphone|ipad|ipod/i.test(navigator.userAgent);
 })();
 
 /* ============================================================
-   STORAGE
+   CONSTANTS
 ============================================================ */
-const SK='habitcal_v4';
-function loadState(){try{const r=localStorage.getItem(SK);if(r)return JSON.parse(r)}catch(e){}return{habits:[],completions:{},celebrations:{},createdAt:Date.now()}}
-function saveState(){try{localStorage.setItem(SK,JSON.stringify(state))}catch(e){}}
-let state=loadState();
-if(!state.habits)state.habits=[];
-if(!state.completions)state.completions={};
-if(!state.celebrations)state.celebrations={}; // {key:true} — показанные поздравления
-
-const EMOJIS=['🏃','🏋️','🧘','🚴','🏊','🧗','⚽','🏀','🎾','🥊','📚','✍️','🎨','🎵','🎮','💻','🗣️','🧠','📝','🔬','🥗','🥤','💊','🌿','🍎','😴','🛁','🧹','💰','🌅','❤️','🤝','📞','🎯','🔥','⭐','💡','🌍','🙏','😊'];
-const COLORS=['#7c6af7','#3ecf8e','#f75f6b','#f7c94f','#4fc3f7','#ff8a65','#ce93d8','#80cbc4','#a5d6a7','#ef9a9a','#90caf9','#ffe082','#4dd0e1','#f48fb1','#bcaaa4'];
-const DOW=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
-const MONTHS=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-const MGEN=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
-const GL={week:'в нед.',month:'в мес.',year:'в год'};
-const GL_FULL={week:'за неделю',month:'за месяц',year:'за год'};
-
-let currentView='month';
-let currentDate=new Date();
-let activeFilters=null;
-let ssView='month';
-let ssDate=new Date();
+const SK = 'habitcal_v4';
+const EMOJIS = ['🏃','🏋️','🧘','🚴','🏊','🧗','⚽','🏀','🎾','🥊','📚','✍️','🎨','🎵','🎮','💻','🗣️','🧠','📝','🔬','🥗','🥤','💊','🌿','🍎','😴','🛁','🧹','💰','🌅','❤️','🤝','📞','🎯','🔥','⭐','💡','🌍','🙏','😊'];
+const COLORS = ['#7c6af7','#3ecf8e','#f75f6b','#f7c94f','#4fc3f7','#ff8a65','#ce93d8','#80cbc4','#a5d6a7','#ef9a9a','#90caf9','#ffe082','#4dd0e1','#f48fb1','#bcaaa4'];
+const DOW = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+const MONTHS = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const MGEN = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const GL = {week:'в нед.',month:'в мес.',year:'в год'};
+const GL_FULL = {week:'за неделю',month:'за месяц',year:'за год'};
 
 /* ============================================================
-   HELPERS
+   APP STATE
 ============================================================ */
-function dkd(dt){return`${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`}
-function todayKey(){return dkd(new Date())}
-function isToday(dt){return dkd(dt)===todayKey()}
-function getDone(hid,key){return!!(state.completions[key]&&state.completions[key][hid])}
-function toggleDone(hid,key){
-  if(!state.completions[key])state.completions[key]={};
-  if(state.completions[key][hid])delete state.completions[key][hid];
-  else state.completions[key][hid]=true;
-  if(!Object.keys(state.completions[key]).length)delete state.completions[key];
-  saveState();
+// Единый объект состояния — данные всегда здесь,
+// независимо от источника (local/backend)
+let state = {habits:[], completions:{}, celebrations:{}};
+
+let currentUser = null;   // Supabase user object | null
+let currentView = 'month';
+let currentDate = new Date();
+let activeFilters = null;
+let ssView = 'month';
+let ssDate = new Date();
+let isSyncing = false;
+
+/* ============================================================
+   LOCAL STORAGE (гостевой режим)
+============================================================ */
+function loadLocalState(){
+  try{
+    const r = localStorage.getItem(SK);
+    if(r) return JSON.parse(r);
+  }catch(e){console.warn('[habits] loadLocalState error', e);}
+  return {habits:[], completions:{}, celebrations:{}, createdAt:Date.now()};
 }
-function dayDone(key){return Object.keys(state.completions[key]||{}).filter(id=>state.completions[key][id])}
-function visHabits(){return activeFilters?state.habits.filter(h=>activeFilters.has(h.id)):state.habits}
-function filtDone(key){const done=dayDone(key);return visHabits().filter(h=>done.includes(h.id))}
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
-function weekStart(d){const dt=new Date(d);const dow=(dt.getDay()+6)%7;dt.setDate(dt.getDate()-dow);dt.setHours(0,0,0,0);return dt}
-function isMobile(){return window.innerWidth<=768}
+function saveLocalState(){
+  try{ localStorage.setItem(SK, JSON.stringify(state)); }
+  catch(e){ console.warn('[habits] saveLocalState error', e); }
+}
+function saveState(){
+  // В гостевом режиме — только localStorage
+  if(!currentUser) { saveLocalState(); return; }
+  // В авторизованном — localStorage НЕ обновляем
+  // (backend — главный источник)
+}
+
+/* ============================================================
+   SUPABASE DATA LAYER
+============================================================ */
+
+/**
+ * Загрузить привычки и отметки пользователя с backend
+ */
+async function loadBackendData(){
+  if(!currentUser) return;
+  setSyncing(true);
+  try{
+    // Привычки (не архивированные)
+    const {data: habits, error: hErr} = await sb
+      .from('habits')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .eq('is_archived', false)
+      .order('sort_order', {ascending:true})
+      .order('created_at', {ascending:true});
+    if(hErr) throw hErr;
+
+    if(!habits || habits.length === 0){
+      state.habits = [];
+      state.completions = {};
+      setSyncing(false);
+      render();
+      return;
+    }
+
+    // Completions — за последние 2 года (оптимизация)
+    const since = new Date();
+    since.setFullYear(since.getFullYear() - 2);
+    const {data: comps, error: cErr} = await sb
+      .from('completions')
+      .select('habit_id, date')
+      .in('habit_id', habits.map(h=>h.id))
+      .gte('date', dkd(since));
+    if(cErr) throw cErr;
+
+    // Профиль (celebrations)
+    const {data: profile} = await sb
+      .from('profiles')
+      .select('celebrations')
+      .eq('id', currentUser.id)
+      .single();
+
+    // Нормализация: backend → внутренний формат
+    state.habits = habits.map(h => ({
+      id: h.local_id,          // используем local_id как внутренний id
+      _backendId: h.id,        // UUID из БД
+      name: h.name,
+      emoji: h.emoji,
+      color: h.color,
+      goal: (h.goal_type && h.goal_value)
+        ? {type: h.goal_type, value: h.goal_value}
+        : null,
+      createdAt: new Date(h.created_at).getTime(),
+    }));
+
+    // completions: {dateKey: {localId: true}}
+    state.completions = {};
+    for(const c of (comps||[])){
+      // Найти local_id по backend habit_id
+      const h = habits.find(x=>x.id === c.habit_id);
+      if(!h) continue;
+      const dateKey = c.date; // формат YYYY-MM-DD
+      if(!state.completions[dateKey]) state.completions[dateKey] = {};
+      state.completions[dateKey][h.local_id] = true;
+    }
+
+    state.celebrations = (profile && profile.celebrations) ? profile.celebrations : {};
+
+  }catch(e){
+    console.error('[habits] loadBackendData error', e);
+    showToast('Не удалось загрузить данные с сервера', 'error');
+  }finally{
+    setSyncing(false);
+  }
+  render();
+}
+
+/**
+ * Сохранить/обновить привычку в backend
+ */
+async function upsertHabitBackend(habit){
+  if(!currentUser) return null;
+  const {data, error} = await sb.from('habits').upsert({
+    user_id:     currentUser.id,
+    local_id:    habit.id,
+    name:        habit.name,
+    emoji:       habit.emoji,
+    color:       habit.color,
+    goal_type:   habit.goal ? habit.goal.type : null,
+    goal_value:  habit.goal ? habit.goal.value : null,
+    sort_order:  state.habits.findIndex(h=>h.id===habit.id),
+    is_archived: false,
+  }, {onConflict: 'user_id,local_id'})
+  .select('id')
+  .single();
+  if(error){ console.error('[habits] upsertHabitBackend', error); return null; }
+  // Обновляем _backendId в состоянии
+  const h = state.habits.find(x=>x.id===habit.id);
+  if(h && data) h._backendId = data.id;
+  return data ? data.id : null;
+}
+
+/**
+ * Удалить привычку в backend (архивирование)
+ */
+async function archiveHabitBackend(localId){
+  if(!currentUser) return;
+  const {error} = await sb.from('habits')
+    .update({is_archived:true})
+    .eq('user_id', currentUser.id)
+    .eq('local_id', localId);
+  if(error) console.error('[habits] archiveHabitBackend', error);
+}
+
+/**
+ * Получить backend habit_id по local_id
+ * (нужен для completions)
+ */
+async function getBackendHabitId(localId){
+  const h = state.habits.find(x=>x.id===localId);
+  if(h && h._backendId) return h._backendId;
+  // Если нет в кеше — запрос
+  const {data} = await sb.from('habits')
+    .select('id')
+    .eq('user_id', currentUser.id)
+    .eq('local_id', localId)
+    .single();
+  if(data){ if(h) h._backendId=data.id; return data.id; }
+  return null;
+}
+
+/**
+ * Togglecompletion в backend
+ */
+async function toggleCompletionBackend(localId, dateKey, isDone){
+  if(!currentUser) return;
+  const habitId = await getBackendHabitId(localId);
+  if(!habitId){ console.error('[habits] toggleCompletionBackend: no habitId for', localId); return; }
+  if(isDone){
+    // Добавить
+    const {error} = await sb.from('completions')
+      .upsert({habit_id:habitId, date:dateKey}, {onConflict:'habit_id,date'});
+    if(error) console.error('[habits] toggleCompletion insert', error);
+  } else {
+    // Удалить
+    const {error} = await sb.from('completions')
+      .delete()
+      .eq('habit_id', habitId)
+      .eq('date', dateKey);
+    if(error) console.error('[habits] toggleCompletion delete', error);
+  }
+}
+
+/**
+ * Сохранить celebrations в backend (в profile)
+ */
+async function saveCelebrationsBackend(){
+  if(!currentUser) return;
+  await sb.from('profiles')
+    .update({celebrations: state.celebrations})
+    .eq('id', currentUser.id);
+}
+
+/* ============================================================
+   MIGRATION: local → backend
+============================================================ */
+async function migrateLocalData(){
+  if(!currentUser) return;
+
+  // Проверяем флаг
+  const {data: profile, error} = await sb
+    .from('profiles')
+    .select('has_migrated_local_data')
+    .eq('id', currentUser.id)
+    .single();
+  if(error){ console.error('[habits] migrateLocalData: profile fetch error', error); return; }
+  if(profile && profile.has_migrated_local_data){ return; } // уже мигрировано
+
+  // Читаем local данные
+  const local = loadLocalState();
+  if(!local.habits || local.habits.length === 0){
+    // Нет данных — просто ставим флаг
+    await sb.from('profiles')
+      .update({has_migrated_local_data:true})
+      .eq('id', currentUser.id);
+    return;
+  }
+
+  setSyncing(true);
+  showToast('Переносим ваши данные в облако...', 'info');
+
+  try{
+    // 1. Upsert habits
+    const habitsToInsert = local.habits
+      .filter(h => h && h.id && h.name) // фильтрация битых данных
+      .map((h, i) => ({
+        user_id:    currentUser.id,
+        local_id:   h.id,
+        name:       h.name.slice(0, 40),
+        emoji:      h.emoji || '🏃',
+        color:      h.color || '#7c6af7',
+        goal_type:  h.goal ? h.goal.type : null,
+        goal_value: h.goal ? h.goal.value : null,
+        sort_order: i,
+        is_archived: false,
+      }));
+
+    if(habitsToInsert.length > 0){
+      const {data: insertedHabits, error: hErr} = await sb
+        .from('habits')
+        .upsert(habitsToInsert, {onConflict:'user_id,local_id'})
+        .select('id, local_id');
+      if(hErr) throw hErr;
+
+      // Строим map local_id → backend id
+      const idMap = {};
+      for(const h of (insertedHabits||[])) idMap[h.local_id] = h.id;
+
+      // 2. Batch insert completions
+      const completionsToInsert = [];
+      for(const [dateKey, dayData] of Object.entries(local.completions||{})){
+        for(const [localId, done] of Object.entries(dayData)){
+          if(!done) continue;
+          const backendId = idMap[localId];
+          if(!backendId) continue;
+          // Валидация даты
+          if(!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) continue;
+          completionsToInsert.push({habit_id: backendId, date: dateKey});
+        }
+      }
+
+      // Batch по 500 записей
+      const BATCH = 500;
+      for(let i=0; i<completionsToInsert.length; i+=BATCH){
+        const batch = completionsToInsert.slice(i, i+BATCH);
+        const {error: cErr} = await sb.from('completions')
+          .upsert(batch, {onConflict:'habit_id,date', ignoreDuplicates:true});
+        if(cErr) console.warn('[habits] migration completions batch error', cErr);
+      }
+    }
+
+    // 3. Celebrations
+    if(local.celebrations && Object.keys(local.celebrations).length > 0){
+      await sb.from('profiles')
+        .update({celebrations: local.celebrations})
+        .eq('id', currentUser.id);
+    }
+
+    // 4. Ставим флаг
+    await sb.from('profiles')
+      .update({has_migrated_local_data:true})
+      .eq('id', currentUser.id);
+
+    showToast('Данные успешно перенесены в облако ☁️', 'success');
+    console.log(`[habits] migration complete: ${habitsToInsert.length} habits, ${(local.completions ? Object.keys(local.completions).length : 0)} days`);
+
+  }catch(e){
+    console.error('[habits] migrateLocalData error', e);
+    showToast('Не удалось перенести часть данных. Данные на устройстве сохранены.', 'error');
+    // НЕ ставим флаг has_migrated_local_data = true
+    // → при следующем входе попробуем снова
+  }finally{
+    setSyncing(false);
+  }
+}
+
+/* ============================================================
+   AUTH
+============================================================ */
+async function initAuth(){
+  // Восстанавливаем сессию
+  const {data:{user}} = await sb.auth.getUser();
+  currentUser = user || null;
+
+  if(currentUser){
+    await loadBackendData();
+    // Миграция в фоне
+    migrateLocalData().then(()=>loadBackendData());
+  } else {
+    // Гостевой режим — грузим из localStorage
+    const local = loadLocalState();
+    state.habits = local.habits || [];
+    state.completions = local.completions || {};
+    state.celebrations = local.celebrations || {};
+  }
+
+  renderHeaderAuth();
+  render();
+
+  // Подписка на изменения auth
+  sb.auth.onAuthStateChange(async (event, session) => {
+    const prevUser = currentUser;
+    currentUser = session?.user || null;
+
+    if(event === 'SIGNED_IN' && !prevUser){
+      // Первый вход в этой сессии
+      await migrateLocalData();
+      await loadBackendData();
+      renderHeaderAuth();
+      render();
+      showToast('Вход выполнен! Данные синхронизируются 🔄', 'success');
+    }
+
+    if(event === 'SIGNED_OUT'){
+      currentUser = null;
+      // Возврат в гостевой режим
+      const local = loadLocalState();
+      state.habits = local.habits || [];
+      state.completions = local.completions || {};
+      state.celebrations = local.celebrations || {};
+      activeFilters = null;
+      renderHeaderAuth();
+      render();
+    }
+
+    if(event === 'TOKEN_REFRESHED'){
+      currentUser = session?.user || null;
+    }
+  });
+}
+
+/* ============================================================
+   AUTH HELPERS
+============================================================ */
+function setSyncing(v){
+  isSyncing = v;
+  renderHeaderAuth();
+}
+
+/**
+ * Перевод ошибок Supabase Auth в читаемый текст
+ */
+function authErrorText(error){
+  if(!error) return 'Произошла ошибка. Попробуйте позже.';
+  const msg = (error.message || '').toLowerCase();
+  if(msg.includes('invalid login') || msg.includes('invalid credentials'))
+    return 'Неверный email или пароль.';
+  if(msg.includes('user already registered') || msg.includes('already been registered'))
+    return 'Этот email уже зарегистрирован. Попробуйте войти.';
+  if(msg.includes('user not found'))
+    return 'Пользователь не найден.';
+  if(msg.includes('email not confirmed'))
+    return 'Email не подтверждён. Проверьте почту.';
+  if(msg.includes('password') && msg.includes('least'))
+    return 'Пароль слишком короткий. Минимум 6 символов.';
+  if(msg.includes('rate limit') || msg.includes('too many'))
+    return 'Слишком много попыток. Подождите немного.';
+  if(msg.includes('network') || msg.includes('fetch'))
+    return 'Нет соединения с сервером. Проверьте интернет.';
+  return 'Не удалось выполнить вход. Попробуйте позже.';
+}
+
+/* ============================================================
+   HEADER AUTH RENDER
+============================================================ */
+function renderHeaderAuth(){
+  const el = document.getElementById('headerAuth');
+  if(currentUser){
+    const emailInitial = currentUser.email ? currentUser.email[0].toUpperCase() : '?';
+    el.innerHTML = `
+      ${isSyncing
+        ? `<div class="hdr-sync-badge syncing">⟳ Синхронизация...</div>`
+        : `<div class="hdr-sync-badge">☁️ Синхронизировано</div>`
+      }
+      <button class="hdr-settings-btn" id="settingsBtn" title="Настройки">⚙️</button>
+    `;
+    document.getElementById('settingsBtn').addEventListener('click', openSettingsModal);
+  } else {
+    el.innerHTML = `
+      <div class="header-auth-guest">
+        <button class="hdr-btn" id="hdrLoginBtn">Войти</button>
+        <button class="hdr-btn primary" id="hdrRegBtn">Регистрация</button>
+      </div>
+    `;
+    document.getElementById('hdrLoginBtn').addEventListener('click', ()=>openAuthModal('login'));
+    document.getElementById('hdrRegBtn').addEventListener('click', ()=>openAuthModal('register'));
+  }
+}
+
+/* ============================================================
+   AUTH MODAL
+============================================================ */
+function openAuthModal(initialMode='login'){
+  const html = `
+    <div class="auth-modal-wrap">
+      <div class="auth-tabs">
+        <button class="auth-tab ${initialMode==='login'?'active':''}" data-mode="login">Войти</button>
+        <button class="auth-tab ${initialMode==='register'?'active':''}" data-mode="register">Регистрация</button>
+      </div>
+
+      <!-- Ценностное предложение (только для регистрации) -->
+      <div class="auth-value-props" id="authValueProps" style="${initialMode==='register'?'':'display:none'}">
+        <div class="auth-vp-title">Зачем создавать профиль?</div>
+        <div class="auth-vp-list">
+          <div class="auth-vp-item"><span class="auth-vp-icon">☁️</span><span>Данные сохранятся в облаке</span></div>
+          <div class="auth-vp-item"><span class="auth-vp-icon">📱</span><span>Доступ с любого устройства</span></div>
+          <div class="auth-vp-item"><span class="auth-vp-icon">🔄</span><span>История привычек не потеряется</span></div>
+        </div>
+      </div>
+
+      <div class="auth-error" id="authError"></div>
+
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" id="authEmail" type="email" inputmode="email"
+               autocomplete="email" placeholder="your@email.com">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Пароль</label>
+        <input class="form-input" id="authPassword" type="password"
+               autocomplete="${initialMode==='register'?'new-password':'current-password'}"
+               placeholder="${initialMode==='register'?'Минимум 6 символов':'Ваш пароль'}">
+      </div>
+
+      <button class="auth-submit-btn" id="authSubmitBtn">
+        <span class="auth-btn-text" id="authBtnText">${initialMode==='login'?'Войти':'Создать аккаунт'}</span>
+        <div class="auth-spinner"></div>
+      </button>
+    </div>`;
+
+  openModal(html);
+
+  let mode = initialMode;
+
+  function setMode(m){
+    mode = m;
+    document.querySelectorAll('.auth-tab').forEach(t=>t.classList.toggle('active', t.dataset.mode===m));
+    const vp = document.getElementById('authValueProps');
+    if(vp) vp.style.display = m==='register' ? 'block' : 'none';
+    const pw = document.getElementById('authPassword');
+    if(pw){
+      pw.placeholder = m==='register' ? 'Минимум 6 символов' : 'Ваш пароль';
+      pw.autocomplete = m==='register' ? 'new-password' : 'current-password';
+    }
+    const btn = document.getElementById('authBtnText');
+    if(btn) btn.textContent = m==='login' ? 'Войти' : 'Создать аккаунт';
+    hideAuthError();
+  }
+
+  function showAuthError(msg){
+    const el = document.getElementById('authError');
+    if(el){ el.textContent = msg; el.classList.add('show'); }
+  }
+  function hideAuthError(){
+    const el = document.getElementById('authError');
+    if(el) el.classList.remove('show');
+  }
+  function setLoading(v){
+    const btn = document.getElementById('authSubmitBtn');
+    if(btn) btn.classList.toggle('loading', v);
+    if(btn) btn.disabled = v;
+  }
+
+  function validateForm(){
+    const email = (document.getElementById('authEmail')?.value||'').trim();
+    const password = (document.getElementById('authPassword')?.value||'');
+    const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if(!emailRx.test(email)){
+      showAuthError('Введите корректный email-адрес.');
+      document.getElementById('authEmail')?.classList.add('error');
+      return false;
+    }
+    document.getElementById('authEmail')?.classList.remove('error');
+    if(!password){
+      showAuthError('Введите пароль.');
+      document.getElementById('authPassword')?.classList.add('error');
+      return false;
+    }
+    document.getElementById('authPassword')?.classList.remove('error');
+    if(mode==='register' && password.length < 6){
+      showAuthError('Пароль слишком короткий. Минимум 6 символов.');
+      document.getElementById('authPassword')?.classList.add('error');
+      return false;
+    }
+    return true;
+  }
+
+  async function submit(){
+    if(!validateForm()) return;
+    hideAuthError();
+    setLoading(true);
+    const email = document.getElementById('authEmail').value.trim();
+    const password = document.getElementById('authPassword').value;
+    try{
+      if(mode === 'login'){
+        const {error} = await sb.auth.signInWithPassword({email, password});
+        if(error) throw error;
+        closeModal();
+      } else {
+        const {error} = await sb.auth.signUp({email, password});
+        if(error) throw error;
+        closeModal();
+        showToast('Аккаунт создан! 🎉', 'success');
+      }
+    }catch(e){
+      console.error('[habits] auth error', e);
+      showAuthError(authErrorText(e));
+    }finally{
+      setLoading(false);
+    }
+  }
+
+  // Events
+  document.querySelectorAll('.auth-tab').forEach(t=>{
+    t.addEventListener('click', ()=>setMode(t.dataset.mode));
+  });
+  document.getElementById('authSubmitBtn')?.addEventListener('click', submit);
+  document.getElementById('authPassword')?.addEventListener('keydown', e=>{
+    if(e.key==='Enter'){ e.preventDefault(); submit(); }
+  });
+  document.getElementById('authEmail')?.addEventListener('keydown', e=>{
+    if(e.key==='Enter'){ e.preventDefault(); document.getElementById('authPassword')?.focus(); }
+  });
+}
+
+/* ============================================================
+   SETTINGS MODAL
+============================================================ */
+function openSettingsModal(){
+  if(!currentUser){
+    openAuthModal('login');
+    return;
+  }
+  const emailInitial = currentUser.email ? currentUser.email[0].toUpperCase() : '?';
+  const html = `
+    <div class="modal-title">⚙️ Настройки</div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Профиль</div>
+      <div class="settings-user-card">
+        <div class="settings-avatar">${emailInitial}</div>
+        <div>
+          <div class="settings-email">${esc(currentUser.email||'')}</div>
+          <div class="settings-status">✅ Авторизован</div>
+        </div>
+      </div>
+      <div class="settings-sync-info">
+        <span class="settings-sync-icon">☁️</span>
+        <span>Ваши привычки автоматически синхронизируются между всеми устройствами, где вы вошли в аккаунт.</span>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Статистика</div>
+      <div class="stat-card" style="margin-bottom:0">
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:.82rem">
+          <span>Привычек</span><strong>${state.habits.length}</strong>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:.82rem;margin-top:6px">
+          <span>Выполнений всего</span><strong>${allTimeTotal()}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-section-title">Аккаунт</div>
+      <button class="btn btn-secondary btn-full" id="settingsLogoutBtn">🚪 Выйти из аккаунта</button>
+    </div>
+
+    <div class="settings-section">
+      <div class="settings-danger-zone">
+        <div class="settings-danger-title">⚠️ Опасная зона</div>
+        <div class="settings-danger-desc">Удаление профиля необратимо. Все привычки и история будут удалены с сервера.</div>
+        <button class="btn btn-danger btn-full btn-sm" id="settingsDeleteBtn">🗑 Удалить профиль</button>
+      </div>
+    </div>`;
+
+  openModal(html);
+
+  document.getElementById('settingsLogoutBtn')?.addEventListener('click', async ()=>{
+    closeModal();
+    await sb.auth.signOut();
+    showToast('Вы вышли из аккаунта', 'info');
+  });
+
+  document.getElementById('settingsDeleteBtn')?.addEventListener('click', ()=>{
+    openConfirm(
+      'Удалить профиль?',
+      'Все ваши привычки и история выполнения будут безвозвратно удалены. Это действие нельзя отменить.',
+      deleteUserProfile
+    );
+  });
+}
+
+async function deleteUserProfile(){
+  if(!currentUser) return;
+  setSyncing(true);
+  try{
+    // 1. Удаляем данные (каскадно через RLS)
+    const {error: dataErr} = await sb.rpc('delete_user_data');
+    if(dataErr) throw dataErr;
+    // 2. Удаляем auth user
+    const {error: authErr} = await sb.rpc('delete_auth_user');
+    if(authErr) throw authErr;
+    // 3. Signout (сессия уже невалидна)
+    await sb.auth.signOut();
+    showToast('Профиль удалён', 'info');
+  }catch(e){
+    console.error('[habits] deleteUserProfile error', e);
+    showToast('Не удалось удалить профиль. Попробуйте позже.', 'error');
+  }finally{
+    setSyncing(false);
+  }
+}
+
+/* ============================================================
+   STORAGE HELPERS
+============================================================ */
+function dkd(dt){
+  return `${dt.getFullYear()}-${String(dt.getMonth()+1).padStart(2,'0')}-${String(dt.getDate()).padStart(2,'0')}`;
+}
+function todayKey(){ return dkd(new Date()); }
+function isToday(dt){ return dkd(dt) === todayKey(); }
+
+function getDone(hid, key){
+  return !!(state.completions[key] && state.completions[key][hid]);
+}
+
+async function toggleDoneAsync(hid, key){
+  const wasDone = getDone(hid, key);
+  // Оптимистичное обновление UI
+  if(!state.completions[key]) state.completions[key] = {};
+  if(wasDone){
+    delete state.completions[key][hid];
+    if(!Object.keys(state.completions[key]).length) delete state.completions[key];
+  } else {
+    state.completions[key][hid] = true;
+  }
+  const isDoneNow = !wasDone;
+
+  if(!currentUser){
+    saveLocalState();
+  } else {
+    // Асинхронный запрос в фоне (без блокировки UI)
+    toggleCompletionBackend(hid, key, isDoneNow).catch(e=>{
+      console.error('[habits] toggleCompletionBackend failed, reverting', e);
+      // Откатываем при ошибке
+      if(isDoneNow){
+        if(!state.completions[key]) state.completions[key]={};
+        delete state.completions[key][hid];
+        if(!Object.keys(state.completions[key]).length) delete state.completions[key];
+      } else {
+        if(!state.completions[key]) state.completions[key]={};
+        state.completions[key][hid]=true;
+      }
+      renderCalendar();
+      showToast('Не удалось сохранить отметку', 'error');
+    });
+  }
+  return isDoneNow;
+}
+
+function dayDone(key){ return Object.keys(state.completions[key]||{}).filter(id=>state.completions[key][id]); }
+function visHabits(){ return activeFilters ? state.habits.filter(h=>activeFilters.has(h.id)) : state.habits; }
+function filtDone(key){ const done=dayDone(key); return visHabits().filter(h=>done.includes(h.id)); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function weekStart(d){ const dt=new Date(d);const dow=(dt.getDay()+6)%7;dt.setDate(dt.getDate()-dow);dt.setHours(0,0,0,0);return dt; }
+function isMobile(){ return window.innerWidth<=768; }
 
 /* ============================================================
    STREAKS & STATS
 ============================================================ */
 function calcStreak(hid){
   const today=new Date();today.setHours(0,0,0,0);
-  let cur=0;let d=new Date(today);
-  while(true){const k=dkd(d);if(state.completions[k]&&state.completions[k][hid]){cur++;d.setDate(d.getDate()-1)}else break}
+  let cur=0;const d=new Date(today);
+  while(true){ const k=dkd(d); if(state.completions[k]&&state.completions[k][hid]){cur++;d.setDate(d.getDate()-1)}else break; }
   const keys=Object.keys(state.completions).filter(k=>state.completions[k][hid]).sort();
-  if(!keys.length)return{current:0,max:0};
+  if(!keys.length) return{current:0,max:0};
   let mx=0,cs=0,prev=null;
-  for(const k of keys){if(!prev){cs=1}else{const pd=new Date(prev);pd.setDate(pd.getDate()+1);cs=dkd(pd)===k?cs+1:1}if(cs>mx)mx=cs;prev=k;}
+  for(const k of keys){ if(!prev){cs=1}else{const pd=new Date(prev);pd.setDate(pd.getDate()+1);cs=dkd(pd)===k?cs+1:1}if(cs>mx)mx=cs;prev=k; }
   return{current:cur,max:mx};
 }
+
 function periodStats(hid,type,ref){
   let start,end;const d=new Date(ref);
   if(type==='week'){const dow=(d.getDay()+6)%7;start=new Date(d);start.setDate(d.getDate()-dow);start.setHours(0,0,0,0);end=new Date(start);end.setDate(start.getDate()+6);end.setHours(23,59,59,999);}
   else if(type==='month'){start=new Date(d.getFullYear(),d.getMonth(),1);end=new Date(d.getFullYear(),d.getMonth()+1,0,23,59,59);}
   else{start=new Date(d.getFullYear(),0,1);end=new Date(d.getFullYear(),11,31,23,59,59);}
   let n=0;const c=new Date(start);
-  while(c<=end){const k=dkd(c);if(state.completions[k]&&state.completions[k][hid])n++;c.setDate(c.getDate()+1)}
+  while(c<=end){const k=dkd(c);if(state.completions[k]&&state.completions[k][hid])n++;c.setDate(c.getDate()+1);}
   return n;
 }
+
 function goalForPeriod(h,type){
-  if(!h.goal)return null;const g=h.goal;
-  if(g.type===type)return g.value;
-  if(g.type==='week'){if(type==='month')return Math.round(g.value*4.33);if(type==='year')return Math.round(g.value*52)}
-  if(g.type==='month'){if(type==='week')return Math.round(g.value/4.33);if(type==='year')return g.value*12}
-  if(g.type==='year'){if(type==='week')return Math.round(g.value/52);if(type==='month')return Math.round(g.value/12)}
+  if(!h.goal) return null;const g=h.goal;
+  if(g.type===type) return g.value;
+  if(g.type==='week'){if(type==='month')return Math.round(g.value*4.33);if(type==='year')return Math.round(g.value*52);}
+  if(g.type==='month'){if(type==='week')return Math.round(g.value/4.33);if(type==='year')return g.value*12;}
+  if(g.type==='year'){if(type==='week')return Math.round(g.value/52);if(type==='month')return Math.round(g.value/12);}
   return null;
 }
+
 function lastWeekPct(){
   const today=new Date();today.setHours(0,0,0,0);
   const mon=new Date(today);mon.setDate(today.getDate()-(today.getDay()+6)%7-7);
   const ref=new Date(mon);ref.setDate(mon.getDate()+1);
   const wg=state.habits.filter(h=>h.goal);if(!wg.length)return null;
-  let tot=0;wg.forEach(h=>{const done=periodStats(h.id,'week',ref);const goal=goalForPeriod(h,'week');if(goal)tot+=Math.min(100,Math.round(done/goal*100))});
+  let tot=0;wg.forEach(h=>{const done=periodStats(h.id,'week',ref);const goal=goalForPeriod(h,'week');if(goal)tot+=Math.min(100,Math.round(done/goal*100));});
   return Math.round(tot/wg.length);
 }
-function allTimeTotal(){let n=0;Object.values(state.completions).forEach(day=>n+=Object.values(day).filter(Boolean).length);return n}
+
+function allTimeTotal(){
+  let n=0;Object.values(state.completions).forEach(day=>n+=Object.values(day).filter(Boolean).length);
+  return n;
+}
 
 /* ============================================================
-   PERIOD KEY — для ключа поздравления
+   PERIOD KEY (celebrations)
 ============================================================ */
 function getPeriodKey(type,ref){
   const d=new Date(ref||new Date());
   if(type==='week'){
     const s=weekStart(d);
     const wn=Math.ceil(((s-new Date(s.getFullYear(),0,1))/86400000+1)/7);
-    return`${s.getFullYear()}-W${String(wn).padStart(2,'0')}`;
+    return `${s.getFullYear()}-W${String(wn).padStart(2,'0')}`;
   }
-  if(type==='month')return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-  return`${d.getFullYear()}`;
+  if(type==='month') return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  return `${d.getFullYear()}`;
 }
 
 /* ============================================================
-   CELEBRATION (геймификация)
+   CELEBRATION
 ============================================================ */
 function checkGoalAfterToggle(hid){
   const h=state.habits.find(x=>x.id===hid);
-  if(!h||!h.goal)return;
-
-  // Поздравляем ТОЛЬКО за достижение цели за тот период, который указан в настройках
-  const goalType=h.goal.type;
-  const goalValue=h.goal.value;
-  const periodKey=getPeriodKey(goalType,new Date());
-  const celKey=`${hid}:${goalType}:${periodKey}`;
-
-  // Уже показывали?
-  if(state.celebrations[celKey])return;
-
-  // Считаем выполнения за нужный период
-  const done=periodStats(hid,goalType,new Date());
-  if(done<goalValue)return;
-
-  // Показываем поздравление!
-  state.celebrations[celKey]=true;
-  saveState();
-  showCelebration(h,goalType,goalValue);
+  if(!h||!h.goal) return;
+  const {type:goalType, value:goalValue} = h.goal;
+  const periodKey = getPeriodKey(goalType, new Date());
+  const celKey = `${hid}:${goalType}:${periodKey}`;
+  if(state.celebrations[celKey]) return;
+  const done = periodStats(hid, goalType, new Date());
+  if(done < goalValue) return;
+  state.celebrations[celKey] = true;
+  if(currentUser){
+    saveCelebrationsBackend().catch(e=>console.warn('[habits] saveCelebrations error', e));
+  } else {
+    saveLocalState();
+  }
+  showCelebration(h, goalType, goalValue);
 }
 
-function showCelebration(habit,goalType,goalValue){
-  const overlay=document.getElementById('cel-overlay');
-  const body=document.getElementById('celBody');
-  const particles=document.getElementById('celParticles');
-  const periodLabel=GL_FULL[goalType];
-
-  // Случайный позитивный текст
-  const msgs=[
-    'Вы справились! Продолжайте в том же духе!',
-    'Отличная работа! Вы двигаетесь к цели!',
-    'Так держать! Последовательность — ключ к успеху!',
-    'Вы доказали себе, что это возможно! 💪'
-  ];
-  const msg=msgs[Math.floor(Math.random()*msgs.length)];
-
-  // Частицы-конфетти
-  const emojis=['🎉','⭐','✨','🌟','💫','🎊','🏆'];
-  particles.innerHTML=emojis.map((e,i)=>`
-    <span class="cel-p" style="left:${10+i*12}%;animation-delay:${i*0.18}s;animation-duration:${2+i*0.2}s">${e}</span>
-  `).join('');
-
-  body.innerHTML=`
+function showCelebration(habit, goalType, goalValue){
+  const overlay = document.getElementById('cel-overlay');
+  const body = document.getElementById('celBody');
+  const particles = document.getElementById('celParticles');
+  const periodLabel = GL_FULL[goalType];
+  const msgs = ['Вы справились! Продолжайте в том же духе!','Отличная работа! Вы двигаетесь к цели!','Так держать! Последовательность — ключ к успеху!','Вы доказали себе, что это возможно! 💪'];
+  const msg = msgs[Math.floor(Math.random()*msgs.length)];
+  const emojis = ['🎉','⭐','✨','🌟','💫','🎊','🏆'];
+  particles.innerHTML = emojis.map((e,i)=>`<span class="cel-p" style="left:${10+i*12}%;animation-delay:${i*0.18}s;animation-duration:${2+i*0.2}s">${e}</span>`).join('');
+  body.innerHTML = `
     <div class="cel-stars">🎉🌟🎉</div>
     <div class="cel-title">Цель достигнута!</div>
     <div class="cel-sub">${msg}<br><span style="color:var(--text3);font-size:.8rem">Цель ${periodLabel} выполнена</span></div>
     <div class="cel-habit-card">
       <div class="cel-habit-icon" style="background:${habit.color}22">${habit.emoji}</div>
-      <div>
-        <div class="cel-habit-name">${esc(habit.name)}</div>
-        <div class="cel-habit-goal">✅ ${goalValue} раз ${periodLabel} — выполнено!</div>
-      </div>
+      <div><div class="cel-habit-name">${esc(habit.name)}</div><div class="cel-habit-goal">✅ ${goalValue} раз ${periodLabel} — выполнено!</div></div>
     </div>
-    <button class="cel-btn" id="celDoneBtn">🙌 Я молодец!</button>
-  `;
-
+    <button class="cel-btn" id="celDoneBtn">🙌 Я молодец!</button>`;
   overlay.classList.add('open');
-  document.getElementById('celDoneBtn').addEventListener('click',()=>{
-    overlay.classList.remove('open');
-  });
-  // Закрытие по клику на фон
-  overlay.addEventListener('click',function h(e){
-    if(e.target===overlay){overlay.classList.remove('open');overlay.removeEventListener('click',h);}
-  });
+  document.getElementById('celDoneBtn').addEventListener('click',()=>overlay.classList.remove('open'));
+  overlay.addEventListener('click',function h(e){if(e.target===overlay){overlay.classList.remove('open');overlay.removeEventListener('click',h);}});
 }
 
 /* ============================================================
@@ -780,47 +1548,57 @@ function showCelebration(habit,goalType,goalValue){
 ============================================================ */
 function buildHeatmap(type,ref){
   const total=state.habits.length;
-  if(!total)return`<div style="color:var(--text3);font-size:.75rem">Нет привычек</div>`;
+  if(!total) return `<div style="color:var(--text3);font-size:.75rem">Нет привычек</div>`;
   let start,end;const d=new Date(ref);
   if(type==='week'){const dow=(d.getDay()+6)%7;start=new Date(d);start.setDate(d.getDate()-dow);start.setHours(0,0,0,0);end=new Date(start);end.setDate(start.getDate()+6);end.setHours(23,59,59,999);}
   else if(type==='month'){start=new Date(d.getFullYear(),d.getMonth(),1);end=new Date(d.getFullYear(),d.getMonth()+1,0,23,59,59);}
   else{start=new Date(d.getFullYear(),0,1);end=new Date(d.getFullYear(),11,31,23,59,59);}
   const sdow=(start.getDay()+6)%7;const grid=[];let col=[];
-  for(let i=0;i<sdow;i++)col.push(null);
-  for(let dd=new Date(start);dd<=end;dd.setDate(dd.getDate()+1)){const key=dkd(dd);const done=dayDone(key).length;col.push({done,total});if(col.length===7){grid.push(col);col=[];}}
+  for(let i=0;i<sdow;i++) col.push(null);
+  for(let dd=new Date(start);dd<=end;dd.setDate(dd.getDate()+1)){
+    const key=dkd(dd);const done=dayDone(key).length;col.push({done,total});
+    if(col.length===7){grid.push(col);col=[];}
+  }
   if(col.length){while(col.length<7)col.push(null);grid.push(col);}
   let h=`<div class="heatmap-grid">`;
-  for(const wk of grid){h+=`<div class="heatmap-col">`;for(const c of wk){if(!c){h+=`<div class="hm-cell"></div>`;continue}let lv=0;if(c.done>0){const r=c.done/c.total;lv=r<=.25?1:r<=.5?2:r<1?3:4}h+=`<div class="hm-cell${lv?' lv'+lv:''}" title="${c.done}/${c.total}"></div>`;}h+=`</div>`;}
+  for(const wk of grid){
+    h+=`<div class="heatmap-col">`;
+    for(const c of wk){
+      if(!c){h+=`<div class="hm-cell"></div>`;continue;}
+      let lv=0;if(c.done>0){const r=c.done/c.total;lv=r<=.25?1:r<=.5?2:r<1?3:4;}
+      h+=`<div class="hm-cell${lv?' lv'+lv:''}" title="${c.done}/${c.total}"></div>`;
+    }
+    h+=`</div>`;
+  }
   h+=`</div>`;return h;
 }
 
 /* ============================================================
    STATS HTML
-   Пустое состояние: кнопка «Создать первую привычку»
 ============================================================ */
 function buildStatsHTML(type,ref){
-  if(!state.habits.length)return`
+  if(!state.habits.length) return `
     <div class="empty-state">
       <div class="empty-state-icon">📊</div>
       <div class="empty-state-title">Нет данных</div>
       <div class="empty-state-desc">Добавьте привычки, чтобы видеть статистику</div>
       <button class="first-habit-btn" onclick="closeStatsScreen();openHabitModal()">🌱 Создать первую привычку</button>
     </div>`;
-  const pLabel=type==='week'?'неделю':type==='month'?'месяц':'год';
-  let h='';
-  h+=`<div class="stat-card"><div class="stat-card-title">✅ За ${pLabel}</div>`;
+  const pLabel = type==='week'?'неделю':type==='month'?'месяц':'год';
+  let h = '';
+  h += `<div class="stat-card"><div class="stat-card-title">✅ За ${pLabel}</div>`;
   state.habits.forEach(hb=>{
     const done=periodStats(hb.id,type,ref);const goal=goalForPeriod(hb,type);
     const pct=goal?Math.min(100,Math.round(done/goal*100)):null;const fc=pct!==null?(pct<50?'r':pct<80?'y':'g'):'g';
     const streak=calcStreak(hb.id);
     h+=`<div class="stat-habit-item"><div class="stat-habit-top"><div class="stat-habit-name"><div style="width:22px;height:22px;border-radius:6px;background:${hb.color}33;display:flex;align-items:center;justify-content:center;font-size:.8rem">${hb.emoji}</div>${esc(hb.name)}</div><div style="display:flex;align-items:center;gap:5px">${streak.current>=2?`<span class="streak-badge">🔥${streak.current}</span>`:''}<span class="stat-habit-count">${done}${goal?'/'+goal:''}</span></div></div>${goal?`<div class="pb-wrap"><div class="pb-fill ${fc}" style="width:${pct}%"></div></div><div class="stat-pct">${pct}%</div>`:''}</div>`;
   });
-  h+=`</div>`;
-  h+=`<div class="stat-card"><div class="stat-card-title">🔥 Стрики</div>`;
+  h += `</div>`;
+  h += `<div class="stat-card"><div class="stat-card-title">🔥 Стрики</div>`;
   state.habits.forEach(hb=>{const s=calcStreak(hb.id);h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px"><div style="display:flex;align-items:center;gap:6px;font-size:.81rem">${hb.emoji} ${esc(hb.name)}</div><div style="display:flex;gap:8px;font-size:.75rem"><span>🔥 ${s.current}</span><span style="color:var(--yellow)">⭐ ${s.max}</span></div></div>`;});
-  h+=`<div class="streak-legend"><strong>🔥 Текущая серия</strong> — сколько дней подряд вы выполняете привычку прямо сейчас.<br><strong>⭐ Максимальная серия</strong> — самая длинная непрерывная серия за всё время.</div></div>`;
-  const hmLabel=type==='week'?'неделю':type==='month'?'месяц':`${ref.getFullYear()} год`;
-  h+=`<div class="stat-card"><div class="stat-card-title">🗓 Тепловая карта — ${hmLabel}</div><div class="heatmap-wrap">${buildHeatmap(type,ref)}</div><div class="hm-legend">Меньше <div style="display:flex;gap:2px">${['','lv1','lv2','lv3','lv4'].map(l=>`<div class="hm-cell ${l}" style="position:static"></div>`).join('')}</div> Больше</div></div>`;
+  h += `<div class="streak-legend"><strong>🔥 Текущая серия</strong> — сколько дней подряд вы выполняете привычку прямо сейчас.<br><strong>⭐ Максимальная серия</strong> — самая длинная непрерывная серия за всё время.</div></div>`;
+  const hmLabel = type==='week'?'неделю':type==='month'?'месяц':`${ref.getFullYear()} год`;
+  h += `<div class="stat-card"><div class="stat-card-title">🗓 Тепловая карта — ${hmLabel}</div><div class="heatmap-wrap">${buildHeatmap(type,ref)}</div><div class="hm-legend">Меньше <div style="display:flex;gap:2px">${['','lv1','lv2','lv3','lv4'].map(l=>`<div class="hm-cell ${l}" style="position:static"></div>`).join('')}</div> Больше</div></div>`;
   return h;
 }
 
@@ -828,27 +1606,38 @@ function buildStatsHTML(type,ref){
    WELCOME BANNER
 ============================================================ */
 function renderWelcomeBanner(){
-  const wb=document.getElementById('welcome-banner');
-  if(isMobile()&&state.habits.length===0)wb.style.display='block';
-  else wb.style.display='none';
+  const wb = document.getElementById('welcome-banner');
+  if(isMobile() && state.habits.length === 0) wb.style.display = 'block';
+  else wb.style.display = 'none';
 }
 
 /* ============================================================
    RENDER
 ============================================================ */
-function render(){renderQS();renderHabits();renderFilter();renderCalendar();renderWelcomeBanner();renderInlineStats();renderStatsPanel()}
+function render(){
+  renderQS();
+  renderHabits();
+  renderFilter();
+  renderCalendar();
+  renderWelcomeBanner();
+  renderInlineStats();
+  renderStatsPanel();
+}
 
-const QS_DATA=[
-  {icon:'🎯',label:'Привычки',tip:'Количество активных привычек, которые вы сейчас отслеживаете.'},
-  {icon:'✅',label:'Выполнений за всё время',tip:'Суммарное количество отметок выполнения по всем привычкам за всё время.'},
-  {icon:'📈',label:'Успех прошлой недели',tip:'Средний процент выполнения целей за прошлую неделю. Учитываются только привычки с заданными целями.'},
+const QS_DATA = [
+  {icon:'🎯', label:'Привычки', tip:'Количество активных привычек, которые вы сейчас отслеживаете.'},
+  {icon:'✅', label:'Выполнений за всё время', tip:'Суммарное количество отметок выполнения по всем привычкам за всё время.'},
+  {icon:'📈', label:'Успех прошлой недели', tip:'Средний процент выполнения целей за прошлую неделю. Учитываются только привычки с заданными целями.'},
 ];
 
-/* ---- QUICK STATS — тултип по клику на всю карточку ---- */
 function renderQS(){
-  const list=document.getElementById('qsList');
-  const vals=[state.habits.length,allTimeTotal(),(()=>{const p=lastWeekPct();return p!==null?p+'%':'—'})()];
-  list.innerHTML=QS_DATA.map((d,i)=>`
+  const list = document.getElementById('qsList');
+  const vals = [
+    state.habits.length,
+    allTimeTotal(),
+    (()=>{const p=lastWeekPct();return p!==null?p+'%':'—';})()
+  ];
+  list.innerHTML = QS_DATA.map((d,i)=>`
     <div class="qs-card" data-qs="${i}">
       <div class="qs-icon">${d.icon}</div>
       <div class="qs-body"><div class="qs-num">${vals[i]}</div><div class="qs-label">${d.label}</div></div>
@@ -857,45 +1646,61 @@ function renderQS(){
     </div>`).join('');
 
   list.querySelectorAll('.qs-card').forEach(card=>{
-    // Клик на всю карточку → показать тултип
-    card.addEventListener('click',e=>{
+    card.addEventListener('click', e=>{
       e.stopPropagation();
-      const id=card.dataset.qs;
-      const b=document.getElementById('tip'+id);
-      const was=b.classList.contains('hidden');
+      const id = card.dataset.qs;
+      const b = document.getElementById('tip'+id);
+      const was = b.classList.contains('hidden');
       list.querySelectorAll('.tip-bubble').forEach(x=>x.classList.add('hidden'));
-      if(was)b.classList.remove('hidden');
+      if(was) b.classList.remove('hidden');
     });
   });
 }
-// Закрыть тултипы по клику в любом другом месте
-document.addEventListener('click',()=>document.querySelectorAll('.tip-bubble').forEach(b=>b.classList.add('hidden')));
+document.addEventListener('click', ()=>document.querySelectorAll('.tip-bubble').forEach(b=>b.classList.add('hidden')));
 
 function renderHabits(){
-  const el=document.getElementById('habitsList');
-  if(!state.habits.length){el.innerHTML=`<div class="empty-state" style="padding:16px 0 4px"><div class="empty-state-icon">🌱</div><div class="empty-state-title">Нет привычек</div><div class="empty-state-desc">Добавьте первую привычку, чтобы начать отслеживать прогресс</div></div>`;return}
-  el.innerHTML=state.habits.map(h=>`<div class="habit-item"><div class="habit-dot" style="background:${h.color}22;border:1px solid ${h.color}44">${h.emoji}</div><div class="habit-info"><div class="habit-name">${esc(h.name)}</div>${h.goal?`<div class="habit-goal-tag">🎯 ${h.goal.value} ${GL[h.goal.type]}</div>`:''}</div><div class="habit-actions"><button class="icon-btn" data-action="edit" data-id="${h.id}">✏️</button><button class="icon-btn danger" data-action="delete" data-id="${h.id}">🗑</button></div></div>`).join('');
-}
-function renderFilter(){
-  const sec=document.getElementById('filterSection');
-  if(!state.habits.length){sec.style.display='none';return}
-  sec.style.display='block';
-  document.getElementById('filterChips').innerHTML=state.habits.map(h=>{const on=!activeFilters||activeFilters.has(h.id);return`<div class="filter-chip ${on?'on':'off'}" data-fid="${h.id}" style="background:${h.color}18;color:${h.color}">${h.emoji} ${esc(h.name)}</div>`;}).join('');
+  const el = document.getElementById('habitsList');
+  if(!state.habits.length){
+    el.innerHTML = `<div class="empty-state" style="padding:16px 0 4px"><div class="empty-state-icon">🌱</div><div class="empty-state-title">Нет привычек</div><div class="empty-state-desc">Добавьте первую привычку, чтобы начать отслеживать прогресс</div></div>`;
+    return;
+  }
+  el.innerHTML = state.habits.map(h=>`
+    <div class="habit-item">
+      <div class="habit-dot" style="background:${h.color}22;border:1px solid ${h.color}44">${h.emoji}</div>
+      <div class="habit-info">
+        <div class="habit-name">${esc(h.name)}</div>
+        ${h.goal?`<div class="habit-goal-tag">🎯 ${h.goal.value} ${GL[h.goal.type]}</div>`:''}
+      </div>
+      <div class="habit-actions">
+        <button class="icon-btn" data-action="edit" data-id="${h.id}">✏️</button>
+        <button class="icon-btn danger" data-action="delete" data-id="${h.id}">🗑</button>
+      </div>
+    </div>`).join('');
 }
 
-function calTitleStr(view,date){
-  if(view==='month')return`${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
-  if(view==='year')return`${date.getFullYear()}`;
+function renderFilter(){
+  const sec = document.getElementById('filterSection');
+  if(!state.habits.length){ sec.style.display='none'; return; }
+  sec.style.display = 'block';
+  document.getElementById('filterChips').innerHTML = state.habits.map(h=>{
+    const on = !activeFilters || activeFilters.has(h.id);
+    return `<div class="filter-chip ${on?'on':'off'}" data-fid="${h.id}" style="background:${h.color}18;color:${h.color}">${h.emoji} ${esc(h.name)}</div>`;
+  }).join('');
+}
+
+function calTitleStr(view, date){
+  if(view==='month') return `${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
+  if(view==='year') return `${date.getFullYear()}`;
   const s=weekStart(date);const e=new Date(s);e.setDate(s.getDate()+6);
-  return`${s.getDate()} ${MGEN[s.getMonth()]} — ${e.getDate()} ${MGEN[e.getMonth()]}`;
+  return `${s.getDate()} ${MGEN[s.getMonth()]} — ${e.getDate()} ${MGEN[e.getMonth()]}`;
 }
 
 function renderCalendar(){
-  document.getElementById('calTitle').textContent=calTitleStr(currentView,currentDate);
-  const body=document.getElementById('calendar-body');
-  if(currentView==='month')body.innerHTML=renderMonth(currentDate);
-  else if(currentView==='week')body.innerHTML=renderWeek(currentDate);
-  else body.innerHTML=renderYear(currentDate);
+  document.getElementById('calTitle').textContent = calTitleStr(currentView, currentDate);
+  const body = document.getElementById('calendar-body');
+  if(currentView==='month') body.innerHTML = renderMonth(currentDate);
+  else if(currentView==='week') body.innerHTML = renderWeek(currentDate);
+  else body.innerHTML = renderYear(currentDate);
   attachCalEvents();
 }
 
@@ -904,61 +1709,104 @@ function renderMonth(ref){
   const first=new Date(y,m,1),last=new Date(y,m+1,0);
   const sdow=(first.getDay()+6)%7;
   const cells=[];
-  for(let i=0;i<sdow;i++)cells.push({date:new Date(y,m,1-sdow+i),other:true});
-  for(let d=1;d<=last.getDate();d++)cells.push({date:new Date(y,m,d),other:false});
-  while(cells.length%7!==0)cells.push({date:new Date(y,m+1,cells.length-last.getDate()-sdow+1),other:true});
-  const weeks=[];for(let i=0;i<cells.length;i+=7)weeks.push(cells.slice(i,i+7));
+  for(let i=0;i<sdow;i++) cells.push({date:new Date(y,m,1-sdow+i),other:true});
+  for(let d=1;d<=last.getDate();d++) cells.push({date:new Date(y,m,d),other:false});
+  while(cells.length%7!==0) cells.push({date:new Date(y,m+1,cells.length-last.getDate()-sdow+1),other:true});
+  const weeks=[];for(let i=0;i<cells.length;i+=7) weeks.push(cells.slice(i,i+7));
   let h=`<div class="month-grid"><div class="month-dow-row">${DOW.map(d=>`<div class="dow-label">${d}</div>`).join('')}</div><div class="month-weeks">`;
-  for(const wk of weeks){h+=`<div class="month-week">`;for(const c of wk){const key=dkd(c.date);const done=filtDone(key);const isT=isToday(c.date);const cls=['cal-day',c.other?'other-month':'',isT?'today':'',done.length?'has-habits':''].filter(Boolean).join(' ');const MAX=5;const shown=done.slice(0,MAX);const extra=done.length-MAX;h+=`<div class="${cls}" data-day="${c.date.getTime()}"><div class="day-num">${c.date.getDate()}</div><div class="day-habits">${shown.map(hb=>`<div class="day-habit-badge" style="background:${hb.color}33" title="${esc(hb.name)}">${hb.emoji}</div>`).join('')}${extra>0?`<div class="day-more">+${extra}</div>`:''}</div></div>`;}h+=`</div>`;}
+  for(const wk of weeks){
+    h+=`<div class="month-week">`;
+    for(const c of wk){
+      const key=dkd(c.date);const done=filtDone(key);const isT=isToday(c.date);
+      const cls=['cal-day',c.other?'other-month':'',isT?'today':'',done.length?'has-habits':''].filter(Boolean).join(' ');
+      const MAX=5;const shown=done.slice(0,MAX);const extra=done.length-MAX;
+      h+=`<div class="${cls}" data-day="${c.date.getTime()}"><div class="day-num">${c.date.getDate()}</div><div class="day-habits">${shown.map(hb=>`<div class="day-habit-badge" style="background:${hb.color}33" title="${esc(hb.name)}">${hb.emoji}</div>`).join('')}${extra>0?`<div class="day-more">+${extra}</div>`:''}</div></div>`;
+    }
+    h+=`</div>`;
+  }
   h+=`</div></div>`;return h;
 }
 
 function renderWeek(ref){
   const s=weekStart(ref);let h=`<div class="week-grid">`;
-  for(let i=0;i<7;i++){const d=new Date(s);d.setDate(s.getDate()+i);const key=dkd(d);const done=filtDone(key);const isT=isToday(d);h+=`<div class="week-day-row"><div class="week-day-label"><div class="week-day-name">${DOW[i]}</div><div class="week-day-date ${isT?'today-num':''}">${d.getDate()}</div></div><div class="week-day-content ${isT?'today-row':''}" data-day="${d.getTime()}">${done.length===0?`<span style="color:var(--text3);font-size:.75rem;align-self:center">Нет выполненных</span>`:done.map(hb=>`<div class="week-habit-chip" style="background:${hb.color}20;color:${hb.color};border:1px solid ${hb.color}40">${hb.emoji} ${esc(hb.name)}</div>`).join('')}</div></div>`;}
+  for(let i=0;i<7;i++){
+    const d=new Date(s);d.setDate(s.getDate()+i);
+    const key=dkd(d);const done=filtDone(key);const isT=isToday(d);
+    h+=`<div class="week-day-row"><div class="week-day-label"><div class="week-day-name">${DOW[i]}</div><div class="week-day-date ${isT?'today-num':''}">${d.getDate()}</div></div><div class="week-day-content ${isT?'today-row':''}" data-day="${d.getTime()}">${done.length===0?`<span style="color:var(--text3);font-size:.75rem;align-self:center">Нет выполненных</span>`:done.map(hb=>`<div class="week-habit-chip" style="background:${hb.color}20;color:${hb.color};border:1px solid ${hb.color}40">${hb.emoji} ${esc(hb.name)}</div>`).join('')}</div></div>`;
+  }
   h+=`</div>`;return h;
 }
 
 function renderYear(ref){
   const y=ref.getFullYear();let h=`<div class="year-grid">`;
-  for(let m=0;m<12;m++)h+=`<div class="year-month-card"><div class="year-month-title">${MONTHS[m]}</div><div class="mini-month-grid">${DOW.map(d=>`<div class="mini-dow">${d[0]}</div>`).join('')}${renderMiniMonth(y,m)}</div></div>`;
+  for(let m=0;m<12;m++) h+=`<div class="year-month-card"><div class="year-month-title">${MONTHS[m]}</div><div class="mini-month-grid">${DOW.map(d=>`<div class="mini-dow">${d[0]}</div>`).join('')}${renderMiniMonth(y,m)}</div></div>`;
   h+=`</div>`;return h;
 }
+
 function renderMiniMonth(y,m){
   const first=new Date(y,m,1),last=new Date(y,m+1,0);const sdow=(first.getDay()+6)%7;let h='';
-  for(let i=0;i<sdow;i++)h+=`<div class="mini-day empty"></div>`;
-  for(let d=1;d<=last.getDate();d++){const dt=new Date(y,m,d);const key=dkd(dt);const done=filtDone(key);const isT=isToday(dt);let cls='mini-day';if(isT)cls+=' today-mini';if(done.length)cls+=' has-habits';const title=done.length?`${d}: ${done.map(hb=>hb.emoji+hb.name).join(', ')}`:String(d);const inner=done.length?`<span class="mini-day-num">${d}</span><div class="mini-emojis">${done.map(hb=>`<span class="mini-emoji">${hb.emoji}</span>`).join('')}</div>`:d;h+=`<div class="${cls}" data-day="${dt.getTime()}" title="${esc(title)}">${inner}</div>`;}
+  for(let i=0;i<sdow;i++) h+=`<div class="mini-day empty"></div>`;
+  for(let d=1;d<=last.getDate();d++){
+    const dt=new Date(y,m,d);const key=dkd(dt);const done=filtDone(key);const isT=isToday(dt);
+    let cls='mini-day';if(isT)cls+=' today-mini';if(done.length)cls+=' has-habits';
+    const title=done.length?`${d}: ${done.map(hb=>hb.emoji+hb.name).join(', ')}`:String(d);
+    const inner=done.length?`<span class="mini-day-num">${d}</span><div class="mini-emojis">${done.map(hb=>`<span class="mini-emoji">${hb.emoji}</span>`).join('')}</div>`:d;
+    h+=`<div class="${cls}" data-day="${dt.getTime()}" title="${esc(title)}">${inner}</div>`;
+  }
   return h;
 }
+
 function attachCalEvents(){
-  document.querySelectorAll('[data-day]').forEach(el=>{el.addEventListener('click',e=>{e.stopPropagation();openDayModal(new Date(parseInt(el.dataset.day)))});});
+  document.querySelectorAll('[data-day]').forEach(el=>{
+    el.addEventListener('click', e=>{
+      e.stopPropagation();
+      openDayModal(new Date(parseInt(el.dataset.day)));
+    });
+  });
 }
 
 function renderInlineStats(){
-  const el=document.getElementById('inline-stats');
-  if(!state.habits.length){el.innerHTML='';return}
-  const pLabel=currentView==='week'?'неделю':currentView==='month'?'месяц':'год';
-  el.innerHTML=`<div class="inline-stats-title">📊 Статистика — за ${pLabel}</div>${buildStatsHTML(currentView,currentDate)}`;
+  const el = document.getElementById('inline-stats');
+  if(!state.habits.length){ el.innerHTML=''; return; }
+  const pLabel = currentView==='week'?'неделю':currentView==='month'?'месяц':'год';
+  el.innerHTML = `<div class="inline-stats-title">📊 Статистика — за ${pLabel}</div>${buildStatsHTML(currentView,currentDate)}`;
 }
-function renderStatsPanel(){document.getElementById('statsPanelBody').innerHTML=buildStatsHTML(currentView,currentDate)}
+
+function renderStatsPanel(){
+  document.getElementById('statsPanelBody').innerHTML = buildStatsHTML(currentView, currentDate);
+}
 
 /* Stats screen */
-function openStatsScreen(){ssDate=new Date();syncSsToolbar();renderSsBody();document.getElementById('stats-screen').classList.add('open')}
-function closeStatsScreen(){document.getElementById('stats-screen').classList.remove('open')}
-function syncSsToolbar(){document.getElementById('ssCalTitle').textContent=calTitleStr(ssView,ssDate);document.querySelectorAll('#vswStats .tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===ssView));}
-function renderSsBody(){document.getElementById('ssBody').innerHTML=buildStatsHTML(ssView,ssDate)}
-function ssNavigate(dir){if(ssView==='month')ssDate=new Date(ssDate.getFullYear(),ssDate.getMonth()+dir,1);else if(ssView==='week')ssDate.setDate(ssDate.getDate()+dir*7);else ssDate=new Date(ssDate.getFullYear()+dir,0,1);syncSsToolbar();renderSsBody();}
+function openStatsScreen(){ ssDate=new Date(); syncSsToolbar(); renderSsBody(); document.getElementById('stats-screen').classList.add('open'); }
+function closeStatsScreen(){ document.getElementById('stats-screen').classList.remove('open'); }
+function syncSsToolbar(){
+  document.getElementById('ssCalTitle').textContent = calTitleStr(ssView, ssDate);
+  document.querySelectorAll('#vswStats .tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.view===ssView));
+}
+function renderSsBody(){ document.getElementById('ssBody').innerHTML = buildStatsHTML(ssView, ssDate); }
+function ssNavigate(dir){
+  if(ssView==='month') ssDate=new Date(ssDate.getFullYear(),ssDate.getMonth()+dir,1);
+  else if(ssView==='week') ssDate.setDate(ssDate.getDate()+dir*7);
+  else ssDate=new Date(ssDate.getFullYear()+dir,0,1);
+  syncSsToolbar();renderSsBody();
+}
 
 /* ============================================================
    DAY MODAL
-   Пустое состояние: кнопка «Создать первую привычку»
 ============================================================ */
 function openDayModal(date){
-  const key=dkd(date);
-  const dateStr=`${date.getDate()} ${MGEN[date.getMonth()]} ${date.getFullYear()}`;
-  const mkList=()=>state.habits.map(hb=>{const done=getDone(hb.id,key);return`<div class="day-toggle ${done?'checked':''}" data-hid="${hb.id}"><div class="tog-emoji" style="background:${hb.color}22">${hb.emoji}</div><div class="tog-name">${esc(hb.name)}</div><div class="tog-check">${done?'✓':''}</div></div>`;}).join('');
+  const key = dkd(date);
+  const dateStr = `${date.getDate()} ${MGEN[date.getMonth()]} ${date.getFullYear()}`;
+  const mkList = ()=> state.habits.map(hb=>{
+    const done = getDone(hb.id, key);
+    return `<div class="day-toggle ${done?'checked':''}" data-hid="${hb.id}">
+      <div class="tog-emoji" style="background:${hb.color}22">${hb.emoji}</div>
+      <div class="tog-name">${esc(hb.name)}</div>
+      <div class="tog-check">${done?'✓':''}</div>
+    </div>`;
+  }).join('');
 
-  const emptyBlock=`
+  const emptyBlock = `
     <div class="empty-state">
       <div class="empty-state-icon">🌱</div>
       <div class="empty-state-title">Нет привычек</div>
@@ -970,112 +1818,247 @@ function openDayModal(date){
     <div class="modal-title">📅 ${dateStr}</div>
     ${!state.habits.length ? emptyBlock : `<div class="day-habit-list" id="dayList">${mkList()}</div>`}
     <div class="modal-actions" id="dayActions">
-      ${(state.habits.length&&dayDone(key).length)?`<button class="btn btn-secondary btn-sm" id="clearDayBtn">Очистить день</button>`:''}
+      ${(state.habits.length && dayDone(key).length) ? `<button class="btn btn-secondary btn-sm" id="clearDayBtn">Очистить день</button>` : ''}
       <button class="btn btn-primary btn-sm" onclick="closeModal()">Готово</button>
     </div>`);
 
   if(state.habits.length){
-    attachDayToggles(key,mkList);
-    const cb=document.getElementById('clearDayBtn');if(cb)cb.addEventListener('click',()=>clearDay(key,mkList));
+    attachDayToggles(key, mkList);
+    const cb = document.getElementById('clearDayBtn');
+    if(cb) cb.addEventListener('click', ()=>clearDay(key, mkList));
   }
 }
 
-function attachDayToggles(key,mkList){
+function attachDayToggles(key, mkList){
   document.querySelectorAll('.day-toggle').forEach(el=>{
-    el.addEventListener('click',function h(){
-      el.removeEventListener('click',h);
-      const hid=el.dataset.hid;
-      toggleDone(hid,key);
-      // проверяем цель ПОСЛЕ отметки (только если отметили, не сняли)
-      if(getDone(hid,key)){
-        checkGoalAfterToggle(hid);
-      }
-      const l=document.getElementById('dayList');if(l)l.innerHTML=mkList();
-      attachDayToggles(key,mkList);updClearBtn(key,mkList);
-      renderCalendar();renderInlineStats();renderStatsPanel();renderQS();
+    el.addEventListener('click', async function h(){
+      el.removeEventListener('click', h);
+      const hid = el.dataset.hid;
+      const isDoneNow = await toggleDoneAsync(hid, key);
+      if(isDoneNow) checkGoalAfterToggle(hid);
+      const l = document.getElementById('dayList');
+      if(l) l.innerHTML = mkList();
+      attachDayToggles(key, mkList);
+      updClearBtn(key, mkList);
+      renderCalendar();
+      renderInlineStats();
+      renderStatsPanel();
+      renderQS();
     });
   });
 }
-function clearDay(key,mkList){delete state.completions[key];saveState();const l=document.getElementById('dayList');if(l)l.innerHTML=mkList();attachDayToggles(key,mkList);updClearBtn(key,mkList);renderCalendar();renderInlineStats();renderStatsPanel();renderQS();showToast('День очищен','info');}
-function updClearBtn(key,mkList){const ma=document.getElementById('dayActions');if(!ma)return;const ex=document.getElementById('clearDayBtn');const has=dayDone(key).length>0;if(has&&!ex){const b=document.createElement('button');b.className='btn btn-secondary btn-sm';b.id='clearDayBtn';b.textContent='Очистить день';ma.insertBefore(b,ma.firstChild);b.addEventListener('click',()=>clearDay(key,mkList))}else if(!has&&ex)ex.remove();}
+
+async function clearDay(key, mkList){
+  const prevDay = {...(state.completions[key]||{})};
+  delete state.completions[key];
+  if(!currentUser){
+    saveLocalState();
+  } else {
+    // Удаляем все completions этого дня в backend
+    const hids = Object.keys(prevDay);
+    for(const hid of hids){
+      toggleCompletionBackend(hid, key, false).catch(e=>console.warn('[habits] clearDay backend error', e));
+    }
+  }
+  const l = document.getElementById('dayList'); if(l) l.innerHTML = mkList();
+  attachDayToggles(key, mkList);
+  updClearBtn(key, mkList);
+  renderCalendar(); renderInlineStats(); renderStatsPanel(); renderQS();
+  showToast('День очищен', 'info');
+}
+
+function updClearBtn(key, mkList){
+  const ma = document.getElementById('dayActions');if(!ma)return;
+  const ex = document.getElementById('clearDayBtn');const has = dayDone(key).length>0;
+  if(has&&!ex){
+    const b=document.createElement('button');b.className='btn btn-secondary btn-sm';b.id='clearDayBtn';
+    b.textContent='Очистить день';ma.insertBefore(b,ma.firstChild);
+    b.addEventListener('click',()=>clearDay(key,mkList));
+  }else if(!has&&ex) ex.remove();
+}
 
 /* ============================================================
    HABIT MODAL
 ============================================================ */
-let editId=null,selEmoji='🏃',selColor=COLORS[0];
+let editId=null, selEmoji='🏃', selColor=COLORS[0];
+
 function openHabitModal(hid=null){
-  editId=hid;const h=hid?state.habits.find(x=>x.id===hid):null;
+  editId=hid;
+  const h=hid?state.habits.find(x=>x.id===hid):null;
   selEmoji=h?h.emoji:'🏃';selColor=h?h.color:COLORS[0];
   const gt=h&&h.goal?h.goal.type:'week';const gv=h&&h.goal?h.goal.value:'';
-  openModal(`<div class="modal-title">${h?'✏️ Редактировать':'➕ Новая привычка'}</div>
-    <div class="form-group"><label class="form-label">Название</label><input class="form-input" id="hName" placeholder="Например: Утробежка" maxlength="40" value="${h?esc(h.name):''}" inputmode="text" autocomplete="off"></div>
-    <div class="form-group"><label class="form-label">Эмодзи</label><div class="emoji-picker-row"><div class="emoji-preview" id="ePrev">${selEmoji}</div><div class="emoji-grid">${EMOJIS.map(e=>`<button class="emoji-option ${e===selEmoji?'selected':''}" data-e="${e}" type="button">${e}</button>`).join('')}</div></div></div>
-    <div class="form-group"><label class="form-label">Цвет</label><div class="color-row">${COLORS.map(c=>`<div class="color-option ${c===selColor?'selected':''}" data-c="${c}" style="background:${c}"></div>`).join('')}</div></div>
-    <div class="form-group"><label class="form-label">Цель (необязательно)</label><div class="goal-inline"><input class="form-input" id="gVal" type="number" inputmode="numeric" min="1" max="365" placeholder="—" value="${gv}"><span style="color:var(--text2);font-size:.81rem">раз в</span><select class="form-select" id="gType"><option value="week" ${gt==='week'?'selected':''}>Неделю</option><option value="month" ${gt==='month'?'selected':''}>Месяц</option><option value="year" ${gt==='year'?'selected':''}>Год</option></select></div></div>
-    <div class="modal-actions">${h?`<button class="btn btn-danger btn-sm" id="delHabitBtn" type="button">Удалить</button>`:''}<button class="btn btn-ghost btn-sm" onclick="closeModal()" type="button">Отмена</button><button class="btn btn-primary btn-sm" id="saveHabitBtn" type="button">${h?'Сохранить':'Создать'}</button></div>`);
 
-  document.querySelectorAll('.emoji-option').forEach(b=>{b.addEventListener('click',()=>{selEmoji=b.dataset.e;document.getElementById('ePrev').textContent=selEmoji;document.querySelectorAll('.emoji-option').forEach(x=>x.classList.remove('selected'));b.classList.add('selected')})});
-  document.querySelectorAll('.color-option').forEach(el=>{el.addEventListener('click',()=>{selColor=el.dataset.c;document.querySelectorAll('.color-option').forEach(x=>x.classList.remove('selected'));el.classList.add('selected')})});
-  document.getElementById('saveHabitBtn').addEventListener('click',saveHabit);
-  const nameInput=document.getElementById('hName');
-  nameInput.addEventListener('focus',()=>{if(isMobile())setTimeout(()=>nameInput.scrollIntoView({behavior:'smooth',block:'center'}),300);});
-  nameInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();saveHabit();}});
-  if(h){document.getElementById('delHabitBtn').addEventListener('click',()=>openConfirm('Удалить привычку?',`Привычка «${esc(h.name)}» и вся история будут удалены.`,()=>deleteHabit(h.id)))}
+  openModal(`
+    <div class="modal-title">${h?'✏️ Редактировать':'➕ Новая привычка'}</div>
+    <div class="form-group">
+      <label class="form-label">Название</label>
+      <input class="form-input" id="hName" placeholder="Например: Утробежка" maxlength="40" value="${h?esc(h.name):''}" inputmode="text" autocomplete="off">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Эмодзи</label>
+      <div class="emoji-picker-row">
+        <div class="emoji-preview" id="ePrev">${selEmoji}</div>
+        <div class="emoji-grid">${EMOJIS.map(e=>`<button class="emoji-option ${e===selEmoji?'selected':''}" data-e="${e}" type="button">${e}</button>`).join('')}</div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Цвет</label>
+      <div class="color-row">${COLORS.map(c=>`<div class="color-option ${c===selColor?'selected':''}" data-c="${c}" style="background:${c}"></div>`).join('')}</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Цель (необязательно)</label>
+      <div class="goal-inline">
+        <input class="form-input" id="gVal" type="number" inputmode="numeric" min="1" max="365" placeholder="—" value="${gv}">
+        <span style="color:var(--text2);font-size:.81rem">раз в</span>
+        <select class="form-select" id="gType">
+          <option value="week" ${gt==='week'?'selected':''}>Неделю</option>
+          <option value="month" ${gt==='month'?'selected':''}>Месяц</option>
+          <option value="year" ${gt==='year'?'selected':''}>Год</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-actions">
+      ${h?`<button class="btn btn-danger btn-sm" id="delHabitBtn" type="button">Удалить</button>`:''}
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()" type="button">Отмена</button>
+      <button class="btn btn-primary btn-sm" id="saveHabitBtn" type="button">${h?'Сохранить':'Создать'}</button>
+    </div>`);
+
+  document.querySelectorAll('.emoji-option').forEach(b=>{
+    b.addEventListener('click',()=>{
+      selEmoji=b.dataset.e;
+      document.getElementById('ePrev').textContent=selEmoji;
+      document.querySelectorAll('.emoji-option').forEach(x=>x.classList.remove('selected'));
+      b.classList.add('selected');
+    });
+  });
+  document.querySelectorAll('.color-option').forEach(el=>{
+    el.addEventListener('click',()=>{
+      selColor=el.dataset.c;
+      document.querySelectorAll('.color-option').forEach(x=>x.classList.remove('selected'));
+      el.classList.add('selected');
+    });
+  });
+  document.getElementById('saveHabitBtn').addEventListener('click', saveHabit);
+  const nameInput = document.getElementById('hName');
+  nameInput.addEventListener('focus',()=>{
+    if(isMobile()) setTimeout(()=>nameInput.scrollIntoView({behavior:'smooth',block:'center'}),300);
+  });
+  nameInput.addEventListener('keydown', e=>{if(e.key==='Enter'){e.preventDefault();saveHabit();}});
+  if(h){
+    document.getElementById('delHabitBtn').addEventListener('click',()=>
+      openConfirm('Удалить привычку?',`Привычка «${esc(h.name)}» и вся история будут удалены.`,()=>deleteHabit(h.id))
+    );
+  }
 }
 
-function saveHabit(){
-  const name=document.getElementById('hName').value.trim();if(!name){showToast('Введите название','error');return}
-  const gv=parseInt(document.getElementById('gVal').value);const gt=document.getElementById('gType').value;
-  const goal=gv>0?{type:gt,value:gv}:null;
-  if(editId){const h=state.habits.find(x=>x.id===editId);if(h)Object.assign(h,{name,emoji:selEmoji,color:selColor,goal});showToast('Привычка обновлена','success')}
-  else{state.habits.push({id:'h_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),name,emoji:selEmoji,color:selColor,goal,createdAt:Date.now()});showToast('Привычка добавлена 🎉','success')}
-  saveState();closeModal();render();
+async function saveHabit(){
+  const name = document.getElementById('hName').value.trim();
+  if(!name){ showToast('Введите название','error'); return; }
+  const gv = parseInt(document.getElementById('gVal').value);
+  const gt = document.getElementById('gType').value;
+  const goal = gv>0 ? {type:gt, value:gv} : null;
+
+  if(editId){
+    const h = state.habits.find(x=>x.id===editId);
+    if(h) Object.assign(h, {name, emoji:selEmoji, color:selColor, goal});
+    if(currentUser) await upsertHabitBackend(h).catch(e=>console.error('[habits] saveHabit update', e));
+    showToast('Привычка обновлена','success');
+  } else {
+    const newHabit = {
+      id: 'h_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
+      name, emoji:selEmoji, color:selColor, goal,
+      createdAt: Date.now()
+    };
+    state.habits.push(newHabit);
+    if(currentUser) await upsertHabitBackend(newHabit).catch(e=>console.error('[habits] saveHabit create', e));
+    showToast('Привычка добавлена 🎉','success');
+  }
+
+  if(!currentUser) saveLocalState();
+  closeModal();
+  render();
 }
-function deleteHabit(id){
-  state.habits=state.habits.filter(h=>h.id!==id);
-  Object.keys(state.completions).forEach(k=>{delete state.completions[k][id];if(!Object.keys(state.completions[k]).length)delete state.completions[k]});
-  if(activeFilters)activeFilters.delete(id);
-  saveState();closeModal();render();showToast('Привычка удалена','info');
+
+async function deleteHabit(id){
+  state.habits = state.habits.filter(h=>h.id!==id);
+  // Удаляем completions локально
+  Object.keys(state.completions).forEach(k=>{
+    if(state.completions[k]) delete state.completions[k][id];
+    if(state.completions[k] && !Object.keys(state.completions[k]).length) delete state.completions[k];
+  });
+  if(activeFilters) activeFilters.delete(id);
+
+  if(!currentUser){
+    saveLocalState();
+  } else {
+    // Архивируем (не удаляем физически, чтобы не потерять completions-историю)
+    await archiveHabitBackend(id).catch(e=>console.error('[habits] deleteHabit', e));
+  }
+  closeModal();
+  render();
+  showToast('Привычка удалена','info');
 }
-function openConfirm(title,text,onOk){
-  openModal(`<div class="modal-title">⚠️ ${title}</div><p class="confirm-text">${text}</p><div class="modal-actions"><button class="btn btn-ghost btn-sm" onclick="closeModal()" type="button">Отмена</button><button class="btn btn-danger btn-sm" id="confOk" type="button">Подтвердить</button></div>`);
-  document.getElementById('confOk').addEventListener('click',()=>{closeModal();onOk()});
+
+function openConfirm(title, text, onOk){
+  openModal(`
+    <div class="modal-title">⚠️ ${title}</div>
+    <p class="confirm-text">${text}</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()" type="button">Отмена</button>
+      <button class="btn btn-danger btn-sm" id="confOk" type="button">Подтвердить</button>
+    </div>`);
+  document.getElementById('confOk').addEventListener('click',()=>{closeModal();onOk();});
 }
 
 /* ============================================================
    MODAL
 ============================================================ */
 function openModal(html){
-  document.getElementById('modalBody').innerHTML=html;
-  const overlay=document.getElementById('modalOverlay');
-  const modal=document.getElementById('modalBox');
+  document.getElementById('modalBody').innerHTML = html;
+  const overlay = document.getElementById('modalOverlay');
+  const modal = document.getElementById('modalBox');
   overlay.classList.add('open');
   function setModalHeight(){
-    if(isMobile()){const vh=window.visualViewport?window.visualViewport.height:window.innerHeight;modal.style.maxHeight=Math.round(vh*0.92)+'px';}
-    else{modal.style.maxHeight='90vh';}
+    if(isMobile()){
+      const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      modal.style.maxHeight = Math.round(vh * 0.92) + 'px';
+    } else {
+      modal.style.maxHeight = '90vh';
+    }
   }
   setModalHeight();
-  if(window.visualViewport){window.visualViewport.addEventListener('resize',setModalHeight);window._modalVPListener=setModalHeight;}
-  setTimeout(()=>{const i=document.querySelector('#modalBody input[type="text"]');if(i&&!isMobile())i.focus();},150);
+  if(window.visualViewport){ window.visualViewport.addEventListener('resize',setModalHeight); window._modalVPListener=setModalHeight; }
+  setTimeout(()=>{
+    const i = document.querySelector('#modalBody input[type="text"],#modalBody input[type="email"]');
+    if(i && !isMobile()) i.focus();
+  }, 150);
 }
+
 function closeModal(){
   document.getElementById('modalOverlay').classList.remove('open');
-  if(window.visualViewport&&window._modalVPListener){window.visualViewport.removeEventListener('resize',window._modalVPListener);window._modalVPListener=null;}
-  render();
+  if(window.visualViewport && window._modalVPListener){
+    window.visualViewport.removeEventListener('resize', window._modalVPListener);
+    window._modalVPListener = null;
+  }
+  // Не вызываем render() здесь — только при реальных изменениях данных
 }
 
 /* ============================================================
    NAVIGATION
 ============================================================ */
 function navigate(dir){
-  if(currentView==='month')currentDate=new Date(currentDate.getFullYear(),currentDate.getMonth()+dir,1);
-  else if(currentView==='week')currentDate.setDate(currentDate.getDate()+dir*7);
+  if(currentView==='month') currentDate=new Date(currentDate.getFullYear(),currentDate.getMonth()+dir,1);
+  else if(currentView==='week') currentDate.setDate(currentDate.getDate()+dir*7);
   else currentDate=new Date(currentDate.getFullYear()+dir,0,1);
   render();
 }
+
 function setView(v){
-  currentView=v;
-  ['vswDesktop','vswMobile'].forEach(id=>{const sw=document.getElementById(id);if(!sw)return;sw.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===v))});
+  currentView = v;
+  ['vswDesktop','vswMobile'].forEach(id=>{
+    const sw=document.getElementById(id);if(!sw)return;
+    sw.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
+  });
   render();
 }
 
@@ -1083,13 +2066,22 @@ function setView(v){
    SWIPE
 ============================================================ */
 (function(){
-  const area=document.getElementById('swipe-area');
+  const area = document.getElementById('swipe-area');
   let startX=0,startY=0,startTime=0,locked=null;
   const THRESHOLD=50,MAX_TIME=350,ANGLE=35;
-  area.addEventListener('touchstart',e=>{if(e.touches.length!==1)return;startX=e.touches[0].clientX;startY=e.touches[0].clientY;startTime=Date.now();locked=null;},{passive:true});
-  area.addEventListener('touchmove',e=>{if(e.touches.length!==1)return;const dx=e.touches[0].clientX-startX;const dy=e.touches[0].clientY-startY;if(locked===null){if(Math.abs(dx)>8||Math.abs(dy)>8)locked=Math.abs(dx)>Math.abs(dy)?'h':'v';}if(locked==='h')e.preventDefault();},{passive:false});
+  area.addEventListener('touchstart',e=>{
+    if(e.touches.length!==1)return;
+    startX=e.touches[0].clientX;startY=e.touches[0].clientY;startTime=Date.now();locked=null;
+  },{passive:true});
+  area.addEventListener('touchmove',e=>{
+    if(e.touches.length!==1)return;
+    const dx=e.touches[0].clientX-startX;const dy=e.touches[0].clientY-startY;
+    if(locked===null){if(Math.abs(dx)>8||Math.abs(dy)>8)locked=Math.abs(dx)>Math.abs(dy)?'h':'v';}
+    if(locked==='h')e.preventDefault();
+  },{passive:false});
   area.addEventListener('touchend',e=>{
-    if(locked!=='h')return;const dt=Date.now()-startTime;const dx=e.changedTouches[0].clientX-startX;const dy=e.changedTouches[0].clientY-startY;
+    if(locked!=='h')return;
+    const dt=Date.now()-startTime;const dx=e.changedTouches[0].clientX-startX;const dy=e.changedTouches[0].clientY-startY;
     const angle=Math.abs(Math.atan2(Math.abs(dy),Math.abs(dx))*180/Math.PI);
     if(currentView==='year')return;if(dt>MAX_TIME)return;if(Math.abs(dx)<THRESHOLD)return;if(angle>ANGLE)return;
     navigate(dx<0?1:-1);
@@ -1099,58 +2091,132 @@ function setView(v){
 /* ============================================================
    TOAST
 ============================================================ */
-function showToast(msg,type='info'){
-  const tc=document.getElementById('toast-wrap');const t=document.createElement('div');t.className=`toast ${type}`;
-  const icon=type==='success'?'✅':type==='error'?'❌':'ℹ️';t.innerHTML=`<span>${icon}</span><span>${msg}</span>`;
-  tc.appendChild(t);setTimeout(()=>{t.style.animation='tOut .22s ease forwards';setTimeout(()=>t.remove(),250)},2800);
+function showToast(msg, type='info'){
+  const tc = document.getElementById('toast-wrap');
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  const icon = type==='success'?'✅':type==='error'?'❌':'ℹ️';
+  t.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+  tc.appendChild(t);
+  setTimeout(()=>{t.style.animation='tOut .22s ease forwards';setTimeout(()=>t.remove(),250);},2800);
 }
 
 /* ============================================================
-   EVENTS
+   PWA BANNER
 ============================================================ */
-document.getElementById('vswDesktop').addEventListener('click',e=>{const b=e.target.closest('.tab-btn');if(b)setView(b.dataset.view)});
-document.getElementById('vswMobile').addEventListener('click',e=>{const b=e.target.closest('.tab-btn');if(b)setView(b.dataset.view)});
+(function(){
+  let shown = false;
+  function canShow(){ if(shown)return false;if(window.isPWAInstalled())return false;const d=localStorage.getItem('pwa_dismissed');if(d&&Date.now()-parseInt(d)<24*60*60*1000)return false;return true; }
+  function showBanner(){
+    if(!canShow())return;shown=true;
+    const banner=document.getElementById('pwa-banner');
+    const isIos=window.isIOS()&&!window._pwaPrompt;
+    if(isIos){document.getElementById('pwaIosHint').style.display='flex';document.getElementById('pwaInstallBtn').style.display='none';}
+    banner.classList.add('show');
+  }
+  function hideBanner(){ document.getElementById('pwa-banner').classList.remove('show'); }
+  function scheduleBanner(){ if(!canShow())return; setTimeout(showBanner,45000); }
+  window.addEventListener('pwa-installable',()=>scheduleBanner());
+  if(window.isIOS()&&!window.isPWAInstalled()) scheduleBanner();
+  document.getElementById('pwaInstallBtn').addEventListener('click',async()=>{
+    if(!window._pwaPrompt)return;hideBanner();window._pwaPrompt.prompt();
+    const res=await window._pwaPrompt.userChoice;window._pwaPrompt=null;
+    if(res.outcome==='accepted') showToast('Приложение установлено! 🎉','success');
+  });
+  function dismiss(){ hideBanner(); localStorage.setItem('pwa_dismissed',Date.now().toString()); }
+  document.getElementById('pwaDismissBtn').addEventListener('click',dismiss);
+  document.getElementById('pwaBannerClose').addEventListener('click',dismiss);
+  window.addEventListener('pwa-installed',()=>{hideBanner();showToast('Habits добавлен на главный экран! 🌿','success');});
+})();
+
+/* ============================================================
+   EVENT LISTENERS
+============================================================ */
+document.getElementById('vswDesktop').addEventListener('click',e=>{const b=e.target.closest('.tab-btn');if(b)setView(b.dataset.view);});
+document.getElementById('vswMobile').addEventListener('click',e=>{const b=e.target.closest('.tab-btn');if(b)setView(b.dataset.view);});
 document.getElementById('prevBtn').addEventListener('click',()=>navigate(-1));
 document.getElementById('nextBtn').addEventListener('click',()=>navigate(1));
-document.getElementById('todayBtn').addEventListener('click',()=>{currentDate=new Date();render()});
-document.getElementById('vswStats').addEventListener('click',e=>{const b=e.target.closest('.tab-btn');if(!b)return;ssView=b.dataset.view;ssDate=new Date();syncSsToolbar();renderSsBody()});
+document.getElementById('todayBtn').addEventListener('click',()=>{currentDate=new Date();render();});
+document.getElementById('vswStats').addEventListener('click',e=>{const b=e.target.closest('.tab-btn');if(!b)return;ssView=b.dataset.view;ssDate=new Date();syncSsToolbar();renderSsBody();});
 document.getElementById('ssPrevBtn').addEventListener('click',()=>ssNavigate(-1));
 document.getElementById('ssNextBtn').addEventListener('click',()=>ssNavigate(1));
-document.getElementById('ssTodayBtn').addEventListener('click',()=>{ssDate=new Date();syncSsToolbar();renderSsBody()});
+document.getElementById('ssTodayBtn').addEventListener('click',()=>{ssDate=new Date();syncSsToolbar();renderSsBody();});
 document.getElementById('addHabitBtn').addEventListener('click',()=>openHabitModal());
 document.getElementById('welcome-banner').addEventListener('click',()=>openHabitModal());
 document.getElementById('wbAddBtn').addEventListener('click',e=>{e.stopPropagation();openHabitModal();});
+document.getElementById('mobileStatsBtn').addEventListener('click',openStatsScreen);
+document.getElementById('statsBackBtn').addEventListener('click',closeStatsScreen);
+
 document.getElementById('habitsList').addEventListener('click',e=>{
   const btn=e.target.closest('[data-action]');if(!btn)return;e.stopPropagation();
   const id=btn.dataset.id;const h=state.habits.find(x=>x.id===id);if(!h)return;
-  if(btn.dataset.action==='edit')openHabitModal(id);
-  if(btn.dataset.action==='delete')openConfirm('Удалить привычку?',`Привычка «${esc(h.name)}» и вся история будут удалены.`,()=>deleteHabit(id));
+  if(btn.dataset.action==='edit') openHabitModal(id);
+  if(btn.dataset.action==='delete') openConfirm('Удалить привычку?',`Привычка «${esc(h.name)}» и вся история будут удалены.`,()=>deleteHabit(id));
 });
+
 document.getElementById('filterChips').addEventListener('click',e=>{
   const chip=e.target.closest('.filter-chip');if(!chip)return;
   const fid=chip.dataset.fid;
-  if(!activeFilters){activeFilters=new Set(state.habits.map(h=>h.id));activeFilters.delete(fid)}
-  else if(activeFilters.has(fid)){activeFilters.delete(fid);if(!activeFilters.size)activeFilters=null}
-  else{activeFilters.add(fid);if(activeFilters.size===state.habits.length)activeFilters=null}
+  if(!activeFilters){activeFilters=new Set(state.habits.map(h=>h.id));activeFilters.delete(fid);}
+  else if(activeFilters.has(fid)){activeFilters.delete(fid);if(!activeFilters.size)activeFilters=null;}
+  else{activeFilters.add(fid);if(activeFilters.size===state.habits.length)activeFilters=null;}
   render();
 });
-document.getElementById('filterAllBtn').addEventListener('click',()=>{activeFilters=null;render()});
+
+document.getElementById('filterAllBtn').addEventListener('click',()=>{activeFilters=null;render();});
+
 document.getElementById('clearDataBtn').addEventListener('click',()=>{
-  openConfirm('Очистить все данные?','Все привычки и история выполнения будут удалены с вашего устройства. Это действие нельзя отменить.',()=>{
-    localStorage.removeItem(SK);state={habits:[],completions:{},celebrations:{},createdAt:Date.now()};activeFilters=null;render();showToast('Данные очищены','info');
-  });
+  openConfirm(
+    'Очистить все данные?',
+    currentUser
+      ? 'Все привычки и история будут удалены с устройства И с сервера. Это действие нельзя отменить.'
+      : 'Все привычки и история будут удалены с вашего устройства. Это действие нельзя отменить.',
+    async ()=>{
+      if(currentUser){
+        setSyncing(true);
+        try{
+          await sb.rpc('delete_user_data');
+          // Пересоздаём профиль через повторный trigger невозможно,
+          // поэтому просто очищаем локальный state
+        }catch(e){
+          console.error('[habits] clearData backend error', e);
+          showToast('Не удалось очистить данные на сервере', 'error');
+        }finally{ setSyncing(false); }
+      }
+      localStorage.removeItem(SK);
+      state={habits:[],completions:{},celebrations:{}};
+      activeFilters=null;
+      render();
+      showToast('Данные очищены','info');
+    }
+  );
 });
-document.getElementById('mobileStatsBtn').addEventListener('click',openStatsScreen);
-document.getElementById('statsBackBtn').addEventListener('click',closeStatsScreen);
-document.getElementById('modalOverlay').addEventListener('click',e=>{if(e.target===document.getElementById('modalOverlay'))closeModal()});
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
-const sidebar=document.getElementById('sidebar');
-const sbBackdrop=document.getElementById('sbBackdrop');
-document.getElementById('menuToggle').addEventListener('click',()=>{sidebar.classList.toggle('open');sbBackdrop.style.display=sidebar.classList.contains('open')?'block':'none'});
-sbBackdrop.addEventListener('click',()=>{sidebar.classList.remove('open');sbBackdrop.style.display='none'});
+
+document.getElementById('modalOverlay').addEventListener('click',e=>{
+  if(e.target===document.getElementById('modalOverlay')) closeModal();
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape') closeModal();});
+
+const sidebar = document.getElementById('sidebar');
+const sbBackdrop = document.getElementById('sbBackdrop');
+document.getElementById('menuToggle').addEventListener('click',()=>{
+  sidebar.classList.toggle('open');
+  sbBackdrop.style.display = sidebar.classList.contains('open') ? 'block' : 'none';
+});
+sbBackdrop.addEventListener('click',()=>{
+  sidebar.classList.remove('open');
+  sbBackdrop.style.display='none';
+});
 window.addEventListener('resize',()=>renderWelcomeBanner());
 
+/* ============================================================
+   BOOT
+============================================================ */
+// Рендерим скелет сразу (без данных), потом initAuth заполнит
+renderHeaderAuth();
 render();
+// Инициализация auth (асинхронно)
+initAuth().catch(e=>console.error('[habits] initAuth failed', e));
 </script>
 </body>
 </html>
