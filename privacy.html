@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Политика конфиденциальности — Habits</title>
+  <style>
+    :root{
+      --bg:#0f0f13;--bg2:#16161d;--bg3:#1e1e28;--border:#2e2e3e;
+      --text:#e8e8f0;--text2:#b7b7c9;--text3:#8a8aa3;--accent:#7c6af7;
+      --max:860px;--r:18px;--shadow:0 18px 48px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;font-family:Inter,Segoe UI,system-ui,-apple-system,sans-serif;
+      background:linear-gradient(180deg,var(--bg) 0%, #12121a 100%);
+      color:var(--text);line-height:1.68;
+    }
+    .topbar{
+      position:sticky;top:0;z-index:20;backdrop-filter:blur(10px);
+      background:rgba(15,15,19,.78);border-bottom:1px solid rgba(46,46,62,.7);
+    }
+    .topbar-inner{max-width:var(--max);margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{font-weight:700;color:var(--text);text-decoration:none;font-size:1rem}
+    .brand span{color:var(--accent)}
+    .back{
+      color:var(--text2);text-decoration:none;font-size:.92rem;padding:8px 12px;
+      border:1px solid var(--border);border-radius:10px;background:var(--bg2)
+    }
+    .wrap{max-width:var(--max);margin:0 auto;padding:28px 18px 80px}
+    .hero{
+      margin-top:20px;padding:28px 24px;border:1px solid var(--border);border-radius:24px;
+      background:radial-gradient(circle at top right, rgba(124,106,247,.14), transparent 35%), var(--bg2);
+      box-shadow:var(--shadow)
+    }
+    h1{margin:0 0 10px;font-size:2rem;line-height:1.15}
+    .lead{margin:0;color:var(--text2);font-size:1rem;max-width:720px}
+    .meta{margin-top:16px;color:var(--text3);font-size:.88rem}
+    .card{
+      margin-top:18px;padding:26px 24px;background:var(--bg2);border:1px solid var(--border);
+      border-radius:22px;box-shadow:var(--shadow)
+    }
+    h2{margin:0 0 12px;font-size:1.18rem}
+    p{margin:0 0 12px}
+    ul{margin:0 0 12px 20px;padding:0}
+    li{margin:0 0 8px}
+    .footer{margin-top:22px;color:var(--text3);font-size:.86rem;text-align:center}
+    a{color:#b3a6ff}
+    @media (max-width:640px){
+      h1{font-size:1.6rem}
+      .hero,.card{padding:20px 16px;border-radius:18px}
+      .topbar-inner{padding:12px 14px}
+      .wrap{padding:18px 14px 60px}
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/">🌿 <span>Habits</span></a>
+      <a class="back" href="/">← Назад в приложение</a>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1>Политика конфиденциальности</h1>
+      <p class="lead">Настоящая политика описывает, какие данные собираются в сервисе Habits, как они используются, где хранятся и какие права есть у пользователя.</p>
+      <div class="meta">Последнее обновление: 1 апреля 2026</div>
+    </section>
+
+    <section class="card">
+      <h2>1. Какие данные мы собираем</h2>
+      <p>В рамках работы сервиса могут обрабатываться следующие категории данных:</p>
+      <ul>
+        <li>email, указанный при регистрации или входе;</li>
+        <li>данные, которые пользователь создаёт в приложении, включая привычки, отметки выполнения и связанную историю;</li>
+        <li>технические данные, необходимые для аутентификации, поддержания сессии и корректной работы приложения;</li>
+        <li>локальные данные, временно сохранённые на устройстве пользователя до входа в аккаунт.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>2. Как используются данные</h2>
+      <p>Данные используются для:</p>
+      <ul>
+        <li>создания и поддержки пользовательского аккаунта;</li>
+        <li>сохранения истории использования приложения;</li>
+        <li>синхронизации данных между устройствами;</li>
+        <li>переноса локально сохранённых данных в аккаунт после регистрации или входа;</li>
+        <li>обеспечения стабильной и безопасной работы сервиса.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>3. Где хранятся данные</h2>
+      <p>Данные аккаунта и история пользователя хранятся в облачной инфраструктуре Supabase. Часть данных до авторизации или в рамках технической работы приложения может храниться локально на устройстве пользователя, например в localStorage.</p>
+    </section>
+
+    <section class="card">
+      <h2>4. Передача данных третьим лицам</h2>
+      <p>Мы не продаём персональные данные пользователя и не передаём их третьим лицам, за исключением технических подрядчиков и инфраструктурных сервисов, необходимых для работы приложения. На текущем этапе таким сервисом является Supabase.</p>
+    </section>
+
+    <section class="card">
+      <h2>5. Основания для обработки</h2>
+      <p>Обработка данных осуществляется для предоставления функций сервиса, поддержки пользовательского аккаунта, сохранения истории и синхронизации между устройствами.</p>
+    </section>
+
+    <section class="card">
+      <h2>6. Защита данных</h2>
+      <p>Мы принимаем разумные технические и организационные меры для защиты данных, включая использование механизмов аутентификации, разграничение доступа к пользовательским данным и защищённое соединение при передаче данных.</p>
+    </section>
+
+    <section class="card">
+      <h2>7. Права пользователя</h2>
+      <p>Пользователь имеет право:</p>
+      <ul>
+        <li>получить доступ к своим данным в рамках функциональности сервиса;</li>
+        <li>удалить аккаунт и связанные с ним данные;</li>
+        <li>прекратить использование приложения в любой момент.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>8. Cookies и локальное хранилище</h2>
+      <p>Сервис может использовать localStorage и иные технические механизмы хранения данных для поддержания сессии, сохранения настроек и временного хранения пользовательских данных до их синхронизации с аккаунтом.</p>
+    </section>
+
+    <section class="card">
+      <h2>9. Удаление данных</h2>
+      <p>Пользователь может удалить профиль через интерфейс приложения. После удаления аккаунта связанные с ним данные удаляются без возможности восстановления в стандартном пользовательском сценарии.</p>
+    </section>
+
+    <section class="card">
+      <h2>10. Изменение политики</h2>
+      <p>Настоящая политика может обновляться. Актуальная версия публикуется на этой странице.</p>
+    </section>
+
+    <section class="card">
+      <h2>11. Контакты</h2>
+      <p>Если у вас есть вопросы по обработке данных, свяжитесь с владельцем сервиса через контактный канал, указанный в приложении.</p>
+    </section>
+
+    <div class="footer">© Habits</div>
+  </main>
+</body>
+</html>

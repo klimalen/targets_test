@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Условия использования — Habits</title>
+  <style>
+    :root{
+      --bg:#0f0f13;--bg2:#16161d;--bg3:#1e1e28;--border:#2e2e3e;
+      --text:#e8e8f0;--text2:#b7b7c9;--text3:#8a8aa3;--accent:#7c6af7;
+      --max:860px;--r:18px;--shadow:0 18px 48px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;font-family:Inter,Segoe UI,system-ui,-apple-system,sans-serif;
+      background:linear-gradient(180deg,var(--bg) 0%, #12121a 100%);
+      color:var(--text);line-height:1.68;
+    }
+    .wrap{max-width:var(--max);margin:0 auto;padding:28px 18px 80px}
+    .topbar{
+      position:sticky;top:0;z-index:20;backdrop-filter:blur(10px);
+      background:rgba(15,15,19,.78);border-bottom:1px solid rgba(46,46,62,.7);
+    }
+    .topbar-inner{max-width:var(--max);margin:0 auto;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .brand{font-weight:700;color:var(--text);text-decoration:none;font-size:1rem}
+    .brand span{color:var(--accent)}
+    .back{
+      color:var(--text2);text-decoration:none;font-size:.92rem;padding:8px 12px;
+      border:1px solid var(--border);border-radius:10px;background:var(--bg2)
+    }
+    .hero{
+      margin-top:20px;padding:28px 24px;border:1px solid var(--border);border-radius:24px;
+      background:radial-gradient(circle at top right, rgba(124,106,247,.14), transparent 35%), var(--bg2);
+      box-shadow:var(--shadow)
+    }
+    h1{margin:0 0 10px;font-size:2rem;line-height:1.15}
+    .lead{margin:0;color:var(--text2);font-size:1rem;max-width:720px}
+    .meta{margin-top:16px;color:var(--text3);font-size:.88rem}
+    .card{
+      margin-top:18px;padding:26px 24px;background:var(--bg2);border:1px solid var(--border);
+      border-radius:22px;box-shadow:var(--shadow)
+    }
+    h2{margin:0 0 12px;font-size:1.18rem}
+    p{margin:0 0 12px}
+    ul{margin:0 0 12px 20px;padding:0}
+    li{margin:0 0 8px}
+    .footer{margin-top:22px;color:var(--text3);font-size:.86rem;text-align:center}
+    a{color:#b3a6ff}
+    @media (max-width:640px){
+      h1{font-size:1.6rem}
+      .hero,.card{padding:20px 16px;border-radius:18px}
+      .topbar-inner{padding:12px 14px}
+      .wrap{padding:18px 14px 60px}
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/">🌿 <span>Habits</span></a>
+      <a class="back" href="/">← Назад в приложение</a>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <section class="hero">
+      <h1>Условия использования</h1>
+      <p class="lead">Настоящие условия регулируют доступ и использование сервиса Habits. Используя приложение, вы подтверждаете, что ознакомились с этими условиями и принимаете их.</p>
+      <div class="meta">Последнее обновление: 1 апреля 2026</div>
+    </section>
+
+    <section class="card">
+      <h2>1. Общие положения</h2>
+      <p>Habits — это сервис для ведения и отслеживания привычек. Пользователь может использовать приложение как в гостевом режиме, так и через зарегистрированный аккаунт.</p>
+      <p>Если вы не согласны с настоящими условиями, пожалуйста, не используйте сервис.</p>
+    </section>
+
+    <section class="card">
+      <h2>2. Функциональность сервиса</h2>
+      <p>Сервис может предоставлять следующие возможности:</p>
+      <ul>
+        <li>создание и редактирование привычек;</li>
+        <li>отметка выполнения привычек;</li>
+        <li>хранение истории действий;</li>
+        <li>синхронизация данных между устройствами после регистрации или входа;</li>
+        <li>удаление аккаунта и связанных данных.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>3. Регистрация и аккаунт</h2>
+      <p>Для доступа к синхронизации и облачному хранению данных пользователь может создать аккаунт, указав email и пароль.</p>
+      <p>Пользователь обязуется:</p>
+      <ul>
+        <li>предоставлять корректный email;</li>
+        <li>обеспечивать конфиденциальность своих данных для входа;</li>
+        <li>не передавать доступ к аккаунту третьим лицам.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>4. Гостевой режим</h2>
+      <p>До регистрации пользователь может пользоваться приложением без создания аккаунта. В этом случае часть данных может храниться локально на устройстве пользователя.</p>
+      <p>После регистрации или входа локальные данные могут быть перенесены в аккаунт для синхронизации между устройствами.</p>
+    </section>
+
+    <section class="card">
+      <h2>5. Данные пользователя</h2>
+      <p>Для работы сервиса могут использоваться:</p>
+      <ul>
+        <li>данные аккаунта, включая email;</li>
+        <li>данные, созданные пользователем внутри приложения;</li>
+        <li>локально сохранённые данные, связанные с использованием сервиса;</li>
+        <li>технические данные, необходимые для поддержки сессии и корректной работы приложения.</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>6. Ограничения использования</h2>
+      <p>Пользователь обязуется не использовать сервис для действий, которые нарушают применимое законодательство, мешают работе приложения или направлены на получение несанкционированного доступа к данным других пользователей.</p>
+    </section>
+
+    <section class="card">
+      <h2>7. Удаление аккаунта</h2>
+      <p>Пользователь может удалить свой аккаунт через интерфейс приложения. При удалении аккаунта связанные с ним данные удаляются без возможности восстановления в рамках стандартного пользовательского интерфейса.</p>
+    </section>
+
+    <section class="card">
+      <h2>8. Ограничение ответственности</h2>
+      <p>Сервис предоставляется по принципу «как есть». Мы прилагаем разумные усилия для обеспечения стабильной работы приложения, но не гарантируем абсолютное отсутствие ошибок, перебоев или технических ограничений.</p>
+    </section>
+
+    <section class="card">
+      <h2>9. Изменение условий</h2>
+      <p>Настоящие условия могут быть изменены или дополнены. Актуальная версия публикуется на этой странице.</p>
+    </section>
+
+    <section class="card">
+      <h2>10. Контакты</h2>
+      <p>Если у вас есть вопросы по условиям использования, свяжитесь с владельцем сервиса через контактный канал, указанный в приложении.</p>
+    </section>
+
+    <div class="footer">© Habits</div>
+  </main>
+</body>
+</html>
