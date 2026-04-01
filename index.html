@@ -1271,7 +1271,7 @@ function openAuthModal(initialMode='login'){
         const {error} = await sb.auth.signUp({email, password});
         if(error) throw error;
         closeModal();
-        showToast('Аккаунт создан! 🎉', 'success');
+        showToast('🎉 Проверьте почту, чтобы подтвердить email', 'success');
       }
     }catch(e){
       console.error('[habits] auth error', e);
