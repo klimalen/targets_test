@@ -1090,7 +1090,10 @@ function openAuthModal(initialMode='login'){
     const btn=document.getElementById('forgotSubmitBtn');
     if(btn){btn.classList.add('loading');btn.disabled=true;}
     try{
-      const{error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:'https://klimalen.github.io/targets/'});
+      const{error}=await sb.auth.resetPasswordForEmail(email,{
+  redirectTo:'https://your-habits-calendar.vercel.app/'
+});
+
       if(error)throw error;
       if(infoEl){infoEl.textContent='Письмо отправлено! Проверьте почту и перейдите по ссылке.';infoEl.classList.add('show');}
       if(btn){btn.classList.remove('loading');btn.disabled=true;}
