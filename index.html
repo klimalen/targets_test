@@ -88,6 +88,7 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .tip-bubble.hidden{display:none}
 .stats-link-btn{display:flex;align-items:center;gap:8px;width:100%;margin-top:10px;padding:9px 12px;border-radius:var(--rs);background:var(--bg4);border:1px solid var(--border);color:var(--text2);font-size:.82rem;font-weight:500;cursor:pointer;transition:all var(--tr)}
 .stats-link-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--glow)}
+.inline-stats-detail-btn{margin-top:14px;justify-content:center}
 .habit-item{display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:var(--rs);transition:background var(--tr)}
 .habit-item:hover{background:var(--bg3)}
 .habit-dot{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
@@ -218,6 +219,25 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .streak-badge{display:inline-flex;align-items:center;gap:3px;background:rgba(247,201,79,.1);border:1px solid rgba(247,201,79,.25);color:var(--yellow);padding:2px 6px;border-radius:20px;font-size:.68rem;font-weight:600}
 .streak-legend{margin-top:9px;background:var(--bg4);border-radius:var(--rs);padding:9px 11px;font-size:.71rem;color:var(--text2);line-height:1.55;border:1px solid var(--border)}
 .streak-legend strong{color:var(--text)}
+/* Analytics cards */
+.ana-row{display:flex;gap:10px;margin-bottom:10px}
+.ana-mini{flex:1;background:var(--bg4);border:1px solid var(--border);border-radius:var(--rs);padding:11px;text-align:center}
+.ana-mini-icon{font-size:1.4rem;margin-bottom:4px}
+.ana-mini-val{font-size:.95rem;font-weight:700;color:var(--text)}
+.ana-mini-label{font-size:.68rem;color:var(--text3);margin-top:2px}
+.ana-rank-wrap{display:flex;align-items:center;gap:14px}
+.ana-rank-icon{font-size:2.2rem;flex-shrink:0}
+.ana-rank-info{flex:1}
+.ana-rank-name{font-size:.95rem;font-weight:700;color:var(--text)}
+.ana-rank-desc{font-size:.78rem;color:var(--text2);margin-top:2px;line-height:1.45}
+.ana-rank-next{margin-top:8px;background:var(--bg4);border:1px solid var(--border);border-radius:var(--rs);padding:8px 10px;font-size:.75rem;color:var(--text2);line-height:1.45}
+.ana-rank-next strong{color:var(--accent)}
+.ana-chart{display:flex;align-items:flex-end;gap:4px;height:80px;padding-top:4px}
+.ana-bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.ana-bar{width:100%;border-radius:3px 3px 0 0;background:var(--accent);min-height:2px;transition:height .3s ease}
+.ana-bar-label{font-size:.58rem;color:var(--text3);white-space:nowrap}
+.ana-bar-val{font-size:.58rem;color:var(--text2);font-weight:600}
+.ana-note{background:var(--bg4);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;font-size:.78rem;color:var(--text2);line-height:1.5;text-align:center}
 .heatmap-wrap{overflow-x:auto;padding-bottom:4px}
 .heatmap-grid{display:flex;gap:3px}
 .heatmap-col{display:flex;flex-direction:column;gap:3px}
@@ -1505,19 +1525,152 @@ function buildHeatmap(type,ref){
 /* ============================================================
    STATS HTML
 ============================================================ */
-function buildStatsHTML(type,ref){
+/* ============================================================
+   ANALYTICS HELPERS
+============================================================ */
+const DOW_FULL=['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье'];
+
+function bestDayOfWeek(){
+  const counts=[0,0,0,0,0,0,0];
+  for(const[key,day]of Object.entries(state.completions)){
+    const d=new Date(key);const dow=(d.getDay()+6)%7;
+    counts[dow]+=Object.values(day).filter(Boolean).length;
+  }
+  const max=Math.max(...counts);
+  if(max===0)return null;
+  return{day:DOW_FULL[counts.indexOf(max)],count:max};
+}
+
+function mostStableHabit(){
+  if(!state.habits.length)return null;
+  const keys=Object.keys(state.completions).sort();
+  if(keys.length<3)return null;
+  let best=null,bestPct=0;
+  for(const hb of state.habits){
+    let done=0;
+    for(const k of keys){if(state.completions[k]&&state.completions[k][hb.id])done++;}
+    const pct=Math.round(done/keys.length*100);
+    if(pct>bestPct){bestPct=pct;best=hb;}
+  }
+  if(!best||bestPct===0)return null;
+  return{habit:best,pct:bestPct};
+}
+
+function weeklyChart(){
+  const today=new Date();today.setHours(0,0,0,0);
+  const weeks=[];
+  for(let w=7;w>=0;w--){
+    const ws=new Date(today);ws.setDate(today.getDate()-((today.getDay()+6)%7)-w*7);
+    ws.setHours(0,0,0,0);
+    let done=0,total=0;
+    for(let i=0;i<7;i++){
+      const d=new Date(ws);d.setDate(ws.getDate()+i);
+      const k=dkd(d);
+      const dayDoneCount=Object.values(state.completions[k]||{}).filter(Boolean).length;
+      done+=dayDoneCount;total+=state.habits.length;
+    }
+    const pct=total?Math.round(done/total*100):0;
+    const label=`${ws.getDate()}.${String(ws.getMonth()+1).padStart(2,'0')}`;
+    weeks.push({label,pct});
+  }
+  return weeks;
+}
+
+function getUserRank(){
+  const total=allTimeTotal();
+  if(total<1)return null;
+  const today=new Date();today.setHours(0,0,0,0);
+  let done=0,expected=0;
+  for(const hb of state.habits){
+    // Сколько дней привычка существует (но не более 28)
+    const created=new Date(hb.createdAt||0);created.setHours(0,0,0,0);
+    const ageDays=Math.min(28,Math.max(1,Math.floor((today-created)/(86400000))+1));
+    // Считаем выполнения за этот период
+    let hDone=0;
+    for(let i=0;i<ageDays;i++){
+      const d=new Date(today);d.setDate(today.getDate()-i);
+      const k=dkd(d);
+      if(state.completions[k]&&state.completions[k][hb.id])hDone++;
+    }
+    done+=hDone;
+    // Ожидаемое количество с учётом цели
+    if(hb.goal){
+      const g=hb.goal;
+      let perDay;
+      if(g.type==='week')perDay=g.value/7;
+      else if(g.type==='month')perDay=g.value/30;
+      else if(g.type==='year')perDay=g.value/365;
+      else perDay=1;
+      expected+=Math.max(1,Math.round(perDay*ageDays));
+    }else{
+      expected+=ageDays;
+    }
+  }
+  const pct=expected?Math.min(100,Math.round(done/expected*100)):0;
+  if(pct>=80)return{icon:'🏆',name:'Чемпион',desc:'Абсолютный максимум! Вы покоряете свои цели.',pct,next:null};
+  if(pct>=60)return{icon:'⭐',name:'Высшая лига',desc:'Ваша дисциплина — пример для подражания.',pct,next:{target:80,name:'Чемпион'}};
+  if(pct>=40)return{icon:'🎯',name:'Стабильный темп',desc:'Вы нашли свой ритм — привычки работают на вас.',pct,next:{target:60,name:'Высшая лига'}};
+  if(pct>=20)return{icon:'⚡',name:'Разгон',desc:'Набираете обороты — каждый день прибавляет темп!',pct,next:{target:40,name:'Стабильный темп'}};
+  return{icon:'🏃',name:'На старте',desc:'Главное — начать. А вы уже это сделали!',pct,next:{target:20,name:'Разгон'}};
+}
+
+function buildStatsHTML(type,ref,desktopOrder){
   if(!state.habits.length)return`<div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-title">Нет данных</div><div class="empty-state-desc">Добавьте привычки, чтобы видеть статистику</div><button class="first-habit-btn" onclick="closeStatsScreen();openHabitModal()">🌱 Создать первую привычку</button></div>`;
   const pLabel=type==='week'?'неделю':type==='month'?'месяц':'год';
-  let h='';
-  h+=`<div class="stat-card"><div class="stat-card-title">✅ За ${pLabel}</div>`;
-  state.habits.forEach(hb=>{const done=periodStats(hb.id,type,ref);const goal=goalForPeriod(hb,type);const pct=goal?Math.min(100,Math.round(done/goal*100)):null;const fc=pct!==null?(pct<50?'r':pct<80?'y':'g'):'g';const streak=calcStreak(hb.id);h+=`<div class="stat-habit-item"><div class="stat-habit-top"><div class="stat-habit-name"><div style="width:22px;height:22px;border-radius:6px;background:${hb.color}33;display:flex;align-items:center;justify-content:center;font-size:.8rem">${hb.emoji}</div>${esc(hb.name)}</div><div style="display:flex;align-items:center;gap:5px">${streak.current>=2?`<span class="streak-badge">🔥${streak.current}</span>`:''}<span class="stat-habit-count">${done}${goal?'/'+goal:''}</span></div></div>${goal?`<div class="pb-wrap"><div class="pb-fill ${fc}" style="width:${pct}%"></div></div><div class="stat-pct">${pct}%</div>`:''}</div>`;});
-  h+=`</div>`;
-  h+=`<div class="stat-card"><div class="stat-card-title">🔥 Стрики</div>`;
-  state.habits.forEach(hb=>{const s=calcStreak(hb.id);h+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px"><div style="display:flex;align-items:center;gap:6px;font-size:.81rem">${hb.emoji} ${esc(hb.name)}</div><div style="display:flex;gap:8px;font-size:.75rem"><span>🔥 ${s.current}</span><span style="color:var(--yellow)">⭐ ${s.max}</span></div></div>`;});
-  h+=`<div class="streak-legend"><strong>🔥 Текущая серия</strong> — сколько дней подряд вы выполняете привычку прямо сейчас.<br><strong>⭐ Максимальная серия</strong> — самая длинная непрерывная серия за всё время.</div></div>`;
+
+  // Блок «За период»
+  let periodBlock='';
+  periodBlock+=`<div class="stat-card"><div class="stat-card-title">✅ За ${pLabel}</div>`;
+  state.habits.forEach(hb=>{const done=periodStats(hb.id,type,ref);const goal=goalForPeriod(hb,type);const pct=goal?Math.min(100,Math.round(done/goal*100)):null;const fc=pct!==null?(pct<50?'r':pct<80?'y':'g'):'g';const streak=calcStreak(hb.id);periodBlock+=`<div class="stat-habit-item"><div class="stat-habit-top"><div class="stat-habit-name"><div style="width:22px;height:22px;border-radius:6px;background:${hb.color}33;display:flex;align-items:center;justify-content:center;font-size:.8rem">${hb.emoji}</div>${esc(hb.name)}</div><div style="display:flex;align-items:center;gap:5px">${streak.current>=2?`<span class="streak-badge">🔥${streak.current}</span>`:''}<span class="stat-habit-count">${done}${goal?'/'+goal:''}</span></div></div>${goal?`<div class="pb-wrap"><div class="pb-fill ${fc}" style="width:${pct}%"></div></div><div class="stat-pct">${pct}%</div>`:''}</div>`;});
+  periodBlock+=`</div>`;
+
+  // Блок «Стрики»
+  let streakBlock='';
+  streakBlock+=`<div class="stat-card"><div class="stat-card-title">🔥 Стрики</div>`;
+  state.habits.forEach(hb=>{const s=calcStreak(hb.id);streakBlock+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px"><div style="display:flex;align-items:center;gap:6px;font-size:.81rem">${hb.emoji} ${esc(hb.name)}</div><div style="display:flex;gap:8px;font-size:.75rem"><span>🔥 ${s.current}</span><span style="color:var(--yellow)">⭐ ${s.max}</span></div></div>`;});
+  streakBlock+=`<div class="streak-legend"><strong>🔥 Текущая серия</strong> — сколько дней подряд вы выполняете привычку прямо сейчас.<br><strong>⭐ Максимальная серия</strong> — самая длинная непрерывная серия за всё время.</div></div>`;
+
+  // Блок «Тепловая карта»
   const hmLabel=type==='week'?'неделя':type==='month'?'месяц':`${ref.getFullYear()} год`;
-  h+=`<div class="stat-card"><div class="stat-card-title">🗓 Тепловая карта — ${hmLabel}</div><div class="heatmap-wrap">${buildHeatmap(type,ref)}</div><div class="hm-legend">Меньше <div style="display:flex;gap:2px">${['','lv1','lv2','lv3','lv4'].map(l=>`<div class="hm-cell ${l}" style="position:static"></div>`).join('')}</div> Больше</div></div>`;
-  return h;
+  let heatmapBlock=`<div class="stat-card"><div class="stat-card-title">🗓 Тепловая карта — ${hmLabel}</div><div class="heatmap-wrap">${buildHeatmap(type,ref)}</div><div class="hm-legend">Меньше <div style="display:flex;gap:2px">${['','lv1','lv2','lv3','lv4'].map(l=>`<div class="hm-cell ${l}" style="position:static"></div>`).join('')}</div> Больше</div></div>`;
+
+  // Блок «Аналитика»
+  let analyticsBlock='';
+  const bd=bestDayOfWeek();
+  const ms=mostStableHabit();
+  const rank=getUserRank();
+  const wChart=weeklyChart();
+  const hasEnoughData=allTimeTotal()>=5;
+
+  if(!hasEnoughData){
+    analyticsBlock+=`<div class="stat-card"><div class="stat-card-title">📈 Аналитика</div><div class="ana-note">Продолжайте отмечать привычки — мы накапливаем статистику и скоро здесь появится подробная аналитика!</div></div>`;
+  }else{
+    analyticsBlock+=`<div class="stat-card"><div class="stat-card-title">📈 Аналитика</div><div class="ana-row">`;
+    analyticsBlock+=`<div class="ana-mini"><div class="ana-mini-icon">📅</div><div class="ana-mini-val">${bd?bd.day:'—'}</div><div class="ana-mini-label">Лучший день недели</div></div>`;
+    analyticsBlock+=`<div class="ana-mini"><div class="ana-mini-icon">${ms?ms.habit.emoji:'—'}</div><div class="ana-mini-val">${ms?ms.pct+'%':'—'}</div><div class="ana-mini-label">${ms?'Самая стабильная':'Нет данных'}</div></div>`;
+    analyticsBlock+=`</div>`;
+    const maxPct=Math.max(...wChart.map(w=>w.pct),1);
+    analyticsBlock+=`<div style="margin-bottom:10px"><div style="font-size:.72rem;color:var(--text3);margin-bottom:6px;font-weight:600">ВЫПОЛНЕНИЕ ПО НЕДЕЛЯМ</div><div class="ana-chart">`;
+    wChart.forEach(w=>{
+      const barH=Math.max(2,Math.round(w.pct/maxPct*68));
+      analyticsBlock+=`<div class="ana-bar-col"><div class="ana-bar-val">${w.pct}%</div><div class="ana-bar" style="height:${barH}px"></div><div class="ana-bar-label">${w.label}</div></div>`;
+    });
+    analyticsBlock+=`</div></div>`;
+    if(rank){
+      analyticsBlock+=`<div style="margin-top:4px"><div class="ana-rank-wrap"><div class="ana-rank-icon">${rank.icon}</div><div class="ana-rank-info"><div class="ana-rank-name">${rank.name}</div><div class="ana-rank-desc">${rank.desc}</div></div></div>`;
+      if(rank.next){
+        const diff=rank.next.target-rank.pct;
+        analyticsBlock+=`<div class="ana-rank-next">Улучшите показатели на <strong>${diff}%</strong>, чтобы получить ранг <strong>${rank.next.name}</strong></div>`;
+      }
+      analyticsBlock+=`</div>`;
+    }
+    analyticsBlock+=`</div>`;
+  }
+
+  // Десктоп: Аналитика → За период → Стрики → Тепловая карта
+  // Мобильный: За период → Стрики → Тепловая карта → Аналитика
+  if(desktopOrder) return analyticsBlock+periodBlock+streakBlock+heatmapBlock;
+  return periodBlock+streakBlock+heatmapBlock+analyticsBlock;
 }
 
 /* ============================================================
@@ -1609,13 +1762,34 @@ function renderMiniMonth(y,m){
 }
 function attachCalEvents(){document.querySelectorAll('[data-day]').forEach(el=>{el.addEventListener('click',e=>{e.stopPropagation();openDayModal(new Date(parseInt(el.dataset.day)));});});}
 
+function buildInlineRankHTML(){
+  const rank=getUserRank();
+  if(!rank)return'';
+  let h=`<div class="stat-card"><div class="ana-rank-wrap"><div class="ana-rank-icon">${rank.icon}</div><div class="ana-rank-info"><div class="ana-rank-name">${rank.name}</div><div class="ana-rank-desc">${rank.desc}</div></div></div>`;
+  if(rank.next){const diff=rank.next.target-rank.pct;h+=`<div class="ana-rank-next">Улучшите показатели на <strong>${diff}%</strong>, чтобы получить ранг <strong>${rank.next.name}</strong></div>`;}
+  h+=`</div>`;
+  return h;
+}
+function buildPeriodStatsHTML(type,ref){
+  if(!state.habits.length)return'';
+  const pLabel=type==='week'?'неделю':type==='month'?'месяц':'год';
+  let h=`<div class="stat-card"><div class="stat-card-title">✅ За ${pLabel}</div>`;
+  state.habits.forEach(hb=>{const done=periodStats(hb.id,type,ref);const goal=goalForPeriod(hb,type);const pct=goal?Math.min(100,Math.round(done/goal*100)):null;const fc=pct!==null?(pct<50?'r':pct<80?'y':'g'):'g';const streak=calcStreak(hb.id);h+=`<div class="stat-habit-item"><div class="stat-habit-top"><div class="stat-habit-name"><div style="width:22px;height:22px;border-radius:6px;background:${hb.color}33;display:flex;align-items:center;justify-content:center;font-size:.8rem">${hb.emoji}</div>${esc(hb.name)}</div><div style="display:flex;align-items:center;gap:5px">${streak.current>=2?`<span class="streak-badge">🔥${streak.current}</span>`:''}<span class="stat-habit-count">${done}${goal?'/'+goal:''}</span></div></div>${goal?`<div class="pb-wrap"><div class="pb-fill ${fc}" style="width:${pct}%"></div></div><div class="stat-pct">${pct}%</div>`:''}</div>`;});
+  h+=`</div>`;
+  return h;
+}
 function renderInlineStats(){
   const el=document.getElementById('inline-stats');
   if(!state.habits.length){el.innerHTML='';return;}
-  const pLabel=currentView==='week'?'неделю':currentView==='month'?'месяц':'год';
-  el.innerHTML=`<div class="inline-stats-title">📊 Статистика — за ${pLabel}</div>${buildStatsHTML(currentView,currentDate)}`;
+  if(isMobile()){
+    const pLabel=currentView==='week'?'неделю':currentView==='month'?'месяц':'год';
+    el.innerHTML=`<div class="inline-stats-title">📊 Статистика — за ${pLabel}</div>${buildPeriodStatsHTML(currentView,currentDate)}${buildInlineRankHTML()}<button class="stats-link-btn inline-stats-detail-btn" onclick="openStatsScreen()">📊 Подробная статистика →</button>`;
+  }else{
+    const pLabel=currentView==='week'?'неделю':currentView==='month'?'месяц':'год';
+    el.innerHTML=`<div class="inline-stats-title">📊 Статистика — за ${pLabel}</div>${buildStatsHTML(currentView,currentDate)}`;
+  }
 }
-function renderStatsPanel(){document.getElementById('statsPanelBody').innerHTML=buildStatsHTML(currentView,currentDate);}
+function renderStatsPanel(){document.getElementById('statsPanelBody').innerHTML=buildStatsHTML(currentView,currentDate,true);}
 
 function openStatsScreen(){ym(108360901,'reachGoal','stats_opened');ssDate=new Date();syncSsToolbar();renderSsBody();document.getElementById('stats-screen').classList.add('open');}
 function closeStatsScreen(){document.getElementById('stats-screen').classList.remove('open');}
