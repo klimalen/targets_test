@@ -468,7 +468,10 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 @media(max-width:480px){
   .cal-day{min-height:46px;padding:4px}
   .day-habit-badge{width:18px;height:18px;font-size:.63rem}
-  .hdr-sync-badge{display:none}
+  /* На маленьких экранах — только иконка без текста */
+  .hdr-sync-badge{padding:5px 7px}
+  .hdr-sync-badge .sync-label{display:none}
+  .hdr-sync-badge .sync-icon{font-size:1rem}
 }
 </style>
 </head>
@@ -925,7 +928,17 @@ function renderHeaderAuth(){
   const el=document.getElementById('headerAuth');
   if(currentUser){
     el.innerHTML=`
-      ${isSyncing?`<div class="hdr-sync-badge syncing">⟳ Синхронизация...</div>`:`<div class="hdr-sync-badge">☁️ Синхронизировано</div>`}
+      ${isSyncing
+  ? `<div class="hdr-sync-badge syncing">
+       <span class="sync-icon">⟳</span>
+       <span class="sync-label">Синхронизация...</span>
+     </div>`
+  : `<div class="hdr-sync-badge">
+       <span class="sync-icon">☁️</span>
+       <span class="sync-label">Синхронизировано</span>
+     </div>`
+}
+
       <button class="hdr-settings-btn" id="settingsBtn" title="Настройки">⚙️</button>`;
     document.getElementById('settingsBtn').addEventListener('click',openSettingsModal);
   }else{
