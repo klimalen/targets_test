@@ -1587,8 +1587,14 @@ function updClearBtn(key,mkList){
    HABIT MODAL
 ============================================================ */
 let editId=null,selEmoji='🏃',selColor=COLORS[0];
-function openHabitModal(hid=null){
-  editId=hid;const h=hid?state.habits.find(x=>x.id===hid):null;
+
+  function openHabitModal(hid=null){
+  // МЕТРИКА: открытие формы создания/редактирования
+  if(!hid) ym(108360901, 'reachGoal', 'habit_form_open');
+  
+  editId=hid;
+
+  const h=hid?state.habits.find(x=>x.id===hid):null;
   selEmoji=h?h.emoji:'🏃';selColor=h?h.color:COLORS[0];
   const gt=h&&h.goal?h.goal.type:'week';const gv=h&&h.goal?h.goal.value:'';
   const title=h?'Редактировать привычку':'Новая привычка';
