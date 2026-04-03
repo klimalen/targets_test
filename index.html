@@ -1180,6 +1180,11 @@ function saveState(){if(!currentUser)saveLocalState();}
 /* ============================================================
    SUPABASE DATA LAYER
 ============================================================ */
+function _withTimeout(query,ms){
+  let tid;
+  const timer=new Promise((_,reject)=>{tid=setTimeout(()=>{const e=new Error('Request timed out');e.name='AbortError';reject(e);},ms);});
+  return Promise.race([query,timer]).finally(()=>clearTimeout(tid));
+}
 let _isLoadingBackend=false;
 async function loadBackendData(){
   if(!currentUser)return;
@@ -1190,13 +1195,13 @@ async function loadBackendData(){
   const _prevCompletions=state.completions;
   const _prevCelebrations=state.celebrations;
   try{
-    const{data:habits,error:hErr}=await sb.from('habits').select('*').eq('user_id',currentUser.id).eq('is_archived',false).order('sort_order',{ascending:true}).order('created_at',{ascending:true});
+    const{data:habits,error:hErr}=await _withTimeout(sb.from('habits').select('*').eq('user_id',currentUser.id).eq('is_archived',false).order('sort_order',{ascending:true}).order('created_at',{ascending:true}),15000);
     if(hErr)throw hErr;
     if(!habits||habits.length===0){state.habits=[];state.completions={};setSyncing(false);render();return;}
     const since=new Date();since.setFullYear(since.getFullYear()-2);
-    const{data:comps,error:cErr}=await sb.from('completions').select('habit_id,date').in('habit_id',habits.map(h=>h.id)).gte('date',dkd(since));
+    const{data:comps,error:cErr}=await _withTimeout(sb.from('completions').select('habit_id,date').in('habit_id',habits.map(h=>h.id)).gte('date',dkd(since)),15000);
     if(cErr)throw cErr;
-    const{data:profile}=await sb.from('profiles').select('celebrations').eq('id',currentUser.id).single();
+    const{data:profile}=await _withTimeout(sb.from('profiles').select('celebrations').eq('id',currentUser.id).single(),15000);
     const newHabits=habits.map(h=>({id:h.local_id,_backendId:h.id,name:h.name,emoji:h.emoji,color:h.color,goal:(h.goal_type&&h.goal_value)?{type:h.goal_type,value:h.goal_value}:null,createdAt:new Date(h.created_at).getTime()}));
     const newCompletions={};
     for(const c of(comps||[])){const h=habits.find(x=>x.id===c.habit_id);if(!h)continue;const dk=c.date;if(!newCompletions[dk])newCompletions[dk]={};newCompletions[dk][h.local_id]=true;}
@@ -1208,7 +1213,8 @@ async function loadBackendData(){
     state.habits=_prevHabits;
     state.completions=_prevCompletions;
     state.celebrations=_prevCelebrations;
-    console.error('[habits] loadBackendData',e);showToast('Не удалось загрузить данные с сервера','error');
+    const msg=e.name==='AbortError'?'Превышено время ожидания сервера':'Не удалось загрузить данные с сервера';
+    console.error('[habits] loadBackendData',e);showToast(msg,'error');
   }
   finally{setSyncing(false);_isLoadingBackend=false;}
   render();
@@ -1254,8 +1260,10 @@ async function saveCelebrationsBackend(){
 ============================================================ */
 async function migrateLocalData(){
   if(!currentUser)return;
-  const{data:profile,error}=await sb.from('profiles').select('has_migrated_local_data').eq('id',currentUser.id).single();
-  if(error){console.error('[habits] migrateLocalData: profile fetch',error);return;}
+  let profile,profileError;
+  try{const res=await _withTimeout(sb.from('profiles').select('has_migrated_local_data').eq('id',currentUser.id).single(),15000);profile=res.data;profileError=res.error;}
+  catch(e){console.error('[habits] migrateLocalData: profile fetch',e);return;}
+  if(profileError){console.error('[habits] migrateLocalData: profile fetch',profileError);return;}
   if(profile&&profile.has_migrated_local_data)return;
   const local=loadLocalState();
   if(!local.habits||local.habits.length===0){await sb.from('profiles').update({has_migrated_local_data:true}).eq('id',currentUser.id);return;}
@@ -1264,18 +1272,21 @@ async function migrateLocalData(){
   try{
     const habitsToInsert=local.habits.filter(h=>h&&h.id&&h.name).map((h,i)=>({user_id:currentUser.id,local_id:h.id,name:h.name.slice(0,40),emoji:h.emoji||'🏃',color:h.color||'#7c6af7',goal_type:h.goal?h.goal.type:null,goal_value:h.goal?h.goal.value:null,sort_order:i,is_archived:false}));
     if(habitsToInsert.length>0){
-      const{data:insertedHabits,error:hErr}=await sb.from('habits').upsert(habitsToInsert,{onConflict:'user_id,local_id'}).select('id,local_id');
+      const{data:insertedHabits,error:hErr}=await _withTimeout(sb.from('habits').upsert(habitsToInsert,{onConflict:'user_id,local_id'}).select('id,local_id'),30000);
       if(hErr)throw hErr;
       const idMap={};for(const h of(insertedHabits||[]))idMap[h.local_id]=h.id;
       const completionsToInsert=[];
       for(const[dateKey,dayData]of Object.entries(local.completions||{}))for(const[localId,done]of Object.entries(dayData)){if(!done)continue;const backendId=idMap[localId];if(!backendId)continue;if(!/^\d{4}-\d{2}-\d{2}$/.test(dateKey))continue;completionsToInsert.push({habit_id:backendId,date:dateKey});}
       const BATCH=500;
-      for(let i=0;i<completionsToInsert.length;i+=BATCH){const batch=completionsToInsert.slice(i,i+BATCH);await sb.from('completions').upsert(batch,{onConflict:'habit_id,date',ignoreDuplicates:true});}
+      for(let i=0;i<completionsToInsert.length;i+=BATCH){const batch=completionsToInsert.slice(i,i+BATCH);await _withTimeout(sb.from('completions').upsert(batch,{onConflict:'habit_id,date',ignoreDuplicates:true}),30000);}
     }
-    if(local.celebrations&&Object.keys(local.celebrations).length>0)await sb.from('profiles').update({celebrations:local.celebrations}).eq('id',currentUser.id);
+    if(local.celebrations&&Object.keys(local.celebrations).length>0)await _withTimeout(sb.from('profiles').update({celebrations:local.celebrations}).eq('id',currentUser.id),15000);
     ym(108360901,'reachGoal','local_data_migrated',{habits_count:habitsToInsert.length});
     showToast('Данные успешно перенесены в облако ☁️','success');
-  }catch(e){console.error('[habits] migrateLocalData',e);showToast('Не удалось перенести часть данных. Данные на устройстве сохранены.','error');}
+  }catch(e){
+    const msg=e.name==='AbortError'?'Не удалось перенести данные: превышено время ожидания':'Не удалось перенести часть данных. Данные на устройстве сохранены.';
+    console.error('[habits] migrateLocalData',e);showToast(msg,'error');
+  }
   finally{setSyncing(false);}
 }
 
