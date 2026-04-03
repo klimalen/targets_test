@@ -1259,6 +1259,7 @@ async function migrateLocalData(){
   if(profile&&profile.has_migrated_local_data)return;
   const local=loadLocalState();
   if(!local.habits||local.habits.length===0){await sb.from('profiles').update({has_migrated_local_data:true}).eq('id',currentUser.id);return;}
+  await sb.from('profiles').update({has_migrated_local_data:true}).eq('id',currentUser.id);
   setSyncing(true);showToast('Переносим ваши данные в облако...','info');
   try{
     const habitsToInsert=local.habits.filter(h=>h&&h.id&&h.name).map((h,i)=>({user_id:currentUser.id,local_id:h.id,name:h.name.slice(0,40),emoji:h.emoji||'🏃',color:h.color||'#7c6af7',goal_type:h.goal?h.goal.type:null,goal_value:h.goal?h.goal.value:null,sort_order:i,is_archived:false}));
@@ -1272,7 +1273,6 @@ async function migrateLocalData(){
       for(let i=0;i<completionsToInsert.length;i+=BATCH){const batch=completionsToInsert.slice(i,i+BATCH);await sb.from('completions').upsert(batch,{onConflict:'habit_id,date',ignoreDuplicates:true});}
     }
     if(local.celebrations&&Object.keys(local.celebrations).length>0)await sb.from('profiles').update({celebrations:local.celebrations}).eq('id',currentUser.id);
-    await sb.from('profiles').update({has_migrated_local_data:true}).eq('id',currentUser.id);
     ym(108360901,'reachGoal','local_data_migrated',{habits_count:habitsToInsert.length});
     showToast('Данные успешно перенесены в облако ☁️','success');
   }catch(e){console.error('[habits] migrateLocalData',e);showToast('Не удалось перенести часть данных. Данные на устройстве сохранены.','error');}
