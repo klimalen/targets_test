@@ -1205,7 +1205,7 @@ async function loadBackendData(){
     const since=new Date();since.setFullYear(since.getFullYear()-2);
     const{data:comps,error:cErr}=await _withTimeout(sb.from('completions').select('habit_id,date').in('habit_id',habits.map(h=>h.id)).gte('date',dkd(since)),15000);
     if(cErr)throw cErr;
-    const{data:profile}=await _withTimeout(sb.from('profiles').select('celebrations').eq('id',currentUser.id).single(),15000);
+    const{data:profile}=await _withTimeout(sb.from('profiles').select('celebrations').eq('id',currentUser.id).maybeSingle(),15000);
     const newHabits=habits.map(h=>({id:h.local_id,_backendId:h.id,name:h.name,emoji:h.emoji,color:h.color,goal:(h.goal_type&&h.goal_value)?{type:h.goal_type,value:h.goal_value}:null,createdAt:new Date(h.created_at).getTime()}));
     const newCompletions={};
     for(const c of(comps||[])){const h=habits.find(x=>x.id===c.habit_id);if(!h)continue;const dk=c.date;if(!newCompletions[dk])newCompletions[dk]={};newCompletions[dk][h.local_id]=true;}
@@ -1265,7 +1265,7 @@ async function saveCelebrationsBackend(){
 async function migrateLocalData(){
   if(!currentUser)return;
   let profile,profileError;
-  try{const res=await _withTimeout(sb.from('profiles').select('has_migrated_local_data').eq('id',currentUser.id).single(),15000);profile=res.data;profileError=res.error;}
+  try{const res=await _withTimeout(sb.from('profiles').select('has_migrated_local_data').eq('id',currentUser.id).maybeSingle(),15000);profile=res.data;profileError=res.error;}
   catch(e){console.error('[habits] migrateLocalData: profile fetch',e);return;}
   if(profileError){console.error('[habits] migrateLocalData: profile fetch',profileError);return;}
   if(profile&&profile.has_migrated_local_data)return;
