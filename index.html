@@ -1215,17 +1215,6 @@ function scheduleOnboardingIfNeeded(){
     try{ ym(108360901,'reachGoal','onboarding_cta_click'); }catch(e){}
   });
 
-  // Закрытие по Escape
-  document.addEventListener('keydown', function(e){
-    if(e.key === 'Escape'){
-      const overlay = document.getElementById('onboarding-overlay');
-      if(overlay.classList.contains('open')){
-        e.stopImmediatePropagation();
-        closeOnboarding();
-      }
-    }
-  }, true); // capture=true чтобы перехватить раньше других
-
   // Клик на логотип — показываем онбординг всегда
   document.getElementById('logoBtn').addEventListener('click', function(){
     // Отменяем авто-таймер если он ещё не сработал
@@ -1433,7 +1422,7 @@ async function handleAuthChange(event,session){
   if(event==='SIGNED_IN'&&!prevUser){
     // Пользователь залогинился — отменяем таймер онбординга и закрываем если открыт
     cancelOnbAutoTimer();
-    closeOnboarding();
+    if(document.getElementById('onboarding-overlay').classList.contains('open'))closeOnboarding();
     renderHeaderAuth();
     await ensureProfile();
     await migrateLocalData();
@@ -2489,21 +2478,6 @@ document.getElementById('fbSubmitBtn').addEventListener('click',submitFeedback);
 document.getElementById('logoBtn').addEventListener('click',()=>{
   cancelOnbAutoTimer();
   openOnboarding();
-});
-
-// Онбординг: крестик
-document.getElementById('onbCloseBtn').addEventListener('click',closeOnboarding);
-
-// Онбординг: клик на оверлей
-document.getElementById('onboarding-overlay').addEventListener('click',function(e){
-  if(e.target===this)closeOnboarding();
-});
-
-// Онбординг: кнопка CTA
-document.getElementById('onbCtaBtn').addEventListener('click',function(){
-  closeOnboarding();
-  setTimeout(()=>openHabitModal(),280);
-  try{ym(108360901,'reachGoal','onboarding_cta_click');}catch(e){}
 });
 
 // Онбординг: Escape (перехватываем первым через capture)
