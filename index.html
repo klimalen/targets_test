@@ -1187,7 +1187,8 @@ function _withTimeout(query,ms){
 }
 async function ensureProfile(){
   if(!currentUser)return;
-  await sb.from('profiles').upsert({id:currentUser.id},{onConflict:'id',ignoreDuplicates:true});
+  const{data}=await sb.from('profiles').select('id').eq('id',currentUser.id).maybeSingle();
+  if(!data)await sb.from('profiles').insert({id:currentUser.id,email:currentUser.email});
 }
 let _isLoadingBackend=false;
 async function loadBackendData(){
