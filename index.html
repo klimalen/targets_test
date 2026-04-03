@@ -1185,6 +1185,10 @@ function _withTimeout(query,ms){
   const timer=new Promise((_,reject)=>{tid=setTimeout(()=>{const e=new Error('Request timed out');e.name='AbortError';reject(e);},ms);});
   return Promise.race([query,timer]).finally(()=>clearTimeout(tid));
 }
+async function ensureProfile(){
+  if(!currentUser)return;
+  await sb.from('profiles').upsert({id:currentUser.id},{onConflict:'id',ignoreDuplicates:true});
+}
 let _isLoadingBackend=false;
 async function loadBackendData(){
   if(!currentUser)return;
@@ -1337,6 +1341,7 @@ async function initAuth(){
   if(currentUser&&!isRecovery){
     // Залогинен — отменяем таймер и не показываем онбординг автоматически
     cancelOnbAutoTimer();
+    await ensureProfile();
     await migrateLocalData();
     await loadBackendData();
   } else if(!isRecovery){
@@ -1362,6 +1367,7 @@ async function handleAuthChange(event,session){
     cancelOnbAutoTimer();
     closeOnboarding();
     renderHeaderAuth();
+    await ensureProfile();
     await migrateLocalData();
     await loadBackendData();
   }
