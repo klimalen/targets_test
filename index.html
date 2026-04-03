@@ -1403,6 +1403,9 @@ function authErrorText(error){
 ============================================================ */
 function renderHeaderAuth(){
   const el=document.getElementById('headerAuth');
+  const clearBtn=document.getElementById('clearDataBtn');
+  if(clearBtn)clearBtn.style.display=currentUser?'none':'';
+
   if(currentUser){
     el.innerHTML=`
       ${isSyncing
