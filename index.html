@@ -1382,7 +1382,7 @@ async function initAuth(){
     const msg=errDesc.toLowerCase().includes('expired')?'Ссылка для сброса пароля устарела. Запросите новую.':'Ссылка недействительна. Запросите новую.';
     const local=loadLocalState();
     state.habits=local.habits||[];state.completions=local.completions||{};state.celebrations=local.celebrations||{};
-    renderHeaderAuth();render();
+    renderHeaderAuth();render();hideSkeleton();
     // Пользователь не залогинен — запускаем таймер онбординга
     _onbAuthResolved = true;
     scheduleOnboardingIfNeeded();
@@ -1416,6 +1416,7 @@ async function initAuth(){
     scheduleOnboardingIfNeeded();
   }
 
+  hideSkeleton();
   renderHeaderAuth();
   sb.auth.onAuthStateChange(handleAuthChange);
 }
@@ -2149,7 +2150,7 @@ function renderWelcomeBanner(){
    RENDER
 ============================================================ */
 function hideSkeleton(){const s=document.getElementById('skeleton');if(s&&!s.classList.contains('sk-hidden'))s.classList.add('sk-hidden');}
-function render(){hideSkeleton();renderQS();renderHabits();renderFilter();renderCalendar();renderWelcomeBanner();renderInlineStats();renderStatsPanel();}
+function render(){renderQS();renderHabits();renderFilter();renderCalendar();renderWelcomeBanner();renderInlineStats();renderStatsPanel();}
 
 const QS_DATA=[
   {icon:'🎯',label:'Привычки',tip:'Количество активных привычек, которые вы сейчас отслеживаете.'},
