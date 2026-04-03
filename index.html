@@ -1041,8 +1041,7 @@ const TERMS_URL=URL.createObjectURL(_termsBlob);
   const manifest={name:'Календарь Привычек',short_name:'Habits',start_url:window.location.href,scope:window.location.origin+'/',display:'standalone',background_color:'#0f0f13',theme_color:'#7c6af7',lang:'ru',icons:[{src:icon,sizes:'192x192',type:'image/png',purpose:'any maskable'},{src:makeIcon(512),sizes:'512x512',type:'image/png',purpose:'any maskable'}]};
   const mBlob=new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
   document.getElementById('pwa-manifest').href=URL.createObjectURL(mBlob);
-  const swCode=`var CACHE="habits-v3";self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>c.add(location.href).catch(()=>{})).then(()=>self.skipWaiting()))});self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});self.addEventListener("fetch",e=>{if(e.request.method!=="GET"||e.request.url.startsWith("chrome-extension://")||e.request.url.startsWith("blob:"))return;e.respondWith(caches.match(e.request).then(cached=>{const fresh=fetch(e.request.clone()).then(r=>{if(r&&r.status===200)caches.open(CACHE).then(c=>c.put(e.request,r.clone()));return r;}).catch(()=>caches.match(location.href));return cached||fresh;}));});`;
-  if('serviceWorker' in navigator){const swBlob=new Blob([swCode],{type:'application/javascript'});navigator.serviceWorker.register(URL.createObjectURL(swBlob),{scope:'./'}).catch(()=>{});}
+  if('serviceWorker' in navigator){navigator.serviceWorker.register('./sw.js',{scope:'./'}).catch(()=>{});}
   window._pwaPrompt=null;
   window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();window._pwaPrompt=e;window.dispatchEvent(new CustomEvent('pwa-installable'));});
   window.addEventListener('appinstalled',()=>{window._pwaPrompt=null;window.dispatchEvent(new CustomEvent('pwa-installed'));});
@@ -1187,6 +1186,9 @@ async function loadBackendData(){
   if(_isLoadingBackend)return;
   _isLoadingBackend=true;
   setSyncing(true);
+  const _prevHabits=state.habits;
+  const _prevCompletions=state.completions;
+  const _prevCelebrations=state.celebrations;
   try{
     const{data:habits,error:hErr}=await sb.from('habits').select('*').eq('user_id',currentUser.id).eq('is_archived',false).order('sort_order',{ascending:true}).order('created_at',{ascending:true});
     if(hErr)throw hErr;
@@ -1195,11 +1197,19 @@ async function loadBackendData(){
     const{data:comps,error:cErr}=await sb.from('completions').select('habit_id,date').in('habit_id',habits.map(h=>h.id)).gte('date',dkd(since));
     if(cErr)throw cErr;
     const{data:profile}=await sb.from('profiles').select('celebrations').eq('id',currentUser.id).single();
-    state.habits=habits.map(h=>({id:h.local_id,_backendId:h.id,name:h.name,emoji:h.emoji,color:h.color,goal:(h.goal_type&&h.goal_value)?{type:h.goal_type,value:h.goal_value}:null,createdAt:new Date(h.created_at).getTime()}));
-    state.completions={};
-    for(const c of(comps||[])){const h=habits.find(x=>x.id===c.habit_id);if(!h)continue;const dk=c.date;if(!state.completions[dk])state.completions[dk]={};state.completions[dk][h.local_id]=true;}
-    state.celebrations=(profile&&profile.celebrations)?profile.celebrations:{};
-  }catch(e){console.error('[habits] loadBackendData',e);showToast('Не удалось загрузить данные с сервера','error');}
+    const newHabits=habits.map(h=>({id:h.local_id,_backendId:h.id,name:h.name,emoji:h.emoji,color:h.color,goal:(h.goal_type&&h.goal_value)?{type:h.goal_type,value:h.goal_value}:null,createdAt:new Date(h.created_at).getTime()}));
+    const newCompletions={};
+    for(const c of(comps||[])){const h=habits.find(x=>x.id===c.habit_id);if(!h)continue;const dk=c.date;if(!newCompletions[dk])newCompletions[dk]={};newCompletions[dk][h.local_id]=true;}
+    const newCelebrations=(profile&&profile.celebrations)?profile.celebrations:{};
+    state.habits=newHabits;
+    state.completions=newCompletions;
+    state.celebrations=newCelebrations;
+  }catch(e){
+    state.habits=_prevHabits;
+    state.completions=_prevCompletions;
+    state.celebrations=_prevCelebrations;
+    console.error('[habits] loadBackendData',e);showToast('Не удалось загрузить данные с сервера','error');
+  }
   finally{setSyncing(false);_isLoadingBackend=false;}
   render();
 }
