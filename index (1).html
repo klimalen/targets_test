@@ -1181,8 +1181,11 @@ function saveState(){if(!currentUser)saveLocalState();}
 /* ============================================================
    SUPABASE DATA LAYER
 ============================================================ */
+let _isLoadingBackend=false;
 async function loadBackendData(){
   if(!currentUser)return;
+  if(_isLoadingBackend)return;
+  _isLoadingBackend=true;
   setSyncing(true);
   try{
     const{data:habits,error:hErr}=await sb.from('habits').select('*').eq('user_id',currentUser.id).eq('is_archived',false).order('sort_order',{ascending:true}).order('created_at',{ascending:true});
@@ -1197,7 +1200,7 @@ async function loadBackendData(){
     for(const c of(comps||[])){const h=habits.find(x=>x.id===c.habit_id);if(!h)continue;const dk=c.date;if(!state.completions[dk])state.completions[dk]={};state.completions[dk][h.local_id]=true;}
     state.celebrations=(profile&&profile.celebrations)?profile.celebrations:{};
   }catch(e){console.error('[habits] loadBackendData',e);showToast('Не удалось загрузить данные с сервера','error');}
-  finally{setSyncing(false);}
+  finally{setSyncing(false);_isLoadingBackend=false;}
   render();
 }
 
@@ -1325,7 +1328,6 @@ async function initAuth(){
 }
 
 async function handleAuthChange(event,session){
-  console.log('[habits] auth event:',event);
   const prevUser=currentUser;
   currentUser=session?.user||null;
 
@@ -1341,7 +1343,6 @@ async function handleAuthChange(event,session){
     renderHeaderAuth();
     await migrateLocalData();
     await loadBackendData();
-    render();
   }
   if(event==='SIGNED_OUT'){
     currentUser=null;
