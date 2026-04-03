@@ -33,6 +33,7 @@
 <link id="favicon" rel="icon" type="image/png">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script>if(typeof supabase==='undefined')document.write('<script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js"><\/script>')</script>
 
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -742,6 +743,8 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 </style>
 </head>
 <body>
+<noscript><div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0f0f13;color:#e8e8f0;font-family:system-ui;text-align:center;padding:40px 20px"><div><div style="font-size:3rem;margin-bottom:16px">⚠️</div><h2 style="margin:0 0 12px">Включите JavaScript</h2><p style="color:#9090a8;margin:0">Это приложение работает только с включённым JavaScript.</p></div></div></noscript>
+<div id="crash-banner" style="display:none;position:fixed;inset:0;background:#0f0f13;z-index:9999;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px 20px;font-family:'Segoe UI',system-ui,sans-serif;color:#e8e8f0"><div style="font-size:3rem;margin-bottom:16px">⚠️</div><h2 style="margin:0 0 12px;font-size:1.15rem;font-weight:700">Не удалось загрузить приложение</h2><p style="color:#9090a8;margin:0 0 24px;line-height:1.55;max-width:340px">Проверьте интернет-соединение и обновите страницу. Если проблема повторяется — очистите кэш браузера (Ctrl+Shift+R).</p><button onclick="location.reload()" style="padding:10px 22px;background:#7c6af7;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;font-weight:600">Обновить страницу</button></div>
 <div id="app">
 <header>
   <div style="display:flex;align-items:center;gap:10px">
@@ -961,7 +964,7 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
       </div>
 
       <button class="onb-cta" id="onbCtaBtn">
-        ✨ Добавить первую привычку
+        ✨ Добавить привычку
       </button>
     </div>
   </div>
@@ -981,6 +984,13 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 
 <script>
 'use strict';
+
+/* ============================================================
+   CRASH GUARD
+============================================================ */
+function _showCrashBanner(){var b=document.getElementById('crash-banner');if(b)b.style.display='flex';}
+window.onerror=function(){_showCrashBanner();};
+if(typeof supabase==='undefined'){_showCrashBanner();throw new Error('Supabase SDK not loaded');}
 
 /* ============================================================
    SUPABASE
@@ -1303,8 +1313,8 @@ async function initAuth(){
   if(currentUser&&!isRecovery){
     // Залогинен — отменяем таймер и не показываем онбординг автоматически
     cancelOnbAutoTimer();
+    await migrateLocalData();
     await loadBackendData();
-    migrateLocalData().then(()=>loadBackendData());
   } else if(!isRecovery){
     // Не залогинен — запускаем таймер
     scheduleOnboardingIfNeeded();
