@@ -1132,7 +1132,7 @@ const GL_FULL={week:'за неделю',month:'за месяц',year:'за го�
 ============================================================ */
 let state={habits:[],completions:{},celebrations:{}};
 let currentUser=null;
-let currentView='month';
+let currentView=(function(){try{const v=localStorage.getItem('habitcal_view');return(v==='week'||v==='year')?v:'month';}catch(e){return'month';}})();
 let currentDate=new Date();
 let activeFilters=null;
 let ssView='month';
@@ -1724,7 +1724,7 @@ function openSettingsModal(){
       </div>
     </div>
     <div class="settings-footer">
-      Версия 2.5. <a href="#" id="settingsFeedbackLink">Связаться</a>
+      Версия 2.4. <a href="#" id="settingsFeedbackLink">Связаться</a>
     </div>`,
     {formMode: true, title: '⚙️ Настройки'}
   );
@@ -2185,6 +2185,7 @@ function calTitleStr(view,date){
 }
 
 function renderCalendar(){
+  ['vswDesktop','vswMobile'].forEach(id=>{const sw=document.getElementById(id);if(!sw)return;sw.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===currentView));});
   document.getElementById('calTitle').textContent=calTitleStr(currentView,currentDate);
   const body=document.getElementById('calendar-body');
   if(currentView==='month')body.innerHTML=renderMonth(currentDate);
@@ -2419,6 +2420,7 @@ function navigate(dir){
 }
 function setView(v){
   currentView=v;
+  try{localStorage.setItem('habitcal_view',v);}catch(e){}
   ['vswDesktop','vswMobile'].forEach(id=>{const sw=document.getElementById(id);if(!sw)return;sw.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===v));});
   render();
 }
