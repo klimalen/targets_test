@@ -2297,47 +2297,7 @@ function closeModal(){
   if(window.visualViewport&&window._modalVPListener){window.visualViewport.removeEventListener('resize',window._modalVPListener);window._modalVPListener=null;}
 }
 
-/* ============================================================
-   ONBOARDING
-============================================================ */
-const ONB_KEY='habits_onboarding_shown';
-let _onbAutoTimer=null;
 
-function isOnboardingShown(){return!!localStorage.getItem(ONB_KEY);}
-function markOnboardingShown(){localStorage.setItem(ONB_KEY,'1');}
-
-function openOnboarding(){
-  const overlay=document.getElementById('onboarding-overlay');
-  if(overlay.classList.contains('open'))return;
-  overlay.classList.add('open');
-  // Блокируем скролл body на мобильных
-  document.body.style.overflow='hidden';
-  setTimeout(()=>document.getElementById('onbCloseBtn')?.focus(),320);
-  try{ym(108360901,'reachGoal','onboarding_open');}catch(e){}
-}
-
-function closeOnboarding(){
-  const overlay=document.getElementById('onboarding-overlay');
-  overlay.classList.remove('open');
-  document.body.style.overflow='';
-  markOnboardingShown();
-}
-
-function cancelOnbAutoTimer(){
-  if(_onbAutoTimer!==null){clearTimeout(_onbAutoTimer);_onbAutoTimer=null;}
-}
-
-function scheduleOnboardingIfNeeded(){
-  if(isOnboardingShown())return;
-  if(currentUser)return;
-  cancelOnbAutoTimer();
-  _onbAutoTimer=setTimeout(()=>{
-    _onbAutoTimer=null;
-    if(currentUser)return;
-    if(document.getElementById('modalOverlay').classList.contains('open'))return;
-    openOnboarding();
-  },4000);
-}
 
 /* ============================================================
    NAVIGATION
