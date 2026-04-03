@@ -52,7 +52,8 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(
 
 #app{display:flex;flex-direction:column;min-height:100vh}
 header{height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100;gap:12px;flex-shrink:0}
-.logo{font-size:1.15rem;font-weight:700;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.logo{font-size:1.15rem;font-weight:700;display:flex;align-items:center;gap:8px;white-space:nowrap;cursor:pointer;user-select:none;transition:opacity var(--tr)}
+.logo:hover{opacity:.85}
 .logo span{color:var(--accent)}
 .menu-toggle{display:none;background:none;border:none;color:var(--text);font-size:1.3rem;cursor:pointer;padding:4px}
 .main-content{display:flex;flex:1;overflow:hidden}
@@ -308,21 +309,19 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .modal-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap}
 
 /* ── FULLSCREEN MODAL для форм на мобильных ── */
-/* Активируется классом .modal-overlay.form-mode на мобильных */
 @media(max-width:768px){
   .modal-overlay.form-mode{
-    align-items:flex-start;  /* прижимаем к верху */
+    align-items:flex-start;
     padding:0;
   }
   .modal-overlay.form-mode .modal{
-    border-radius:0;           /* полный экран — нет скруглений */
-    height:100%;               /* занимаем весь экран */
+    border-radius:0;
+    height:100%;
     max-height:100%;
-    transform:translateY(-100%); /* появляется сверху вниз */
+    transform:translateY(-100%);
   }
   .modal-overlay.form-mode.open .modal{transform:translateY(0)}
   .modal-overlay.form-mode .modal-handle{display:none}
-  /* Шапка формы с кнопкой закрытия */
   .modal-form-header{
     display:flex;align-items:center;justify-content:space-between;
     padding:14px 18px;
@@ -340,12 +339,10 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
     transition:all var(--tr);font-family:inherit;
   }
   .modal-form-close:hover{border-color:var(--accent);color:var(--accent)}
-  /* Прячем обычный заголовок внутри body когда есть form-header */
   .modal-overlay.form-mode .modal-body .modal-title{display:none}
 }
-/* На десктопе — центрированная модалка как обычно */
 @media(min-width:769px){
-  .modal-form-header{display:none} /* заголовок рендерится внутри body */
+  .modal-form-header{display:none}
 }
 
 /* AUTH MODAL */
@@ -397,7 +394,6 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .settings-danger-zone{border:1px solid rgba(247,95,107,.2);border-radius:var(--rs);padding:12px 14px}
 .settings-danger-title{font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--red);margin-bottom:8px}
 .settings-danger-desc{font-size:.76rem;color:var(--text2);margin-bottom:10px;line-height:1.45}
-/* Футер настроек */
 .settings-footer{
   margin-top:22px;padding-top:16px;
   border-top:1px solid var(--border);
@@ -484,6 +480,226 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .tog-check{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:transparent;transition:all var(--tr);flex-shrink:0}
 .day-toggle.checked .tog-check{background:var(--green);border-color:var(--green);color:#fff}
 
+/* ============================================================
+   ONBOARDING MODAL
+============================================================ */
+#onboarding-overlay{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.7);
+  backdrop-filter:blur(6px);
+  -webkit-backdrop-filter:blur(6px);
+  z-index:2500;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:16px;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .28s ease;
+}
+#onboarding-overlay.open{
+  opacity:1;
+  pointer-events:all;
+}
+.onb-card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:20px;
+  width:100%;
+  max-width:440px;
+  max-height:calc(100vh - 40px);
+  overflow-y:auto;
+  box-shadow:0 24px 64px rgba(0,0,0,.7),0 0 0 1px rgba(124,106,247,.15);
+  position:relative;
+  transform:translateY(24px) scale(.97);
+  transition:transform .3s cubic-bezier(.34,1.2,.64,1);
+  -webkit-overflow-scrolling:touch;
+}
+#onboarding-overlay.open .onb-card{
+  transform:translateY(0) scale(1);
+}
+.onb-close{
+  position:absolute;
+  top:14px;right:14px;
+  width:32px;height:32px;
+  border-radius:8px;
+  border:1px solid var(--border);
+  background:var(--bg3);
+  color:var(--text2);
+  font-size:1rem;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all var(--tr);
+  z-index:2;
+  line-height:1;
+  font-family:inherit;
+}
+.onb-close:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+  background:var(--glow);
+}
+.onb-body{
+  padding:32px 28px 28px;
+}
+.onb-hero{
+  text-align:center;
+  margin-bottom:24px;
+}
+.onb-emoji{
+  font-size:3.2rem;
+  display:block;
+  margin-bottom:12px;
+  animation:onbPop .5s cubic-bezier(.34,1.4,.64,1) both;
+}
+@keyframes onbPop{
+  0%{transform:scale(.5) rotate(-10deg);opacity:0}
+  100%{transform:scale(1) rotate(0deg);opacity:1}
+}
+.onb-title{
+  font-size:1.45rem;
+  font-weight:800;
+  color:var(--text);
+  margin-bottom:8px;
+  line-height:1.2;
+}
+.onb-title span{
+  background:linear-gradient(135deg,var(--accent),#a78bfa);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.onb-subtitle{
+  font-size:.88rem;
+  color:var(--text2);
+  line-height:1.6;
+}
+.onb-steps{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-bottom:20px;
+}
+.onb-step{
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+  padding:11px 14px;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:12px;
+  transition:border-color var(--tr);
+}
+.onb-step:hover{
+  border-color:rgba(124,106,247,.35);
+}
+.onb-step-num{
+  width:26px;height:26px;
+  border-radius:8px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;
+  font-size:.75rem;
+  font-weight:700;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  margin-top:1px;
+}
+.onb-step-text{
+  flex:1;
+}
+.onb-step-title{
+  font-size:.84rem;
+  font-weight:600;
+  color:var(--text);
+  margin-bottom:2px;
+}
+.onb-step-desc{
+  font-size:.76rem;
+  color:var(--text2);
+  line-height:1.45;
+}
+.onb-value{
+  background:linear-gradient(135deg,rgba(124,106,247,.08),rgba(124,106,247,.04));
+  border:1px solid rgba(124,106,247,.2);
+  border-radius:12px;
+  padding:13px 16px;
+  margin-bottom:22px;
+  font-size:.82rem;
+  color:var(--text2);
+  line-height:1.6;
+  text-align:center;
+}
+.onb-value strong{
+  color:var(--text);
+  display:block;
+  margin-bottom:4px;
+  font-size:.9rem;
+}
+.onb-cta{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:100%;
+  padding:14px 20px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;
+  border:none;
+  border-radius:var(--rs);
+  font-size:.95rem;
+  font-weight:700;
+  cursor:pointer;
+  transition:all var(--tr);
+  font-family:inherit;
+  box-shadow:0 4px 20px var(--glow);
+  position:relative;
+  overflow:hidden;
+}
+.onb-cta::before{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.12),transparent);
+  pointer-events:none;
+}
+.onb-cta:hover{
+  transform:translateY(-2px);
+  box-shadow:0 8px 28px var(--glow);
+}
+.onb-cta:active{
+  transform:translateY(0);
+}
+
+/* Мобильная адаптация онбординга — снизу */
+@media(max-width:540px){
+  #onboarding-overlay{
+    align-items:flex-end;
+    padding:0;
+  }
+  .onb-card{
+    max-width:100%;
+    border-radius:20px 20px 0 0;
+    max-height:92vh;
+    transform:translateY(100%);
+  }
+  #onboarding-overlay.open .onb-card{
+    transform:translateY(0);
+  }
+  /* Ручка-индикатор на мобильных */
+  .onb-card::before{
+    content:'';
+    display:block;
+    width:36px;height:4px;
+    border-radius:2px;
+    background:var(--border);
+    margin:10px auto 0;
+  }
+  .onb-body{
+    padding:20px 20px 36px;
+  }
+  .onb-emoji{font-size:2.6rem}
+  .onb-title{font-size:1.25rem}
+}
+
 /* RESPONSIVE */
 @media(max-width:1100px){#stats-panel{display:none!important}#inline-stats{display:block}}
 @media(min-width:1101px){
@@ -492,7 +708,6 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
   .modal{border-radius:var(--r);max-width:480px;transform:translateY(20px);max-height:90vh}
   .modal-overlay.open .modal{transform:translateY(0)}
   .modal-handle{display:none}
-  /* На десктопе form-mode = обычная центрированная модалка */
   .modal-overlay.form-mode{align-items:center;padding:16px}
   .modal-overlay.form-mode .modal{border-radius:var(--r);max-width:480px;height:auto;max-height:90vh;transform:translateY(20px)}
   .modal-overlay.form-mode.open .modal{transform:translateY(0)}
@@ -520,7 +735,6 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 @media(max-width:480px){
   .cal-day{min-height:46px;padding:4px}
   .day-habit-badge{width:18px;height:18px;font-size:.63rem}
-  /* На маленьких экранах — только иконка без текста */
   .hdr-sync-badge{padding:5px 7px}
   .hdr-sync-badge .sync-label{display:none}
   .hdr-sync-badge .sync-icon{font-size:1rem}
@@ -532,7 +746,7 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 <header>
   <div style="display:flex;align-items:center;gap:10px">
     <button class="menu-toggle" id="menuToggle">☰</button>
-    <div class="logo">🌿 <span>Habits</span></div>
+    <div class="logo" id="logoBtn">🌿 <span>Habits</span></div>
   </div>
   <div class="desktop-view-switcher">
     <div class="tab-switcher" id="vswDesktop">
@@ -590,7 +804,7 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
     </div>
     <div id="welcome-banner">
       <div class="wb-top-row">
-        <button class="wb-btn" id="wbAddBtn">+ Добавить первую привычку</button>
+        <button class="wb-btn" id="wbAddBtn">+ Добавить привычку</button>
         <span class="wb-emoji">🌱</span>
       </div>
       <div class="wb-title">Начните отслеживать привычки</div>
@@ -698,12 +912,58 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal" id="modalBox">
     <div class="modal-handle"></div>
-    <!-- Шапка для form-mode на мобильных (рендерится JS) -->
     <div class="modal-form-header" id="modalFormHeader" style="display:none">
       <div class="modal-form-title" id="modalFormTitle"></div>
       <button class="modal-form-close" id="modalFormCloseBtn">✕</button>
     </div>
     <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<!-- Onboarding Modal -->
+<div id="onboarding-overlay" role="dialog" aria-modal="true" aria-label="Добро пожаловать в Habits">
+  <div class="onb-card" id="onbCard">
+    <button class="onb-close" id="onbCloseBtn" aria-label="Закрыть">✕</button>
+    <div class="onb-body">
+      <div class="onb-hero">
+        <span class="onb-emoji">🌿</span>
+        <div class="onb-title">Добро пожаловать<br>в <span>Habits!</span></div>
+        <p class="onb-subtitle" style="margin-top:8px">Трекер привычек со статистикой, геймификацией, аналитикой и стриками</p>
+      </div>
+
+      <div class="onb-steps">
+        <div class="onb-step">
+          <div class="onb-step-num">1</div>
+          <div class="onb-step-text">
+            <div class="onb-step-title">Создай привычку</div>
+            <div class="onb-step-desc">Выбери название, эмодзи и задай цель — например, бегать 3 раза в неделю</div>
+          </div>
+        </div>
+        <div class="onb-step">
+          <div class="onb-step-num">2</div>
+          <div class="onb-step-text">
+            <div class="onb-step-title">Отмечай выполнение</div>
+            <div class="onb-step-desc">Нажимай на дни в календаре — и фиксируй каждое выполнение</div>
+          </div>
+        </div>
+        <div class="onb-step">
+          <div class="onb-step-num">3</div>
+          <div class="onb-step-text">
+            <div class="onb-step-title">Следи за прогрессом</div>
+            <div class="onb-step-desc">Накапливай стрики, смотри аналитику и получай достижения</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="onb-value">
+        <strong>💡 Зачем это нужно?</strong>
+        Используйте трекер, чтобы отслеживать свой прогресс, держать мотивацию и не сбиваться с пути!
+      </div>
+
+      <button class="onb-cta" id="onbCtaBtn">
+        ✨ Добавить первую привычку
+      </button>
+    </div>
   </div>
 </div>
 
@@ -804,6 +1064,102 @@ let ssView='month';
 let ssDate=new Date();
 let isSyncing=false;
 let _pendingCelebrationChecks=[];
+
+/* ============================================================
+   ONBOARDING
+============================================================ */
+const ONB_KEY = 'habits_onboarding_shown';
+let _onbAutoTimer = null;
+let _onbAuthResolved = false; // флаг: знаем ли уже статус авторизации
+
+function isOnboardingShown(){
+  return !!localStorage.getItem(ONB_KEY);
+}
+function markOnboardingShown(){
+  localStorage.setItem(ONB_KEY, '1');
+}
+
+function openOnboarding(){
+  const overlay = document.getElementById('onboarding-overlay');
+  overlay.classList.add('open');
+  // Фокус для accessibility
+  setTimeout(()=>{
+    document.getElementById('onbCloseBtn')?.focus();
+  }, 320);
+  // Трекинг
+  try{ ym(108360901,'reachGoal','onboarding_open'); }catch(e){}
+}
+
+function closeOnboarding(){
+  const overlay = document.getElementById('onboarding-overlay');
+  overlay.classList.remove('open');
+  markOnboardingShown();
+}
+
+function cancelOnbAutoTimer(){
+  if(_onbAutoTimer !== null){
+    clearTimeout(_onbAutoTimer);
+    _onbAutoTimer = null;
+  }
+}
+
+function scheduleOnboardingIfNeeded(){
+  // Не показываем если уже видел
+  if(isOnboardingShown()) return;
+  // Не показываем если залогинен
+  if(currentUser) return;
+  // Не показываем если другая модалка уже открыта
+  if(document.getElementById('modalOverlay').classList.contains('open')) return;
+  // Не показываем если уже показана (дублирующая защита)
+  if(document.getElementById('onboarding-overlay').classList.contains('open')) return;
+
+  _onbAutoTimer = setTimeout(()=>{
+    _onbAutoTimer = null;
+    // Повторные проверки перед показом
+    if(currentUser) return;
+    if(document.getElementById('onboarding-overlay').classList.contains('open')) return;
+    openOnboarding();
+  }, 2000);
+}
+
+// Инициализация онбординга: вешаем обработчики
+(function initOnboardingListeners(){
+  // Закрытие по крестику
+  document.getElementById('onbCloseBtn').addEventListener('click', closeOnboarding);
+
+  // Клик на оверлей (вне карточки)
+  document.getElementById('onboarding-overlay').addEventListener('click', function(e){
+    if(e.target === this) closeOnboarding();
+  });
+
+  // Кнопка CTA → переходим к созданию привычки
+  document.getElementById('onbCtaBtn').addEventListener('click', function(){
+    closeOnboarding();
+    // Небольшая задержка чтобы анимация закрытия успела отыграть
+    setTimeout(()=> openHabitModal(), 280);
+    try{ ym(108360901,'reachGoal','onboarding_cta_click'); }catch(e){}
+  });
+
+  // Закрытие по Escape
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape'){
+      const overlay = document.getElementById('onboarding-overlay');
+      if(overlay.classList.contains('open')){
+        e.stopImmediatePropagation();
+        closeOnboarding();
+      }
+    }
+  }, true); // capture=true чтобы перехватить раньше других
+
+  // Клик на логотип — показываем онбординг всегда
+  document.getElementById('logoBtn').addEventListener('click', function(){
+    // Отменяем авто-таймер если он ещё не сработал
+    cancelOnbAutoTimer();
+    // Если онбординг уже открыт — не делаем ничего
+    if(document.getElementById('onboarding-overlay').classList.contains('open')) return;
+    openOnboarding();
+  });
+})();
 
 /* ============================================================
    LOCAL STORAGE
@@ -922,6 +1278,9 @@ async function initAuth(){
     const local=loadLocalState();
     state.habits=local.habits||[];state.completions=local.completions||{};state.celebrations=local.celebrations||{};
     renderHeaderAuth();render();
+    // Пользователь не залогинен — запускаем таймер онбординга
+    _onbAuthResolved = true;
+    scheduleOnboardingIfNeeded();
     setTimeout(()=>{
       showToast(msg,'error');
       openAuthModal('login');
@@ -939,11 +1298,18 @@ async function initAuth(){
 
   const{data:{user}}=await sb.auth.getUser();
   currentUser=user||null;
+  _onbAuthResolved = true;
 
   if(currentUser&&!isRecovery){
+    // Залогинен — отменяем таймер и не показываем онбординг автоматически
+    cancelOnbAutoTimer();
     await loadBackendData();
     migrateLocalData().then(()=>loadBackendData());
+  } else if(!isRecovery){
+    // Не залогинен — запускаем таймер
+    scheduleOnboardingIfNeeded();
   }
+
   renderHeaderAuth();
   sb.auth.onAuthStateChange(handleAuthChange);
 }
@@ -959,6 +1325,9 @@ async function handleAuthChange(event,session){
     return;
   }
   if(event==='SIGNED_IN'&&!prevUser){
+    // Пользователь залогинился — отменяем таймер онбординга и закрываем если открыт
+    cancelOnbAutoTimer();
+    closeOnboarding();
     renderHeaderAuth();
     await migrateLocalData();
     await loadBackendData();
@@ -969,6 +1338,7 @@ async function handleAuthChange(event,session){
     const local=loadLocalState();
     state.habits=local.habits||[];state.completions=local.completions||{};state.celebrations=local.celebrations||{};
     activeFilters=null;renderHeaderAuth();render();
+    // После выхода — не показываем онбординг автоматически (уже видел)
   }
   if(event==='TOKEN_REFRESHED'||event==='USER_UPDATED')currentUser=session?.user||null;
 }
@@ -1077,7 +1447,6 @@ function openAuthModal(initialMode='login'){
       </div>
     </div>`;
 
-  // Auth-форма открывается как fullscreen на мобильных
   const title = initialMode==='login' ? 'Войти' : 'Регистрация';
   openModal(html, {formMode: true, title});
 
@@ -1096,7 +1465,6 @@ function openAuthModal(initialMode='login'){
     const pw=document.getElementById('authPassword');
     if(pw){pw.placeholder=m==='register'?'Минимум 6 символов':'Ваш пароль';pw.autocomplete=m==='register'?'new-password':'current-password';}
     document.getElementById('authBtnText').textContent=m==='login'?'Войти':'Создать аккаунт';
-    // Обновляем заголовок шапки на мобильных
     const fh=document.getElementById('modalFormTitle');
     if(fh)fh.textContent=m==='login'?'Войти':'Регистрация';
     hideAuthError();
@@ -1235,7 +1603,6 @@ function openSettingsModal(){
         <span>Ваши привычки автоматически синхронизируются между всеми устройствами, где вы вошли в аккаунт.</span>
       </div>
     </div>
-    ${ /* СТАТИСТИКА — скрыто */ ''}
     <div class="settings-section">
       <div class="settings-section-title">Аккаунт</div>
       <button class="btn btn-secondary btn-full" id="settingsChangePwBtn" style="margin-bottom:8px">🔑 Сменить пароль</button>
@@ -1525,9 +1892,6 @@ function buildHeatmap(type,ref){
 /* ============================================================
    STATS HTML
 ============================================================ */
-/* ============================================================
-   ANALYTICS HELPERS
-============================================================ */
 const DOW_FULL=['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье'];
 
 function bestDayOfWeek(){
@@ -1582,10 +1946,8 @@ function getUserRank(){
   const today=new Date();today.setHours(0,0,0,0);
   let done=0,expected=0;
   for(const hb of state.habits){
-    // Сколько дней привычка существует (но не более 28)
     const created=new Date(hb.createdAt||0);created.setHours(0,0,0,0);
     const ageDays=Math.min(28,Math.max(1,Math.floor((today-created)/(86400000))+1));
-    // Считаем выполнения за этот период
     let hDone=0;
     for(let i=0;i<ageDays;i++){
       const d=new Date(today);d.setDate(today.getDate()-i);
@@ -1593,7 +1955,6 @@ function getUserRank(){
       if(state.completions[k]&&state.completions[k][hb.id])hDone++;
     }
     done+=hDone;
-    // Ожидаемое количество с учётом цели
     if(hb.goal){
       const g=hb.goal;
       let perDay;
@@ -1618,23 +1979,19 @@ function buildStatsHTML(type,ref,desktopOrder){
   if(!state.habits.length)return`<div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-title">Нет данных</div><div class="empty-state-desc">Добавьте привычки, чтобы видеть статистику</div><button class="first-habit-btn" onclick="closeStatsScreen();openHabitModal()">🌱 Создать первую привычку</button></div>`;
   const pLabel=type==='week'?'неделю':type==='month'?'месяц':'год';
 
-  // Блок «За период»
   let periodBlock='';
   periodBlock+=`<div class="stat-card"><div class="stat-card-title">✅ За ${pLabel}</div>`;
   state.habits.forEach(hb=>{const done=periodStats(hb.id,type,ref);const goal=goalForPeriod(hb,type);const pct=goal?Math.min(100,Math.round(done/goal*100)):null;const fc=pct!==null?(pct<50?'r':pct<80?'y':'g'):'g';const streak=calcStreak(hb.id);periodBlock+=`<div class="stat-habit-item"><div class="stat-habit-top"><div class="stat-habit-name"><div style="width:22px;height:22px;border-radius:6px;background:${hb.color}33;display:flex;align-items:center;justify-content:center;font-size:.8rem">${hb.emoji}</div>${esc(hb.name)}</div><div style="display:flex;align-items:center;gap:5px">${streak.current>=2?`<span class="streak-badge">🔥${streak.current}</span>`:''}<span class="stat-habit-count">${done}${goal?'/'+goal:''}</span></div></div>${goal?`<div class="pb-wrap"><div class="pb-fill ${fc}" style="width:${pct}%"></div></div><div class="stat-pct">${pct}%</div>`:''}</div>`;});
   periodBlock+=`</div>`;
 
-  // Блок «Стрики»
   let streakBlock='';
   streakBlock+=`<div class="stat-card"><div class="stat-card-title">🔥 Стрики</div>`;
   state.habits.forEach(hb=>{const s=calcStreak(hb.id);streakBlock+=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px"><div style="display:flex;align-items:center;gap:6px;font-size:.81rem">${hb.emoji} ${esc(hb.name)}</div><div style="display:flex;gap:8px;font-size:.75rem"><span>🔥 ${s.current}</span><span style="color:var(--yellow)">⭐ ${s.max}</span></div></div>`;});
   streakBlock+=`<div class="streak-legend"><strong>🔥 Текущая серия</strong> — сколько дней подряд вы выполняете привычку прямо сейчас.<br><strong>⭐ Максимальная серия</strong> — самая длинная непрерывная серия за всё время.</div></div>`;
 
-  // Блок «Тепловая карта»
   const hmLabel=type==='week'?'неделя':type==='month'?'месяц':`${ref.getFullYear()} год`;
   let heatmapBlock=`<div class="stat-card"><div class="stat-card-title">🗓 Тепловая карта — ${hmLabel}</div><div class="heatmap-wrap">${buildHeatmap(type,ref)}</div><div class="hm-legend">Меньше <div style="display:flex;gap:2px">${['','lv1','lv2','lv3','lv4'].map(l=>`<div class="hm-cell ${l}" style="position:static"></div>`).join('')}</div> Больше</div></div>`;
 
-  // Блок «Аналитика»
   let analyticsBlock='';
   const bd=bestDayOfWeek();
   const ms=mostStableHabit();
@@ -1667,8 +2024,6 @@ function buildStatsHTML(type,ref,desktopOrder){
     analyticsBlock+=`</div>`;
   }
 
-  // Десктоп: Аналитика → За период → Стрики → Тепловая карта
-  // Мобильный: За период → Стрики → Тепловая карта → Аналитика
   if(desktopOrder) return analyticsBlock+periodBlock+streakBlock+heatmapBlock;
   return periodBlock+streakBlock+heatmapBlock+analyticsBlock;
 }
@@ -1754,6 +2109,7 @@ function renderYear(ref){
   for(let m=0;m<12;m++)h+=`<div class="year-month-card"><div class="year-month-title">${MONTHS[m]}</div><div class="mini-month-grid">${DOW.map(d=>`<div class="mini-dow">${d[0]}</div>`).join('')}${renderMiniMonth(y,m)}</div></div>`;
   h+=`</div>`;return h;
 }
+
 function renderMiniMonth(y,m){
   const first=new Date(y,m,1),last=new Date(y,m+1,0);const sdow=(first.getDay()+6)%7;let h='';
   for(let i=0;i<sdow;i++)h+=`<div class="mini-day empty"></div>`;
@@ -1806,7 +2162,6 @@ function openDayModal(date){
   const dateStr=`${date.getDate()} ${MGEN[date.getMonth()]} ${date.getFullYear()}`;
   const mkList=()=>state.habits.map(hb=>{const done=getDone(hb.id,key);return`<div class="day-toggle ${done?'checked':''}" data-hid="${hb.id}"><div class="tog-emoji" style="background:${hb.color}22">${hb.emoji}</div><div class="tog-name">${esc(hb.name)}</div><div class="tog-check">${done?'✓':''}</div></div>`;}).join('');
   const emptyBlock=`<div class="empty-state"><div class="empty-state-icon">🌱</div><div class="empty-state-title">Нет привычек</div><div class="empty-state-desc">Создайте первую привычку — и начните отмечать!</div><button class="first-habit-btn" onclick="closeModal();openHabitModal()">🌱 Создать первую привычку</button></div>`;
-  // День — bottom sheet (нет полей ввода)
   openModal(`<div class="modal-title">📅 ${dateStr}</div>${!state.habits.length?emptyBlock:`<div class="day-habit-list" id="dayList">${mkList()}</div>`}<div class="modal-actions" id="dayActions">${(state.habits.length&&dayDone(key).length)?`<button class="btn btn-secondary btn-sm" id="clearDayBtn">Очистить день</button>`:''}<button class="btn btn-primary btn-sm" id="dayDoneBtn">Готово</button></div>`);
   if(state.habits.length){attachDayToggles(key,mkList);const cb=document.getElementById('clearDayBtn');if(cb)cb.addEventListener('click',()=>clearDay(key,mkList));}
   document.getElementById('dayDoneBtn').addEventListener('click',()=>{closeModal();setTimeout(flushCelebrations,300);});
@@ -1848,17 +2203,13 @@ function updClearBtn(key,mkList){
 ============================================================ */
 let editId=null,selEmoji='🏃',selColor=COLORS[0];
 
-  function openHabitModal(hid=null){
-  // МЕТРИКА: открытие формы создания/редактирования
-  if(!hid) ym(108360901, 'reachGoal', 'habit_form_open');
-  
+function openHabitModal(hid=null){
+  if(!hid) try{ym(108360901,'reachGoal','habit_form_open');}catch(e){}
   editId=hid;
-
   const h=hid?state.habits.find(x=>x.id===hid):null;
   selEmoji=h?h.emoji:'🏃';selColor=h?h.color:COLORS[0];
   const gt=h&&h.goal?h.goal.type:'week';const gv=h&&h.goal?h.goal.value:'';
   const title=h?'Редактировать привычку':'Новая привычка';
-
   openModal(`
     <div class="modal-title">${h?'✏️ Редактировать':'➕ Новая привычка'}</div>
     <div class="form-group"><label class="form-label">Название</label><input class="form-input" id="hName" placeholder="Например: Бег" maxlength="40" value="${h?esc(h.name):''}" inputmode="text" autocomplete="off" enterkeyhint="done"></div>
@@ -1866,9 +2217,8 @@ let editId=null,selEmoji='🏃',selColor=COLORS[0];
     <div class="form-group"><label class="form-label">Цвет</label><div class="color-row">${COLORS.map(c=>`<div class="color-option ${c===selColor?'selected':''}" data-c="${c}" style="background:${c}"></div>`).join('')}</div></div>
     <div class="form-group"><label class="form-label">Цель (необязательно)</label><div class="goal-inline"><input class="form-input" id="gVal" type="number" inputmode="numeric" min="1" max="365" placeholder="—" value="${gv}"><span style="color:var(--text2);font-size:.81rem">раз в</span><select class="form-select" id="gType"><option value="week" ${gt==='week'?'selected':''}>Неделю</option><option value="month" ${gt==='month'?'selected':''}>Месяц</option><option value="year" ${gt==='year'?'selected':''}>Год</option></select></div></div>
     <div class="modal-actions">${h?`<button class="btn btn-danger btn-sm" id="delHabitBtn" type="button">Удалить</button>`:''}<button class="btn btn-ghost btn-sm" onclick="closeModal()" type="button">Отмена</button><button class="btn btn-primary btn-sm" id="saveHabitBtn" type="button">${h?'Сохранить':'Создать'}</button></div>`,
-    {formMode: true, title}
+    {formMode:true,title}
   );
-
   document.querySelectorAll('.emoji-option').forEach(b=>{b.addEventListener('click',()=>{selEmoji=b.dataset.e;document.getElementById('ePrev').textContent=selEmoji;document.querySelectorAll('.emoji-option').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');});});
   document.querySelectorAll('.color-option').forEach(el=>{el.addEventListener('click',()=>{selColor=el.dataset.c;document.querySelectorAll('.color-option').forEach(x=>x.classList.remove('selected'));el.classList.add('selected');});});
   document.getElementById('saveHabitBtn').addEventListener('click',saveHabit);
@@ -1885,7 +2235,7 @@ async function saveHabit(){
   const gt=document.getElementById('gType').value;
   const goal=gv>0?{type:gt,value:gv}:null;
   if(editId){const h=state.habits.find(x=>x.id===editId);if(h)Object.assign(h,{name,emoji:selEmoji,color:selColor,goal});if(currentUser)await upsertHabitBackend(h).catch(e=>console.error(e));showToast('Привычка обновлена','success');}
-  else{const nh={id:'h_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),name,emoji:selEmoji,color:selColor,goal,createdAt:Date.now()};state.habits.push(nh);if(currentUser)await upsertHabitBackend(nh).catch(e=>console.error(e));ym(108360901,'reachGoal','habit_created',{has_goal:goal?1:0,habits_total:state.habits.length});showToast('Привычка добавлена 🎉','success');}
+  else{const nh={id:'h_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),name,emoji:selEmoji,color:selColor,goal,createdAt:Date.now()};state.habits.push(nh);if(currentUser)await upsertHabitBackend(nh).catch(e=>console.error(e));try{ym(108360901,'reachGoal','habit_created',{has_goal:goal?1:0,habits_total:state.habits.length});}catch(e){}showToast('Привычка добавлена 🎉','success');}
   if(!currentUser)saveLocalState();
   closeModal();render();
 }
@@ -1900,80 +2250,54 @@ async function deleteHabit(id){
 }
 
 function openConfirm(title,text,onOk){
-  // Подтверждение — bottom sheet, нет ввода
   openModal(`<div class="modal-title">⚠️ ${title}</div><p class="confirm-text">${text}</p><div class="modal-actions"><button class="btn btn-ghost btn-sm" onclick="closeModal()">Отмена</button><button class="btn btn-danger btn-sm" id="confOk">Подтвердить</button></div>`);
   document.getElementById('confOk').addEventListener('click',()=>{closeModal();onOk();});
 }
 
 /* ============================================================
-   MODAL — единая функция с поддержкой form-mode
-   options: { formMode: bool, title: string }
+   MODAL
 ============================================================ */
-function openModal(html, options={}){
-  const overlay = document.getElementById('modalOverlay');
-  const modal   = document.getElementById('modalBox');
-  const header  = document.getElementById('modalFormHeader');
-  const hTitle  = document.getElementById('modalFormTitle');
-  const hClose  = document.getElementById('modalFormCloseBtn');
-
-  document.getElementById('modalBody').innerHTML = html;
-
-  const useFormMode = options.formMode && isMobile();
-
+function openModal(html,options={}){
+  const overlay=document.getElementById('modalOverlay');
+  const modal=document.getElementById('modalBox');
+  const header=document.getElementById('modalFormHeader');
+  const hTitle=document.getElementById('modalFormTitle');
+  const hClose=document.getElementById('modalFormCloseBtn');
+  document.getElementById('modalBody').innerHTML=html;
+  const useFormMode=options.formMode&&isMobile();
   if(useFormMode){
     overlay.classList.add('form-mode');
-    // Показываем шапку с заголовком и кнопкой закрытия
-    hTitle.textContent = options.title || '';
-    header.style.display = 'flex';
-  } else {
+    hTitle.textContent=options.title||'';
+    header.style.display='flex';
+  }else{
     overlay.classList.remove('form-mode');
-    header.style.display = 'none';
+    header.style.display='none';
   }
-
   overlay.classList.add('open');
-
-  // Высота модалки
   function setH(){
-    if(useFormMode){
-      // fullscreen — высота задаётся через CSS height:100%
-      modal.style.maxHeight = '';
-    } else if(isMobile()){
-      const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-      modal.style.maxHeight = Math.round(vh * 0.92) + 'px';
-    } else {
-      modal.style.maxHeight = '90vh';
-    }
+    if(useFormMode){modal.style.maxHeight='';}
+    else if(isMobile()){const vh=window.visualViewport?window.visualViewport.height:window.innerHeight;modal.style.maxHeight=Math.round(vh*0.92)+'px';}
+    else{modal.style.maxHeight='90vh';}
   }
   setH();
-  if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', setH);
-    window._modalVPListener = setH;
-  }
-
-  // Кнопка закрытия в шапке
-  const newClose = hClose.cloneNode(true);
-  hClose.parentNode.replaceChild(newClose, hClose);
-  document.getElementById('modalFormCloseBtn').addEventListener('click', closeModal);
-
-  // Фокус на первое текстовое поле (только десктоп)
+  if(window.visualViewport){window.visualViewport.addEventListener('resize',setH);window._modalVPListener=setH;}
+  const newClose=hClose.cloneNode(true);
+  hClose.parentNode.replaceChild(newClose,hClose);
+  document.getElementById('modalFormCloseBtn').addEventListener('click',closeModal);
   if(!isMobile()){
-    setTimeout(()=>{
-      const i=document.querySelector('#modalBody input[type="text"],#modalBody input[type="email"]');
-      if(i)i.focus();
-    },150);
+    setTimeout(()=>{const i=document.querySelector('#modalBody input[type="text"],#modalBody input[type="email"]');if(i)i.focus();},150);
   }
 }
 
 function closeModal(){
-  const overlay = document.getElementById('modalOverlay');
+  const overlay=document.getElementById('modalOverlay');
   overlay.classList.remove('open');
   overlay.classList.remove('form-mode');
-  document.getElementById('modalFormHeader').style.display = 'none';
-  if(window.visualViewport && window._modalVPListener){
-    window.visualViewport.removeEventListener('resize', window._modalVPListener);
-    window._modalVPListener = null;
-  }
+  document.getElementById('modalFormHeader').style.display='none';
+  if(window.visualViewport&&window._modalVPListener){window.visualViewport.removeEventListener('resize',window._modalVPListener);window._modalVPListener=null;}
 }
+
+
 
 /* ============================================================
    NAVIGATION
@@ -2049,6 +2373,40 @@ document.getElementById('statsBackBtn').addEventListener('click',closeStatsScree
 document.getElementById('fbBackBtn').addEventListener('click',closeFeedbackScreen);
 document.getElementById('fbSubmitBtn').addEventListener('click',submitFeedback);
 
+// Логотип — открывает онбординг всегда
+document.getElementById('logoBtn').addEventListener('click',()=>{
+  cancelOnbAutoTimer();
+  openOnboarding();
+});
+
+// Онбординг: крестик
+document.getElementById('onbCloseBtn').addEventListener('click',closeOnboarding);
+
+// Онбординг: клик на оверлей
+document.getElementById('onboarding-overlay').addEventListener('click',function(e){
+  if(e.target===this)closeOnboarding();
+});
+
+// Онбординг: кнопка CTA
+document.getElementById('onbCtaBtn').addEventListener('click',function(){
+  closeOnboarding();
+  setTimeout(()=>openHabitModal(),280);
+  try{ym(108360901,'reachGoal','onboarding_cta_click');}catch(e){}
+});
+
+// Онбординг: Escape (перехватываем первым через capture)
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape'){
+    const onbOverlay=document.getElementById('onboarding-overlay');
+    if(onbOverlay.classList.contains('open')){
+      e.stopImmediatePropagation();
+      closeOnboarding();
+      return;
+    }
+    closeModal();
+  }
+},true);
+
 document.getElementById('habitsList').addEventListener('click',e=>{
   const btn=e.target.closest('[data-action]');if(!btn)return;e.stopPropagation();
   const id=btn.dataset.id;const h=state.habits.find(x=>x.id===id);if(!h)return;
@@ -2080,14 +2438,12 @@ document.getElementById('clearDataBtn').addEventListener('click',()=>{
 document.getElementById('modalOverlay').addEventListener('click',e=>{
   if(e.target===document.getElementById('modalOverlay'))closeModal();
 });
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
 
 const sidebar=document.getElementById('sidebar');
 const sbBackdrop=document.getElementById('sbBackdrop');
 document.getElementById('menuToggle').addEventListener('click',()=>{sidebar.classList.toggle('open');sbBackdrop.style.display=sidebar.classList.contains('open')?'block':'none';});
 sbBackdrop.addEventListener('click',()=>{sidebar.classList.remove('open');sbBackdrop.style.display='none';});
 window.addEventListener('resize',()=>renderWelcomeBanner());
-
 /* ============================================================
    BOOT
 ============================================================ */
