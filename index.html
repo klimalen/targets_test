@@ -858,14 +858,7 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
   </div>
   <div class="sb-section" style="margin-top:auto">
     <div id="pwaSidebarSection" style="display:none;margin-bottom:8px">
-      <div class="pwa-static-block">
-        <span class="pwa-static-icon">📲</span>
-        <div class="pwa-static-info">
-          <div class="pwa-static-title">Установить приложение</div>
-          <div class="pwa-static-sub" id="pwaSidebarSub">Быстрый доступ с главного экрана</div>
-        </div>
-        <button class="pwa-static-btn" id="pwaInstallSidebarBtn">Установить</button>
-      </div>
+      <button class="btn btn-secondary btn-full btn-sm" id="pwaInstallSidebarBtn">📲 Установить приложение</button>
     </div>
     <button class="btn btn-danger btn-full btn-sm" id="clearDataBtn">🗑 Очистить все данные</button>
   </div>
@@ -2475,18 +2468,7 @@ function buildPwaSettingsHtml(){
 function updatePwaSidebarBlock(){
   const sec=document.getElementById('pwaSidebarSection');
   if(!sec)return;
-  if(!canShowPwaBlock()){sec.style.display='none';return;}
-  const isIos=window.isIOS()&&!window._pwaPrompt;
-  const sub=document.getElementById('pwaSidebarSub');
-  const btn=document.getElementById('pwaInstallSidebarBtn');
-  if(isIos){
-    if(sub)sub.textContent='Нажмите ⬆️ Поделиться → «На экран Домой»';
-    if(btn)btn.style.display='none';
-  }else{
-    if(sub)sub.textContent='Быстрый доступ с главного экрана';
-    if(btn)btn.style.display='';
-  }
-  sec.style.display='block';
+  sec.style.display=canShowPwaBlock()?'block':'none';
 }
 
 async function triggerPwaInstall(btn){
