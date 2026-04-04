@@ -4,10 +4,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#7c6af7">
-<meta name="description" content="Трекер привычек с календарём, стриками и статистикой. Работает офлайн.">
+<meta name="description" content="Бесплатный трекер привычек с календарём, стриками, статистикой и геймификацией. Отслеживайте привычки онлайн и синхронизируйтесь между устройствами.">
+<meta name="keywords" content="трекер привычек, календарь привычек, отслеживание привычек, стрики, привычки онлайн, habit tracker">
 <link rel="canonical" href="https://your-habits-calendar.vercel.app/">
 <link rel="sitemap" type="application/xml" href="/sitemap.xml">
-<title>🌿 Habits — Календарь Привычек</title>
+<title>Habits — бесплатный трекер привычек с календарём и стриками</title>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Habits — трекер привычек",
+  "url": "https://your-habits-calendar.vercel.app/",
+  "description": "Бесплатный трекер привычек с календарём, стриками, статистикой и геймификацией. Синхронизируется между устройствами.",
+  "applicationCategory": "LifestyleApplication",
+  "operatingSystem": "All",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "RUB"
+  },
+  "featureList": [
+    "Календарь привычек",
+    "Стрики и серии",
+    "Статистика и аналитика",
+    "PWA-приложение",
+    "Синхронизация между устройствами",
+    "Геймификация"
+  ],
+  "inLanguage": "ru"
+}
+</script>
 
   <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
@@ -23,9 +50,19 @@
 <noscript><div><img src="https://mc.yandex.ru/watch/108360901" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
   
-<meta property="og:title" content="🌿 Habits — Календарь Привычек">
-<meta property="og:description" content="Отслеживай привычки, строй стрики и достигай целей. Работает офлайн.">
+<meta property="og:title" content="Habits — бесплатный трекер привычек">
+<meta property="og:description" content="Отслеживайте привычки с календарём, стриками и аналитикой. Синхронизируется между устройствами.">
+<meta property="og:url" content="https://your-habits-calendar.vercel.app/">
 <meta property="og:type" content="website">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:site_name" content="Habits">
+<meta property="og:image" content="https://your-habits-calendar.vercel.app/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Habits — бесплатный трекер привычек">
+<meta name="twitter:description" content="Отслеживайте привычки с календарём, стриками и аналитикой. Синхронизируется между устройствами.">
+<meta name="twitter:image" content="https://your-habits-calendar.vercel.app/og-image.png">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -784,7 +821,21 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 </style>
 </head>
 <body>
-<noscript><div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0f0f13;color:#e8e8f0;font-family:system-ui;text-align:center;padding:40px 20px"><div><div style="font-size:3rem;margin-bottom:16px">⚠️</div><h2 style="margin:0 0 12px">Включите JavaScript</h2><p style="color:#9090a8;margin:0">Это приложение работает только с включённым JavaScript.</p></div></div></noscript>
+<noscript>
+<div style="max-width:720px;margin:60px auto;padding:0 24px;font-family:system-ui,sans-serif;color:#e8e8f0;background:#0f0f13">
+  <h1 style="font-size:2rem;margin-bottom:12px">Habits — бесплатный трекер привычек</h1>
+  <p style="color:#9090a8;font-size:1rem;line-height:1.6;margin-bottom:24px">Бесплатный трекер привычек с календарём, стриками, статистикой и геймификацией. Отслеживайте привычки онлайн и синхронизируйтесь между устройствами.</p>
+  <h2 style="font-size:1.2rem;margin-bottom:12px">Возможности</h2>
+  <ul style="color:#9090a8;line-height:2;padding-left:20px">
+    <li>Календарь привычек — отмечайте выполнение по дням</li>
+    <li>Стрики и серии — не прерывайте цепочку</li>
+    <li>Статистика и аналитика — следите за прогрессом</li>
+    <li>Геймификация — достижения и мотивация</li>
+    <li>Синхронизация между устройствами</li>
+  </ul>
+  <p style="margin-top:24px;color:#7c6af7">Для использования приложения включите JavaScript в браузере.</p>
+</div>
+</noscript>
 <div id="crash-banner" style="display:none;position:fixed;inset:0;background:#0f0f13;z-index:9999;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px 20px;font-family:'Segoe UI',system-ui,sans-serif;color:#e8e8f0"><div style="font-size:3rem;margin-bottom:16px">⚠️</div><h2 style="margin:0 0 12px;font-size:1.15rem;font-weight:700">Не удалось загрузить приложение</h2><p style="color:#9090a8;margin:0 0 24px;line-height:1.55;max-width:340px">Проверьте интернет-соединение и обновите страницу. Если проблема повторяется — очистите кэш браузера (Ctrl+Shift+R).</p><button onclick="location.reload()" style="padding:10px 22px;background:#7c6af7;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:.9rem;font-weight:600">Обновить страницу</button></div>
 <div id="app">
 <div id="skeleton" aria-hidden="true">
