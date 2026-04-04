@@ -363,6 +363,7 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .form-input.error{border-color:var(--red)}
 .form-input.habit-name-input{font-size:1.05rem;padding:12px 14px;border:1.5px solid var(--border);background:var(--bg4)}
 .form-input.habit-name-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
+@supports (-webkit-touch-callout:none){.form-input,.form-select{font-size:1rem}}
 .form-select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:9px 12px;color:var(--text);font-size:.87rem;outline:none;cursor:pointer;font-family:inherit;transition:border-color var(--tr)}
 .form-select:focus{border-color:var(--accent)}
 .auth-error{background:rgba(247,95,107,.08);border:1px solid rgba(247,95,107,.25);border-radius:var(--rs);padding:9px 12px;font-size:.8rem;color:var(--red);margin-bottom:14px;line-height:1.45;display:none}
