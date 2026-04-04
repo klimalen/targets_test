@@ -2453,7 +2453,7 @@ function showToast(msg,type='info'){
 ============================================================ */
 function canShowPwaBlock(){
   if(window.isPWAInstalled())return false;
-  return !!(window._pwaPrompt||window.isIOS());
+  return !!window._pwaPrompt;
 }
 
 function buildPwaSettingsHtml(){
