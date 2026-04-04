@@ -361,6 +361,8 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .form-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:9px 12px;color:var(--text);font-size:.87rem;outline:none;transition:border-color var(--tr);font-family:inherit}
 .form-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
 .form-input.error{border-color:var(--red)}
+.form-input.habit-name-input{font-size:1.05rem;padding:12px 14px;border:1.5px solid var(--border);background:var(--bg4)}
+.form-input.habit-name-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--glow)}
 .form-select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:9px 12px;color:var(--text);font-size:.87rem;outline:none;cursor:pointer;font-family:inherit;transition:border-color var(--tr)}
 .form-select:focus{border-color:var(--accent)}
 .auth-error{background:rgba(247,95,107,.08);border:1px solid rgba(247,95,107,.25);border-radius:var(--rs);padding:9px 12px;font-size:.8rem;color:var(--red);margin-bottom:14px;line-height:1.45;display:none}
@@ -449,6 +451,14 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
 .pwa-close{position:absolute;top:10px;right:12px;background:none;border:none;color:var(--text3);font-size:1rem;cursor:pointer;padding:2px 4px;transition:color var(--tr);line-height:1;font-family:inherit}
 .pwa-close:hover{color:var(--text)}
 .pwa-ios-hint{display:flex;align-items:flex-start;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;font-size:.76rem;color:var(--text2);line-height:1.5}
+.pwa-static-block{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:11px 12px;display:flex;align-items:center;gap:10px}
+.pwa-static-icon{font-size:1.2rem;flex-shrink:0;opacity:.8}
+.pwa-static-info{flex:1;min-width:0}
+.pwa-static-title{font-size:.8rem;font-weight:600;color:var(--text);line-height:1.2}
+.pwa-static-sub{font-size:.7rem;color:var(--text3);margin-top:2px;line-height:1.4}
+.pwa-static-btn{flex-shrink:0;padding:5px 11px;border-radius:var(--rs);border:1px solid var(--border);background:var(--bg4);color:var(--text2);font-size:.75rem;font-weight:500;cursor:pointer;transition:all var(--tr);white-space:nowrap;font-family:inherit}
+.pwa-static-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--glow)}
+.pwa-static-btn:disabled{opacity:.4;cursor:default;pointer-events:none}
 
 /* TOAST */
 #toast-wrap{position:fixed;bottom:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:7px;pointer-events:none}
@@ -847,6 +857,16 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
     <div class="filter-chips" id="filterChips"></div>
   </div>
   <div class="sb-section" style="margin-top:auto">
+    <div id="pwaSidebarSection" style="display:none;margin-bottom:8px">
+      <div class="pwa-static-block">
+        <span class="pwa-static-icon">📲</span>
+        <div class="pwa-static-info">
+          <div class="pwa-static-title">Установить приложение</div>
+          <div class="pwa-static-sub" id="pwaSidebarSub">Быстрый доступ с главного экрана</div>
+        </div>
+        <button class="pwa-static-btn" id="pwaInstallSidebarBtn">Установить</button>
+      </div>
+    </div>
     <button class="btn btn-danger btn-full btn-sm" id="clearDataBtn">🗑 Очистить все данные</button>
   </div>
 </aside>
@@ -1024,11 +1044,6 @@ header{height:54px;display:flex;align-items:center;justify-content:space-between
         </div>
       </div>
 
-      <div class="onb-value">
-        <strong>💡 Зачем это нужно?</strong>
-        Используйте трекер, чтобы отслеживать свой прогресс, держать мотивацию и не сбиваться с пути!
-      </div>
-
       <button class="onb-cta" id="onbCtaBtn">
         ✨ Добавить привычку
       </button>
@@ -1194,7 +1209,7 @@ function scheduleOnboardingIfNeeded(){
     if(currentUser) return;
     if(document.getElementById('onboarding-overlay').classList.contains('open')) return;
     openOnboarding();
-  }, 2000);
+  }, 1000);
 }
 
 // Инициализация онбординга: вешаем обработчики
@@ -1706,6 +1721,7 @@ function openSettingsModal(){
       <button class="btn btn-secondary btn-full" id="settingsChangePwBtn" style="margin-bottom:8px">🔑 Сменить пароль</button>
       <button class="btn btn-secondary btn-full" id="settingsLogoutBtn">🚪 Выйти из аккаунта</button>
     </div>
+    ${buildPwaSettingsHtml()}
     <div class="settings-section">
       <div class="settings-danger-zone">
         <div class="settings-danger-title">⚠️ Опасная зона</div>
@@ -1719,6 +1735,7 @@ function openSettingsModal(){
     {formMode: true, title: '⚙️ Настройки'}
   );
 
+  document.getElementById('pwaInstallSettingsBtn')?.addEventListener('click',function(){triggerPwaInstall(this);});
   document.getElementById('settingsChangePwBtn')?.addEventListener('click',()=>{closeModal();openChangePasswordModal();});
   document.getElementById('settingsLogoutBtn')?.addEventListener('click',async()=>{closeModal();await sb.auth.signOut();showToast('Вы вышли из аккаунта','info');});
   document.getElementById('settingsDeleteBtn')?.addEventListener('click',()=>{openConfirm('Удалить профиль?','Все ваши привычки и история выполнения будут безвозвратно удалены. Это действие нельзя отменить.',deleteUserProfile);});
@@ -2261,7 +2278,7 @@ function openDayModal(date){
   const key=dkd(date);
   const dateStr=`${date.getDate()} ${MGEN[date.getMonth()]} ${date.getFullYear()}`;
   const mkList=()=>state.habits.map(hb=>{const done=getDone(hb.id,key);return`<div class="day-toggle ${done?'checked':''}" data-hid="${hb.id}"><div class="tog-emoji" style="background:${hb.color}22">${hb.emoji}</div><div class="tog-name">${esc(hb.name)}</div><div class="tog-check">${done?'✓':''}</div></div>`;}).join('');
-  const emptyBlock=`<div class="empty-state"><div class="empty-state-icon">🌱</div><div class="empty-state-title">Нет привычек</div><div class="empty-state-desc">Создайте первую привычку — и начните отмечать!</div><button class="first-habit-btn" onclick="closeModal();openHabitModal()">🌱 Создать первую привычку</button></div>`;
+  const emptyBlock=`<div class="empty-state"><div class="empty-state-icon">🌱</div><div class="empty-state-title">Нет привычек</div><div class="empty-state-desc">Создайте первую привычку — и начните отмечать!</div><button class="first-habit-btn" onclick="closeModal();_pendingDayKey='${key}';openHabitModal()">🌱 Создать первую привычку</button></div>`;
   openModal(`<div class="modal-title">📅 ${dateStr}</div>${!state.habits.length?emptyBlock:`<div class="day-habit-list" id="dayList">${mkList()}</div>`}<div class="modal-actions" id="dayActions">${(state.habits.length&&dayDone(key).length)?`<button class="btn btn-secondary btn-sm" id="clearDayBtn">Очистить день</button>`:''}<button class="btn btn-primary btn-sm" id="dayDoneBtn">Готово</button></div>`);
   if(state.habits.length){attachDayToggles(key,mkList);const cb=document.getElementById('clearDayBtn');if(cb)cb.addEventListener('click',()=>clearDay(key,mkList));}
   document.getElementById('dayDoneBtn').addEventListener('click',()=>{closeModal();setTimeout(flushCelebrations,300);});
@@ -2301,10 +2318,11 @@ function updClearBtn(key,mkList){
 /* ============================================================
    HABIT MODAL
 ============================================================ */
-let editId=null,selEmoji='🏃',selColor=COLORS[0];
+let editId=null,selEmoji='🏃',selColor=COLORS[0],_pendingDayKey=null;
 
 function openHabitModal(hid=null){
   if(!hid) try{ym(108360901,'reachGoal','habit_form_open');}catch(e){}
+  if(hid)_pendingDayKey=null;
   editId=hid;
   const h=hid?state.habits.find(x=>x.id===hid):null;
   selEmoji=h?h.emoji:'🏃';selColor=h?h.color:COLORS[0];
@@ -2312,8 +2330,8 @@ function openHabitModal(hid=null){
   const title=h?'Редактировать привычку':'Новая привычка';
   openModal(`
     <div class="modal-title">${h?'✏️ Редактировать':'➕ Новая привычка'}</div>
-    <div class="form-group"><label class="form-label">Название</label><input class="form-input" id="hName" placeholder="Например: Бег" maxlength="40" value="${h?esc(h.name):''}" inputmode="text" autocomplete="off" enterkeyhint="done"></div>
     <div class="form-group"><label class="form-label">Эмодзи</label><div class="emoji-picker-row"><div class="emoji-preview" id="ePrev">${selEmoji}</div><div class="emoji-grid">${EMOJIS.map(e=>`<button class="emoji-option ${e===selEmoji?'selected':''}" data-e="${e}" type="button">${e}</button>`).join('')}</div></div></div>
+    <div class="form-group"><label class="form-label">Название</label><input class="form-input habit-name-input" id="hName" placeholder="Например: Бег" maxlength="40" value="${h?esc(h.name):''}" inputmode="text" autocomplete="off" enterkeyhint="done"></div>
     <div class="form-group"><label class="form-label">Цвет</label><div class="color-row">${COLORS.map(c=>`<div class="color-option ${c===selColor?'selected':''}" data-c="${c}" style="background:${c}"></div>`).join('')}</div></div>
     <div class="form-group"><label class="form-label">Цель (необязательно)</label><div class="goal-inline"><input class="form-input" id="gVal" type="number" inputmode="numeric" min="1" max="365" placeholder="—" value="${gv}"><span style="color:var(--text2);font-size:.81rem">раз в</span><select class="form-select" id="gType"><option value="week" ${gt==='week'?'selected':''}>Неделю</option><option value="month" ${gt==='month'?'selected':''}>Месяц</option><option value="year" ${gt==='year'?'selected':''}>Год</option></select></div></div>
     <div class="modal-actions">${h?`<button class="btn btn-danger btn-sm" id="delHabitBtn" type="button">Удалить</button>`:''}<button class="btn btn-ghost btn-sm" onclick="closeModal()" type="button">Отмена</button><button class="btn btn-primary btn-sm" id="saveHabitBtn" type="button">${h?'Сохранить':'Создать'}</button></div>`,
@@ -2335,7 +2353,7 @@ async function saveHabit(){
   const gt=document.getElementById('gType').value;
   const goal=gv>0?{type:gt,value:gv}:null;
   if(editId){const h=state.habits.find(x=>x.id===editId);if(h)Object.assign(h,{name,emoji:selEmoji,color:selColor,goal});if(currentUser)await upsertHabitBackend(h).catch(e=>console.error(e));showToast('Привычка обновлена','success');}
-  else{const nh={id:'h_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),name,emoji:selEmoji,color:selColor,goal,createdAt:Date.now()};state.habits.push(nh);if(currentUser)await upsertHabitBackend(nh).catch(e=>console.error(e));try{ym(108360901,'reachGoal','habit_created',{has_goal:goal?1:0,habits_total:state.habits.length});}catch(e){}showToast('Привычка добавлена 🎉','success');}
+  else{const nh={id:'h_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),name,emoji:selEmoji,color:selColor,goal,createdAt:Date.now()};state.habits.push(nh);if(currentUser)await upsertHabitBackend(nh).catch(e=>console.error(e));if(_pendingDayKey){if(!state.completions[_pendingDayKey])state.completions[_pendingDayKey]={};state.completions[_pendingDayKey][nh.id]=true;if(currentUser)toggleCompletionBackend(nh.id,_pendingDayKey,true).catch(()=>{});_pendingDayKey=null;}try{ym(108360901,'reachGoal','habit_created',{has_goal:goal?1:0,habits_total:state.habits.length});}catch(e){}showToast('Привычка добавлена 🎉','success');}
   if(!currentUser)saveLocalState();
   closeModal();render();
 }
@@ -2390,6 +2408,7 @@ function openModal(html,options={}){
 }
 
 function closeModal(){
+  _pendingDayKey=null;
   const overlay=document.getElementById('modalOverlay');
   overlay.classList.remove('open');
   overlay.classList.remove('form-mode');
@@ -2435,6 +2454,55 @@ function showToast(msg,type='info'){
   const icon=type==='success'?'✅':type==='error'?'❌':'ℹ️';t.innerHTML=`<span>${icon}</span><span>${msg}</span>`;
   tc.appendChild(t);setTimeout(()=>{t.style.animation='tOut .22s ease forwards';setTimeout(()=>t.remove(),250);},2800);
 }
+
+/* ============================================================
+   PWA STATIC INSTALL BLOCK
+============================================================ */
+function canShowPwaBlock(){
+  if(window.isPWAInstalled())return false;
+  return !!(window._pwaPrompt||window.isIOS());
+}
+
+function buildPwaSettingsHtml(){
+  if(!canShowPwaBlock())return'';
+  const isIos=window.isIOS()&&!window._pwaPrompt;
+  const content=isIos
+    ?`<div class="pwa-static-info"><div class="pwa-static-title">Установить приложение</div><div class="pwa-static-sub">Нажмите <strong style="color:var(--text2)">⬆️ Поделиться</strong> → «На экран Домой»</div></div>`
+    :`<div class="pwa-static-info"><div class="pwa-static-title">Установить приложение</div><div class="pwa-static-sub">Быстрый доступ с главного экрана</div></div><button class="pwa-static-btn" id="pwaInstallSettingsBtn">Установить</button>`;
+  return`<div class="settings-section"><div class="pwa-static-block"><span class="pwa-static-icon">📲</span>${content}</div></div>`;
+}
+
+function updatePwaSidebarBlock(){
+  const sec=document.getElementById('pwaSidebarSection');
+  if(!sec)return;
+  if(!canShowPwaBlock()){sec.style.display='none';return;}
+  const isIos=window.isIOS()&&!window._pwaPrompt;
+  const sub=document.getElementById('pwaSidebarSub');
+  const btn=document.getElementById('pwaInstallSidebarBtn');
+  if(isIos){
+    if(sub)sub.textContent='Нажмите ⬆️ Поделиться → «На экран Домой»';
+    if(btn)btn.style.display='none';
+  }else{
+    if(sub)sub.textContent='Быстрый доступ с главного экрана';
+    if(btn)btn.style.display='';
+  }
+  sec.style.display='block';
+}
+
+async function triggerPwaInstall(btn){
+  if(!window._pwaPrompt)return;
+  if(btn)btn.disabled=true;
+  window._pwaPrompt.prompt();
+  const res=await window._pwaPrompt.userChoice;
+  window._pwaPrompt=null;
+  if(res.outcome==='accepted'){showToast('Приложение установлено! 🎉','success');}
+  else if(btn){btn.disabled=false;}
+}
+
+document.getElementById('pwaInstallSidebarBtn').addEventListener('click',function(){triggerPwaInstall(this);});
+window.addEventListener('pwa-installable',()=>updatePwaSidebarBlock());
+window.addEventListener('pwa-installed',()=>updatePwaSidebarBlock());
+updatePwaSidebarBlock();
 
 /* ============================================================
    PWA BANNER
@@ -2508,7 +2576,7 @@ document.getElementById('filterChips').addEventListener('click',e=>{
   else{activeFilters.add(fid);if(activeFilters.size===state.habits.length)activeFilters=null;}
   render();
 });
-document.getElementById('filterAllBtn').addEventListener('click',()=>{activeFilters=null;render();});
+document.getElementById('filterAllBtn').addEventListener('click',()=>{if(!activeFilters){activeFilters=new Set();}else{activeFilters=null;}render();});
 
 document.getElementById('clearDataBtn').addEventListener('click',()=>{
   openConfirm(
