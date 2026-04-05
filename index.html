@@ -2247,7 +2247,7 @@ function buildAdherenceStatsHTML(type,ref){
   if(!habitsWithPlans.length)return'';
 
   /* проверяем что есть хоть одна привычка с реальными данными (не только будущие планы) */
-  const rows=habitsWithPlans.map(hb=>({hb,adh:getPlanAdherence(hb.id,start,end)})).filter(x=>x.adh.planned>0||x.adh.doneOffPlan>0);
+  const rows=habitsWithPlans.map(hb=>({hb,adh:getPlanAdherence(hb.id,start,end)})).filter(x=>x.adh.doneOnPlan>0||x.adh.doneOffPlan>0);
   if(!rows.length)return'';
 
   let h=`<div class="stat-card"><div class="stat-card-title">📅 Следование плану</div>`;
