@@ -2565,11 +2565,13 @@ function openDayModal(date){
       const doneOnPlan=state.habits.filter(hb=>plannedIds.has(hb.id)&&getDone(hb.id,key));
       const doneOffPlan=state.habits.filter(hb=>!plannedIds.has(hb.id)&&getDone(hb.id,key));
       const missed=state.habits.filter(hb=>plannedIds.has(hb.id)&&!getDone(hb.id,key));
+      const notPlannedNotDone=state.habits.filter(hb=>!plannedIds.has(hb.id)&&!getDone(hb.id,key));
       const mkRow=hb=>{const done=getDone(hb.id,key);return`<div class="day-toggle ${done?'checked':''}" data-hid="${hb.id}"><div class="tog-emoji" style="background:${hb.color}22">${hb.emoji}</div><div class="tog-name">${esc(hb.name)}</div><div class="tog-check">${done?'✓':''}</div></div>`;};
       let html='';
       if(doneOnPlan.length)html+=`<div class="plan-section-label"><span class="past-group-badge done-on-plan">✅ Выполнено по плану (${doneOnPlan.length})</span></div>${doneOnPlan.map(mkRow).join('')}`;
       if(doneOffPlan.length)html+=`<div class="plan-section-label" style="margin-top:10px"><span class="past-group-badge done-off-plan">⚡ Выполнено внепланово (${doneOffPlan.length})</span></div>${doneOffPlan.map(mkRow).join('')}`;
       if(missed.length)html+=`<div class="plan-section-label" style="margin-top:10px"><span class="past-group-badge missed">❌ Пропущено из плана (${missed.length})</span></div>${missed.map(mkRow).join('')}`;
+      if(notPlannedNotDone.length)html+=`<div class="plan-section-label" style="margin-top:10px"><span class="past-group-badge done-off-plan">➕ Другие привычки (${notPlannedNotDone.length})</span></div>${notPlannedNotDone.map(mkRow).join('')}`;
       return html;
     };
     openModal(`<div class="modal-title">📅 ${dateStr}</div>${!state.habits.length?emptyBlock:`<div class="day-habit-list" id="dayList">${mkPastList()}</div>`}<div class="modal-actions" id="dayActions">${(state.habits.length&&dayDone(key).length)?`<button class="btn btn-secondary btn-sm" id="clearDayBtn">Очистить день</button>`:''}<button class="btn btn-primary btn-sm" id="dayDoneBtn">Готово</button></div>`);
